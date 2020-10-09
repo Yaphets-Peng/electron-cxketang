@@ -1,0 +1,13 @@
+{
+  "name": "electron-cxketang",
+  "version": "1.0.0",
+  "description": "cxketang",
+  "main": "app/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://gitee.com/mdaimon/electron-cxketang.git",
+  "devDependencies": {
+    "electron": "^10.1.3"
+  }
+}

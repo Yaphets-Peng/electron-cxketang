@@ -9,6 +9,7 @@ const helper = require("./process/MainProcessHelper");
  * app对象生命周期及事件
  * @see https://electronjs.org/docs/api/app
  */
+
 // 处理多开
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {

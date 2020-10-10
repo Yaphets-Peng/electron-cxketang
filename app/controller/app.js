@@ -1,0 +1,18 @@
+const logger = require("../common/Logger");
+
+const baseController = require("../controller/BaseController");
+
+logger.info("AppController-初始化");
+
+$("#openWindow").on("click", function () {
+  baseController.openNewWindow("demo", {
+    window: { width: 500, height: 400 },
+    name: "t1",
+  });
+});
+
+$("#openWindow2").on("click", function () {
+  baseController.openNewWindow("demo2", {
+    name: "t1",
+  });
+});

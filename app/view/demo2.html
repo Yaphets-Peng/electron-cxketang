@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>新页面</title>
+    <link rel="stylesheet" href="../static/css/index.css" />
+  </head>
+  <body>
+    新页面<span id="name"></span>
+  </body>
+  <script>
+    if (typeof module === "object") {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+  <script src="../static/js/jquery-3.5.1.min.js"></script>
+  <script>
+    if (window.module) module = window.module;
+    console.log($("#hideWindow").text());
+  </script>
+  <script src="../controller/demo.js"></script>
+</html>

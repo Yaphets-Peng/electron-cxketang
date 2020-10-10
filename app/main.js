@@ -1,43 +1,54 @@
-// Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
+/*主进程*/
+//用于维护electron声明周期的组件
+const { app } = require("electron");
+const logger = require("./common/Logger");
+const helper = require("./process/MainProcessHelper");
+/* ↓app对象生命周期维护开始↓ */
 
-function createWindow () {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+/**
+ * app对象生命周期及事件
+ * @see https://electronjs.org/docs/api/app
+ */
+// 处理多开
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+  return;
+} else {
+  app.on("second-instance", (event, commandLine, workingDirectory) => {
+    // 当运行第二个实例时,将会聚焦到myWindow这个窗口
+    if (helper.getMainWindow()) {
+      if (helper.getMainWindow().isMinimized()) {
+        helper.getMainWindow().restore();
+      }
+      helper.getMainWindow().focus();
     }
-  })
-
-  // and load the index.html of the app.
-  mainWindow.loadFile('app/index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  createWindow()
-  
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
+// 这个方法将会在electron初始化完成后被调用
+// 某些API只能在初始化之后(此状态之后)被调用
+app.on("ready", helper.createMainWindow);
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
-})
+// 当所有窗口关闭时关闭应用程序
+app.on("window-all-closed", function () {
+  if (process.platform !== "darwin") {
+    logger.info("点击窗口关闭按钮");
+    app.quit();
+  }
+});
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+//当应用程序准备退出时执行动作
+app.on("will-quit", () => {
+  logger.info("程序即将退出");
+});
+
+//当应用程序激活时，通常在macOS下
+app.on("activate", function () {
+  //如果当前没有窗口被激活，则创建窗口
+  if (helper.getMainWindow() === null) {
+    helper.createMainWindow();
+  }
+});
+
+/* ↑app对象生命周期维护结束↑ */

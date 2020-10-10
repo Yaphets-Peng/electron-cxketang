@@ -1,0 +1,19 @@
+{
+  "appname": "demo",
+  "loginview": "./app/view/login",
+  "firstview": "./app/view/app",
+  "debug": true,
+  "default_window": {
+    "width": 1800,
+    "height": 900,
+    "frame": true,
+    "webPreferences": {
+      "nodeIntegration": true,
+      "enableRemoteModule": true,
+      "webviewTag": true
+    },
+    "resizable": false
+  },
+  "notifyTimeOut": 60000,
+  "icon": "/static/img/min.ico"
+}

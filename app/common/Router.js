@@ -1,8 +1,8 @@
-var logger = require("./Logger");
+const logger = require("./Logger");
 logger.info("Router.js-Initialize");
 
 const ipc = require("electron").ipcRenderer;
-var remote = require("electron").remote;
+const remote = require("electron").remote;
 
 /**
  * 打开新窗口

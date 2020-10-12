@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "agora-electron-sdk": "2.9.0-rc.106-build.804",
+    "electron-store": "^6.0.1",
     "log4js": "^6.3.0"
   },
   "build": {
@@ -31,6 +32,15 @@
     "compression": "store",
     "directories": {
       "output": "build"
+    },
+    "files": [
+      "**/*",
+      "!**/.vscode",
+      "!**/.history",
+      "!**/log"
+    ],
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
     },
     "nsis": {
       "oneClick": false,

@@ -1,7 +1,7 @@
-var logger = require("../common/Logger"); //日志模块
+const logger = require("../common/Logger"); //日志模块
 logger.info("HttpService-Initialize");
 
-var unirest = require("unirest"); //轻量级http请求库
+const unirest = require("unirest"); //轻量级http请求库
 
 /**
  * 发送http-post请求并执行回调函数
@@ -12,7 +12,7 @@ var unirest = require("unirest"); //轻量级http请求库
 function sendRequestAndRunCallBack(url, params, callback) {
   logger.info("[HttpService][sendRequestAndRunCallBack]发送http请求" + url);
   logger.info(params);
-  var req = unirest.post(url);
+  let req = unirest.post(url);
   req
     .header("Content-Type", "application/json")
     .header("Accept", "application/json")

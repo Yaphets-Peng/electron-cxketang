@@ -1,14 +1,19 @@
 //用于创建原生浏览器窗口的组件对象
-const { BrowserWindow, Tray, Menu } = require("electron"); //引入electron
+const { app, BrowserWindow, Tray, Menu } = require("electron"); //引入electron
+const Store = require("electron-store");
 const path = require("path"); //原生库path模块
 
 const logger = require("../common/Logger"); //引入全局日志组件
 const config = require("../common/Config"); //引入全局配置组件
 const userInfo = require("../common/User"); //引入全局用户组件
 
+const store = new Store();
+const sessionCookieStoreKey = "cookies.loginWindow";
+
 // 为了保证一个对全局windows对象的引用，就必须在方法体外声明变量
 // 否则当方法执行完成时就会被JavaScript的垃圾回收机制清理
-let mainWindow;
+let loginWindow = null;
+let mainWindow = null;
 let tray = null;
 
 /* ↓全局变量配置区开始↓ */
@@ -39,7 +44,7 @@ function createMainWindow() {
   logger.info("[MainProcessHelper][createMainWindow]初始化渲染窗口");
 
   // 创建浏览器窗口
-  var mainWindowConfig = config.getConfigVal("default_window");
+  let mainWindowConfig = config.getConfigVal("default_window");
   mainWindowConfig.icon = path.join(
     path.resolve(__dirname, ".."),
     config.getConfigVal("icon")
@@ -47,18 +52,23 @@ function createMainWindow() {
   mainWindow = new BrowserWindow(mainWindowConfig);
 
   // 引入主入口界面
-  if (userInfo.isLogin()) {
-    // 已登录
-    //TODO 主入口改为配置项
-    mainWindow.loadFile(config.getConfigVal("firstview") + ".html");
-  } else {
-    // 未登录
-    mainWindow.loadFile(config.getConfigVal("loginview") + ".html");
-  }
+  mainWindow.loadFile(config.getConfigVal("firstview") + ".html");
 
   if (config.getConfigVal("debug")) {
     // 打开开发者工具
     mainWindow.webContents.openDevTools(); //TODO 改为调试模式配置项
+  }
+
+  //未登录
+  if (!userInfo.isLogin()) {
+    if (mainWindow !== null) {
+      mainWindow.hide();
+      mainWindow.setSkipTaskbar(true);
+    }
+    if (loginWindow === null) {
+      createLoginWindow();
+    }
+    loginWindow.show();
   }
 
   // 当窗口关闭时触发
@@ -94,13 +104,42 @@ function createMainWindow() {
     {
       label: "退出",
       click: () => {
-        mainWindow.destroy();
+        if (process.platform !== "darwin") {
+          mainWindow.destroy();
+          mainWindow = null;
+          app.quit();
+        } else {
+          // 循环关闭窗口
+          global.sharedWindow.windowMap.forEach(function (value, key) {
+            value.destroy();
+            console.log(
+              "[MainProcessHelper][closeWindow]视图 " + key + " 已关闭"
+            );
+          });
+          if (loginWindow !== null) {
+            loginWindow.destroy();
+            loginWindow = null;
+          }
+          mainWindow.destroy();
+          mainWindow = null;
+        }
       },
     },
   ]);
   tray.setToolTip("超星课堂");
   tray.setContextMenu(contextMenu);
   tray.on("click", () => {
+    if (!userInfo.isLogin()) {
+      if (mainWindow !== null) {
+        mainWindow.hide();
+        mainWindow.setSkipTaskbar(true);
+      }
+      if (loginWindow === null) {
+        createLoginWindow();
+      }
+      loginWindow.show();
+      return;
+    }
     //我们这里模拟桌面程序点击通知区图标实现打开关闭应用的功能
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
     mainWindow.isVisible()
@@ -116,6 +155,119 @@ function getMainWindow() {
   return mainWindow;
 }
 
+/**
+ * 创建登录窗口
+ */
+function createLoginWindow() {
+  if (userInfo.isLogin()) {
+    return;
+  }
+  logger.info("[MainProcessHelper][createLoginWindow]初始化渲染窗口");
+
+  // 创建浏览器窗口
+  let loginWindowConfig = config.getConfigVal("login_window");
+  loginWindowConfig.icon = path.join(
+    path.resolve(__dirname, ".."),
+    config.getConfigVal("icon")
+  );
+  loginWindow = new BrowserWindow(loginWindowConfig);
+
+  // 具体用法参考https://www.jianshu.com/p/1b63a13c2701
+  new Promise((resolve) => {
+    // 删除已有数据
+    store.delete(sessionCookieStoreKey);
+    userInfo.clearUserInfo();
+    resolve();
+  }).then(() => {
+    //监听cookie变化保存cookie现场
+    return new Promise((resolve) => {
+      let isCookiesChanged = false;
+      let isCookiesChangedRun = false;
+      loginWindow.webContents.session.cookies.on("changed", () => {
+        //检测cookies变动事件，标记cookies发生变化
+        isCookiesChanged = true;
+      });
+      //每隔500毫秒检查是否有cookie变动，有变动则进行持久化
+      let cookiesInterval = setInterval(() => {
+        if (!isCookiesChanged) {
+          return;
+        }
+        if (isCookiesChangedRun) {
+          return;
+        }
+        isCookiesChangedRun = true;
+
+        loginWindow.webContents.session.cookies
+          .get({
+            url: config.getConfigVal("login_window_cookies_url"),
+          })
+          .then((cookies) => {
+            if (cookies && cookies.length > 0) {
+              let UID = null,
+                vc = null,
+                vc3 = null,
+                d = null;
+              cookies.forEach((cookie) => {
+                let cookieName = cookie.name;
+                if (cookieName === userInfo.getUIDKey()) {
+                  UID = cookie.value;
+                } else if (cookieName === userInfo.getVCKey()) {
+                  vc = cookie.value;
+                } else if (cookieName === userInfo.getVC3Key()) {
+                  vc3 = cookie.value;
+                } else if (cookieName === userInfo.getDKey()) {
+                  d = cookie.value;
+                }
+              });
+              if (
+                UID !== null &&
+                (vc !== null || (vc3 !== null && d !== null))
+              ) {
+                // 存储
+                userInfo.saveUserInfo(UID, vc, vc3, d);
+                store.set(sessionCookieStoreKey, cookies);
+
+                clearInterval(cookiesInterval);
+                loginWindow.destroy();
+                loginWindow = null;
+                // 显示主窗口
+                if (mainWindow !== null) {
+                  mainWindow.show();
+                  mainWindow.setSkipTaskbar(false);
+                } else {
+                  createMainWindow();
+                }
+                resolve();
+              }
+            }
+          })
+          .catch((error) => {
+            console.log({ error });
+          })
+          .finally(() => {
+            isCookiesChangedRun = false;
+            isCookiesChanged = false;
+          });
+      }, 500);
+    });
+  });
+
+  // 未登录的跳转地址
+  loginWindow.loadURL(config.getConfigVal("login_url"));
+
+  if (config.getConfigVal("debug")) {
+    // 打开开发者工具
+    loginWindow.webContents.openDevTools();
+  }
+
+  // 当窗口关闭时触发
+  loginWindow.on("closed", function () {
+    logger.info("[MainProcessHelper][_loginWindow_.on._closed_]渲染窗口关闭");
+    //将全局loginWindow置为null
+    loginWindow = null;
+  });
+}
+
 /* ↓路由功能开始↓ */
 
 /**
@@ -128,19 +280,19 @@ function openNewWindow(view, args) {
   if (args != null) {
     global.sharedObject.args.default = args; //保存路由传递参数到缓冲区
   }
-  var viewWindow = global.sharedWindow.windowMap.get(view);
+  let viewWindow = global.sharedWindow.windowMap.get(view);
   if (!viewWindow) {
     // 创建浏览器窗口
-    var viewWindowConfig = config.getConfigVal("default_window");
+    let viewWindowConfig = config.getConfigVal("default_window");
     if (global.sharedObject.args.default != null) {
       // 处理参数中的宽高
-      var viewWindowArgs = global.sharedObject.args.default.window;
+      let viewWindowArgs = global.sharedObject.args.default.window;
       if (viewWindowArgs) {
-        var viewWindowWidth = viewWindowArgs.width;
+        let viewWindowWidth = viewWindowArgs.width;
         if (viewWindowWidth) {
           viewWindowConfig.width = viewWindowWidth;
         }
-        var viewWindowHeight = viewWindowArgs.height;
+        let viewWindowHeight = viewWindowArgs.height;
         if (viewWindowHeight) {
           viewWindowConfig.height = viewWindowHeight;
         }

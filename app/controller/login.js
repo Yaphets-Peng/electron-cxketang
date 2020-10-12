@@ -1,5 +1,5 @@
 window.onload = function () {
-  var script = document.createElement("script");
+  let script = document.createElement("script");
   script.src = "https://passport2.chaoxing.com/js/jquery.min.js";
   script.onload = script.onreadystatechange = function () {
     $(document).ready(function () {

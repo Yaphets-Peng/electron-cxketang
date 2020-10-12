@@ -1,5 +1,5 @@
 const logger = require("../common/Logger"); //日志模块
-var remote = require("electron").remote; //electron的remote模块，用于调用主进程中的对象
+const remote = require("electron").remote; //electron的remote模块，用于调用主进程中的对象
 
 /**
  * 设置状态

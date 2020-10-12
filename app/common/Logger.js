@@ -1,4 +1,4 @@
-var log4js = require("log4js"); //使用log4js作为全局日志模块
+const log4js = require("log4js"); //使用log4js作为全局日志模块
 //log4js配置项
 log4js.configure({
   appenders: {
@@ -17,7 +17,7 @@ log4js.configure({
   },
 });
 //获取logger对象
-var logger = log4js.getLogger();
+const logger = log4js.getLogger();
 
 /**
  * trace级别

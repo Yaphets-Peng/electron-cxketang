@@ -1,43 +1,76 @@
-const fs = require("fs");
-const config_file_path = __dirname + "/../config/env.json";
+const Store = require("electron-store");
 
-/**
- * 读取配置项并返回配置数据
- * @kind AnyProcess [任意进程调用]
- * @param {string} configname 配置项名称
- */
-function getConfigVal(configname) {
-  let json_config_ = fs.readFileSync(config_file_path);
-  let config_obj_ = JSON.parse(json_config_);
-  return config_obj_[configname];
+const store = new Store();
+const userInfoStoreKey = "userInfo";
+const uidKey = "UID";
+const vcKey = "vc";
+const vc3Key = "vc3";
+const dKey = "_d";
+
+function getVal(configname) {
+  let userInfo_ = store.get(userInfoStoreKey) || {};
+  return userInfo_[configname];
 }
 
-function getUserId() {
-  return getConfigVal("user_id");
+function getUID() {
+  return getVal(uidKey);
 }
 
-function saveUserId(userId) {
-  var data = { user_id: userId };
-  var jsonObj = JSON.stringify(data);
-  fs.writeFile(config_file_path, jsonObj, function (err) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("file success！！！");
-    }
-  });
+function getVC() {
+  return getVal(vcKey);
+}
+
+function getVC3() {
+  return getVal(vc3Key);
+}
+
+function getD() {
+  return getVal(dKey);
+}
+
+function getUIDKey() {
+  return uidKey;
+}
+
+function getVCKey() {
+  return vcKey;
+}
+
+function getVC3Key() {
+  return vc3Key;
+}
+
+function getDKey() {
+  return dKey;
+}
+
+function saveUserInfo(UID, vc, vc3, d) {
+  let data = { "UID": UID, "vc": vc, "vc3": vc3, "_d": d };
+  store.set(userInfoStoreKey, data);
+}
+
+function clearUserInfo() {
+  store.delete(userInfoStoreKey);
 }
 
 function isLogin() {
-  var user_id = getUserId();
-  if (typeof user_id === "undefined" || user_id == null || user_id === "") {
+  let UIDval = getUID();
+  if (typeof UIDval === "undefined" || UIDval == null || UIDval === "") {
     return false;
   }
   return true;
 }
 
 module.exports = {
-  getUserId,
-  saveUserId,
+  getUID,
+  getUIDKey,
+  getVC,
+  getVCKey,
+  getVC3,
+  getVC3Key,
+  getD,
+  getDKey,
+  saveUserInfo,
+  clearUserInfo,
   isLogin,
 };

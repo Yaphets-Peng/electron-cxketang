@@ -4,6 +4,8 @@ const baseController = require("../controller/BaseController");
 
 logger.info("AppController-初始化");
 
+console.log($("#hideWindow").text());
+
 $("#openWindow").on("click", function () {
   baseController.openNewWindow("demo", {
     window: { width: 500, height: 400 },

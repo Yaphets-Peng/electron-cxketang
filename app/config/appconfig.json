@@ -14,6 +14,18 @@
     },
     "resizable": false
   },
+  "login_window": {
+    "width": 1800,
+    "height": 900,
+    "frame": true,
+    "webPreferences": {
+      "nodeIntegration": false,
+      "enableRemoteModule": true
+    },
+    "resizable": false
+  },
+  "login_window_cookies_url": "https://k.chaoxing.com",
+  "login_url": "https://k.chaoxing.com/pc/meet/index?v=v2",
   "notifyTimeOut": 60000,
   "icon": "/static/img/min.ico"
 }

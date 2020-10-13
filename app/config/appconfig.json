@@ -1,20 +1,19 @@
 {
   "appname": "demo",
-  "loginview": "./app/view/login",
   "firstview": "./app/view/app",
   "debug": true,
+  "AGORA_APPID": "70ab64cac53c4be1bddd00adb23d5608",
   "default_window": {
     "width": 1800,
     "height": 900,
     "frame": true,
     "webPreferences": {
       "nodeIntegration": true,
-      "enableRemoteModule": true,
-      "webviewTag": true
+      "enableRemoteModule": true
     },
     "resizable": false
   },
-  "login_window": {
+  "web_window": {
     "width": 1800,
     "height": 900,
     "frame": true,

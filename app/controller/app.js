@@ -18,3 +18,10 @@ $("#openWindow2").on("click", function () {
     name: "t1",
   });
 });
+
+$("#openWindow3").on("click", function () {
+  baseController.openNewWindow("https://k.chaoxing.com/pc/meet/index?v=v2", {
+    name: "t1",
+    isWeb: true,
+  });
+});

@@ -4,24 +4,56 @@
   "debug": true,
   "AGORA_APPID": "70ab64cac53c4be1bddd00adb23d5608",
   "default_window": {
-    "width": 1800,
-    "height": 900,
+    "width": 1100,
+    "height": 750,
     "frame": true,
+    "title": "超星课堂",
     "webPreferences": {
       "nodeIntegration": true,
       "enableRemoteModule": true
     },
     "resizable": false
   },
-  "web_window": {
-    "width": 1800,
-    "height": 900,
+  "menu_url": "https://k.chaoxing.com/pc/meet/index",
+  "open_meet_url": "https://k.chaoxing.com/pc/meet/meeting",
+  "main_url": "https://k.chaoxing.com/pc/meet/index?v=v2&windowWidth=375&windowHeight=667&canDragWindowSize=false&canMaximizeWindow=false",
+  "cookie_url": "https://k.chaoxing.com",
+  "meet_info_url": "https://k.chaoxing.com/pc/meet/getMeetInfo",
+  "meet_tokens_url": "https://k.chaoxing.com/pc/meet/refreshTokens",
+  "cookie_key": {
+    "UID": "UID",
+    "vc": "vc",
+    "vc3": "vc3",
+    "_d": "_d"
+  },
+  "main_window": {
+    "width": 375,
+    "height": 667,
     "frame": true,
+    "title": "超星课堂",
     "webPreferences": {
       "nodeIntegration": false,
-      "enableRemoteModule": true
+      "enableRemoteModule": false,
+      "preload": ""
     },
+    "maximizable": true,
+    "minimizable": true,
     "resizable": false
+  },
+  "web_window": {
+    "width": 1100,
+    "height": 750,
+    "frame": true,
+    "title": "超星课堂",
+    "webPreferences": {
+      "nodeIntegration": false,
+      "enableRemoteModule": false
+    },
+    "minWidth": 0,
+    "minHeight": 0,
+    "maximizable": true,
+    "minimizable": true,
+    "resizable": true
   },
   "login_window_cookies_url": "https://k.chaoxing.com",
   "login_url": "https://k.chaoxing.com/pc/meet/index?v=v2",

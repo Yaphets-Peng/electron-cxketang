@@ -1,0 +1,133 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频会议</title>
+    <link rel="stylesheet" href="../static/css/metting/swiper-bundle.min.css">
+    <link rel="stylesheet" href="../static/css/metting/style.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/metting/viewer.min.css"/>
+    <script src="../static/js/meeting/rem1200.js"></script>
+</head>
+<body class=""><!--正在共享加shareWrap-->
+<div class="MettingBox clearfix" id="MettingBox">
+    <div class="leftVideo">
+        <!--连接不佳2020.08.12show显示-->
+        <div class="connectNotShare">
+            <div class="connectNotBox"><span class="icon"></span>当前你的网络状态不佳</div>
+        </div>
+        <!--正在连接2020.08.12show显示-->
+        <div class="connectShare">
+            <div class="connectBox"><span class="icon"></span>网络不稳定，正在连接...</div>
+        </div>
+        <div class="pageLoading">
+            <div class="connectBox"><span class="icon"></span>加载中...</div>
+        </div>
+        <div class="rtmConnectTip">
+            <div class="connectBox"><span class="icon"></span></div>
+        </div>
+        <div class="loadingShare">
+            <i class="noShare_icon"></i>
+            <p>加载中…</p>
+        </div>
+        <div class="nowingShare">
+            <p>你正在共享屏幕</p>
+            <a href="javascript:;" class="nowingShare_stop"><i></i>停止共享</a>
+        </div>
+        <!--显示共享人2020.08.07-->
+        <div class="showShareInfor">
+            <i></i>梁小爽正在共享屏幕
+        </div>
+        <!--2020.09.23底部操作栏-->
+        <div class="control_naver">
+            <div class="control_audioState forbid" id="audioDial">
+                <i></i>
+                <p><em>解除静音</em></p>
+            </div>
+            <div class="control_videoState close">
+                <i></i>
+                <p><em>开启视频</em></p>
+            </div>
+            <div class="control_shareState"><!--正在共享添加sharing-->
+                <i></i>
+                <p><em>共享屏幕</em></p>
+            </div>
+            <!--2020.09.28-->
+            <div class="control_memberState" index="0">
+                <i></i>
+                <p><em>成员(<span>35</span>)</em></p>
+            </div>
+            <!--2020.09.28-->
+            <div class="control_chatState" index="1">
+                <i><span class="talkLanguage"><em>99+</em></span></i>
+                <p><em>互动</em></p>
+            </div>
+            <!--2020.09.29-->
+            <div class="control_recordState"><!--正在录制加recording -->
+                <i></i>
+                <p><em>开始录制</em></p>
+            </div>
+            <div class="control_closeState">
+                <i></i>
+                <p><em>结束课堂</em></p>
+            </div>
+        </div>
+    </div>
+    <div class="rightList">
+        <!--搜索激活未输入遮罩20220.09.11-->
+        <div class="searchMast"></div>
+        <!--2020.08.17-->
+        <div class="topTab">
+            <ul class="rightTab">
+                <li class="active" index="0">成员(0)</li>
+            </ul>
+            <span class="arrowSpan">
+              <i alt="arrow" class="arrow"></i>
+          </span>
+            <!--2020.09.28关闭共享-->
+            <span class="closeShare"></span>
+        </div>
+        <div class="iswhotalk"></div>
+        <div class="listenList">
+            <div class="listbox listLeft showlisten"><!--showlisten显示人员列表，showVideo显示视频列表,showSearchEmpty显示空搜索结果-->
+                <!--搜索成员2020.08.13 begin-->
+                <div class="searchBox"><i></i
+                    <input type="text" name="sw" placeholder="搜索成员"
+                           class="searchBox_input" autofocus/><b class="delSeachData"></b>
+                </div>
+                <!--搜索为空-->
+                <div class="searchEmpty">
+                    <p>未找到相关成员</p>
+                </div>
+                <!--搜索成员2020.08.13 end-->
+                <ul class="listenPeople"></ul>
+            </div>
+        </div>
+        <div class="allMuteBox hide"><a href="javascript:;" class="buttonAllMute">全员静音</a></div>
+    </div>
+    <script>
+        if (typeof module === "object") {
+            window.module = module;
+            module = undefined;
+        }
+    </script>
+    <script src="../static/js/meeting/jquery-3.5.1.min.js"></script>
+    <script src="../static/js/meeting/sip-0.7.1.js"></script>
+    <script src="../static/js/meeting/RKCloudVideo.js"></script>
+    <script src="../static/js/meeting/currentPage.js"></script>
+    <script type="text/javascript" src="../static/js/meeting/viewer.js"></script>
+    <script type="text/javascript" src="../static/js/meeting/ckplayer.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/css/metting/media.css"/>
+    <script type="text/javascript" src="../static/js/meeting/easydialog.min.js"></script>
+    <link href="../static/css/metting/easydialog.css" type="text/css" rel="stylesheet"/>
+    <script type="text/javascript" src="../static/js/meeting/media.js"></script>
+    <script src="../static/js/meeting/swiper-bundle.min.js"></script>
+    <script>
+        if (window.module) module = window.module;
+    </script>
+    <script>
+        currentPage.init();
+    </script>
+    // 引入
+    <script src="../controller/meeting.js"></script>
+</body>
+</html>

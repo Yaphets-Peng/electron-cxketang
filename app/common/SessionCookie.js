@@ -4,12 +4,6 @@ const config = require("./Config"); //引入全局配置组件
 const cookieUrl = config.getConfigVal("cookie_url");
 const cookieKey = config.getConfigVal("cookie_key");
 
-// 内存中用户信息
-let userId = null;
-let vc = null;
-let vc3 = null;
-let _d = null;
-
 // cookie用法参考https://www.electronjs.org/docs/api/cookies
 // Promise具体用法参考https://www.jianshu.com/p/1b63a13c2701
 // sync await具体用法参考https://www.cnblogs.com/jasondan/p/3989382.html或https://www.jianshu.com/p/600e34931f2a
@@ -20,34 +14,34 @@ function init() {
     session.defaultSession.cookies.on("changed", function (event, cookie, cause, removed) {
         if (cookie.name === cookieKey.UID) {
             if (removed) {
-                userId = null;
+                global.userInfo.UID = null;
             } else {
-                userId = cookie.value;
+                global.userInfo.UID = cookie.value;
             }
         } else if (cookie.name === cookieKey.vc) {
             if (removed) {
-                vc = null;
+                global.userInfo.vc = null;
             } else {
-                vc = cookie.value;
+                global.userInfo.vc = cookie.value;
             }
         } else if (cookie.name === cookieKey.vc3) {
             if (removed) {
-                vc3 = null;
+                global.userInfo.vc3 = null;
             } else {
-                vc3 = cookie.value;
+                global.userInfo.vc3 = cookie.value;
             }
         } else if (cookie.name === cookieKey._d) {
             if (removed) {
-                _d = null;
+                global.userInfo._d = null;
             } else {
-                _d = cookie.value;
+                global.userInfo._d = cookie.value;
             }
         }
     });
     // 初始化获取cookie值
     session.defaultSession.cookies.get({"url": cookieUrl, "name": cookieKey.UID}).then((cookies) => {
         if (cookies && cookies.length > 0) {
-            userId = cookies[0].value;
+            global.userInfo.UID = cookies[0].value;
         }
     }).catch((error) => {
         console.log(error);
@@ -76,24 +70,24 @@ function getCookieValue(name) {
 
 
 function getUID() {
-    return userId;
+    return global.userInfo.UID;
 }
 
 function getVC() {
-    return vc;
+    return global.userInfo.vc;
 }
 
 function getVC3() {
-    return vc3;
+    return global.userInfo.vc3;
 }
 
 function getD() {
-    return _d;
+    return global.userInfo._d;
 }
 
 // 获取指定用户id
 function getCookieUserId() {
-    return userId;
+    return global.userInfo.UID;
 }
 
 // 判断你是否登录

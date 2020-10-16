@@ -33,6 +33,14 @@ global.sharedWindow = {
     windowMap: windowMap, //全局窗口对象
 };
 
+// 全局用户信息
+global.userInfo = {
+    UID: null,
+    vc: null,
+    vc3: null,
+    _d: null,
+};
+
 /* ↑全局变量配置区结束↑ */
 
 function createMainWindow() {
@@ -324,6 +332,14 @@ function mainWin_event() {
                 }
                 urlAllParamValues = urlAllParamValues + meetTokens;
                 childWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/meeting.html"), {"search": urlAllParamValues});
+                //TODO 窗口关闭的监听,此处获取不到无法处理
+                /*childWindow.on("closed", (event) => {
+                    // 全局是否存在声网,释放
+                    if (global.rtcEngine) {
+                        global.rtcEngine.release();
+                    }
+                    childWindow = null;
+                });*/
             });
             logger.info("[MainProcessHelper][new-window]新视图 " + url + " 已加载-打开会议");
         } else {

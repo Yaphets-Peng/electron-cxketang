@@ -11,11 +11,11 @@ const remote = require("electron").remote;
  * @param {any} sendArgs 传递给新窗口的参数信息
  */
 function openNewWindow(view, sendArgs) {
-  logger.info(
-    "[Router][openNewWindow]收到路由请求 界面 " + view + " 参数 " + sendArgs
-  );
-  remote.getGlobal("sharedObject").args.default = sendArgs;
-  ipc.send("router", view);
+    logger.info(
+        "[Router][openNewWindow]收到路由请求 界面 " + view + " 参数 " + sendArgs
+    );
+    remote.getGlobal("sharedObject").args.default = sendArgs;
+    ipc.send("router", view);
 }
 
 /**
@@ -24,8 +24,14 @@ function openNewWindow(view, sendArgs) {
  * @return any
  */
 function getWindowArgs() {
-  logger.info("[Router][getWindowArgs]获取视图参数");
-  return remote.getGlobal("sharedObject").args.default;
+    logger.info("[Router][getWindowArgs]获取视图参数");
+    return remote.getGlobal("sharedObject").args.default;
 }
 
-module.exports = { openNewWindow, getWindowArgs };
+//获取全局用户信息
+function getUserInfo() {
+    logger.info("[Router][getUserInfo]获取视图参数");
+    return remote.getGlobal("userInfo");
+}
+
+module.exports = {openNewWindow, getWindowArgs, getUserInfo};

@@ -115,6 +115,11 @@ agora-electron-sdk@2.9.0-rc.106-build.804:
     yuv-buffer "^1.0.0"
     yuv-canvas "^1.2.1"
 
+agora-rtm-sdk@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.npm.taobao.org/agora-rtm-sdk/download/agora-rtm-sdk-1.4.0.tgz#2de77e0209dfd2ff549258144f345003f27a0327"
+  integrity sha1-Led+Agnf0v9UklgUTzRQA/J6Ayc=
+
 ajv-keywords@^3.4.1:
   version "3.5.2"
   resolved "https://registry.npm.taobao.org/ajv-keywords/download/ajv-keywords-3.5.2.tgz?cache=0&sync_timestamp=1595906977498&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fajv-keywords%2Fdownload%2Fajv-keywords-3.5.2.tgz#31f29da5ab6e00d1c2d329acf7b5929614d5014d"

@@ -332,6 +332,8 @@ function mainWin_event() {
                 }
                 urlAllParamValues = urlAllParamValues + meetTokens;
                 childWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/meeting.html"), {"search": urlAllParamValues});
+                // TODO 强制打开开发者工具
+                childWindow.webContents.openDevTools();
                 //TODO 窗口关闭的监听,此处获取不到无法处理
                 /*childWindow.on("closed", (event) => {
                     // 全局是否存在声网,释放

@@ -30,7 +30,7 @@ function getWindowArgs() {
 
 //获取全局用户信息
 function getUserInfo() {
-    logger.info("[Router][getUserInfo]获取视图参数");
+    logger.info("[Router][getUserInfo]获取用户参数");
     return remote.getGlobal("userInfo");
 }
 

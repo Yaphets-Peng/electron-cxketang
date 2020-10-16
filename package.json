@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "agora-electron-sdk": "2.9.0-rc.106-build.804",
+    "agora-rtm-sdk": "^1.4.0",
     "axios": "^0.20.0",
     "electron-store": "^6.0.1",
     "log4js": "^6.3.0",

@@ -1,7 +1,7 @@
 {
   "appname": "demo",
   "firstview": "./app/view/app",
-  "debug": true,
+  "debug": false,
   "AGORA_APPID": "70ab64cac53c4be1bddd00adb23d5608",
   "default_window": {
     "width": 1100,

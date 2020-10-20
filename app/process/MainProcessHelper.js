@@ -348,6 +348,14 @@ function mainWin_event() {
             childWindow.loadURL(url);
             logger.info("[MainProcessHelper][new-window]新视图 " + url + " 已加载");
         }
+
+        //隐藏父窗口
+        mainWindow.hide();
+        // 当子窗口关闭时触发
+        childWindow.on("closed", function () {
+            logger.info("closed");
+            mainWindow.show();
+        });
         event.preventDefault();
     });
     // 拦截跳转

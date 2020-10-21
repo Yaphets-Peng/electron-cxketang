@@ -66,15 +66,24 @@ InjectRtcScreenUtil.init = function () {
     // 打开音频功能
     let openAudioCode = InjectRtcScreenUtil.ScreenRTC.enableAudio();
     console.log("ScreenRTC打开音频功能", openAudioCode);
+    //调节录音音量
+    /*let audioVolumeCode = InjectRtcScreenUtil.ScreenRTC.adjustRecordingSignalVolume(1);
+    console.log("ScreenRTC调节录音音量", audioVolumeCode);*/
+    // 设置音频编码配置
+    /*let audioprofileCode = InjectRtcScreenUtil.ScreenRTC.setAudioProfile(0, 3);
+    console.log("ScreenRTC设置音频编码配置", audioprofileCode);*/
     //停止本地音频采集
     /*let stopLocalAudioCode = InjectRtcScreenUtil.ScreenRTC.enableLocalAudio(false);
     console.log("ScreenRTC停止本地音频采集", stopLocalAudioCode);*/
-    // 停止接收所有音频流
+    // 停止接收所有视频流
     let stopAudioCode = InjectRtcScreenUtil.ScreenRTC.muteAllRemoteAudioStreams(true);
     console.log("ScreenRTC停止接收所有音频流", stopAudioCode);
-    // 停止接收所有视频流
+    // 停止接收所有音频流
     let stopVideoCode = InjectRtcScreenUtil.ScreenRTC.muteAllRemoteVideoStreams(true);
     console.log("ScreenRTC停止接收所有视频流", stopVideoCode);
+    //打开与WebSDK的互通
+    let enableWebCode = InjectRtcScreenUtil.ScreenRTC.enableWebSdkInteroperability(true);
+    console.log("ScreenRTC打开与WebSDK的互通", enableWebCode);
     // 设置日志文件
     //InjectRtcScreenUtil.ScreenRTC.setLogFile(logPath)
 
@@ -91,7 +100,7 @@ InjectRtcScreenUtil.startScreen = function () {
     //开始采集音频
     let enableCode = InjectRtcScreenUtil.ScreenRTC.enableLoopbackRecording(true);
     console.log("开始采集音频", enableCode);
-
+    console.log("当前的音频录制设备", InjectRtcScreenUtil.ScreenRTC.getCurrentAudioRecordingDevice());
     // 加入频道
     let userIdTemp = parseInt(Meeting.getScreenPuid(Meeting.login_puid));
     let joinChannelCode = InjectRtcScreenUtil.ScreenRTC.joinChannel(Meeting.rtc_screen_token, Meeting.meet_qrcode, null, userIdTemp);

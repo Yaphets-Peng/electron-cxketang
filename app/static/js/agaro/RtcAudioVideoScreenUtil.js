@@ -2,9 +2,8 @@ var RtcAudioVideoScreenUtil = {
     RtcAudioVideoScreen: null,//rtm实例
 }
 
-// 开始加入频道
-RtcAudioVideoScreenUtil.joinAudioVideoScreen = function (logPath) {
-    // 开始加入频道
+//初始化
+RtcAudioVideoScreenUtil.init = function (logPath) {
     RtcAudioVideoScreenUtil.RtcAudioVideoScreen = new AgoraRtcEngine()
     RtcAudioVideoScreenUtil.RtcAudioVideoScreen.initialize(MeetInfoUtil.meetTokens.rtc_appid);
 
@@ -57,6 +56,31 @@ RtcAudioVideoScreenUtil.joinAudioVideoScreen = function (logPath) {
         RtcAudioVideoScreenUtil.RtcAudioVideoScreen.setClientRole(1);
     }
 
+    // 设置日志文件
+    RtcAudioVideoScreenUtil.RtcAudioVideoScreen.setLogFile(logPath)
+}
+
+RtcAudioVideoScreenUtil.startAudio = function () {
+    // 开启音频功能
+    let audioCode = RtcAudioVideoScreenUtil.RtcAudioVideoScreen.enableAudio();
+    console.log("RtcAudioVideoScreen开启音频功能", audioCode);
+    // 关闭音频功能
+    //RtcAudioVideoScreenUtil.RtcAudioVideoScreen.disableAudio();
+    // 开启视频功能
+    let videoCode = RtcAudioVideoScreenUtil.RtcAudioVideoScreen.enableVideo();
+    console.log("RtcAudioVideoScreen开启视频功能", videoCode);
+    // 关闭视频功能
+    //RtcAudioVideoScreenUtil.RtcAudioVideoScreen.disableVideo();
+    // 停止视频预览
+    //RtcAudioVideoScreenUtil.RtcAudioVideoScreen.stopPreview();
+    // 加入频道
+    let joinChannelCode = RtcAudioVideoScreenUtil.RtcAudioVideoScreen.joinChannel(MeetInfoUtil.meetTokens.rtc_video_token, MeetInfoUtil.meetQrcord, null, parseInt(AgaroUserUtil.userId));
+    console.log("RtcAudioVideoScreen joinChannel", joinChannelCode);
+}
+
+
+// 开始加入频道
+RtcAudioVideoScreenUtil.joinAudioVideoScreen = function (logPath) {
     // 开启音频功能
     let audioCode = RtcAudioVideoScreenUtil.RtcAudioVideoScreen.enableAudio();
     console.log("RtcAudioVideoScreen开启音频功能", audioCode);

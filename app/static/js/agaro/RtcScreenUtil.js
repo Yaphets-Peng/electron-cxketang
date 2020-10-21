@@ -58,6 +58,9 @@ RtcScreenUtil.joinScreen = function (logPath) {
     // 打开视频功能
     let openVideoCode = RtcScreenUtil.ScreenRTC.enableVideo();
     console.log("ScreenRTC打开视频功能", openVideoCode);
+    //停止视频预览
+    let stopPreviewCode = RtcScreenUtil.ScreenRTC.stopPreview();
+    console.log("ScreenRTC打开视频功能", stopPreviewCode);
     // 关闭音频功能
     let audioCode = RtcScreenUtil.ScreenRTC.disableAudio();
     console.log("ScreenRTC关闭音频功能", audioCode);
@@ -85,6 +88,14 @@ RtcScreenUtil.startScreen = function () {
     }
     console.log(displays);
 
+    //开始发动本地视频流
+    let muteVideoCode = RtcScreenUtil.ScreenRTC.muteLocalVideoStream(false);
+    console.log("开始发动本地视频流", muteVideoCode);
+
+    //开始采集音频
+    let enableCode = RtcScreenUtil.ScreenRTC.enableLoopbackRecording(true);
+    console.log("开始采集音频", enableCode);
+
     // 开始屏幕共享
     //设置本地视频渲染位置
     //ScreenRTC.setupLocalVideo(localVideoContainer);
@@ -100,37 +111,18 @@ RtcScreenUtil.startScreen = function () {
         windowFocus: false
     });
     console.log("开始共享屏幕", screenCode);
-
-
-    /*// 开始屏幕共享
-    //设置本地视频渲染位置
-    //ScreenRTC.setupLocalVideo(localVideoContainer);
-    //开启第二个实例作为屏幕共享
-    RtcScreenUtil.ScreenRTC.videoSourceInitialize(MeetInfoUtil.meetTokens.rtc_appid)
-    RtcScreenUtil.ScreenRTC.videoSourceSetChannelProfile(1);
-    // 加入videoSource频道
-    RtcScreenUtil.ScreenRTC.videoSourceJoin(MeetInfoUtil.meetTokens.rtc_screen_token, MeetInfoUtil.meetQrcord, null, AgaroUserUtil.getScreenPuid(AgaroUserUtil.userId, true))
-
-    // 初始化成功开启
-    RtcScreenUtil.ScreenRTC.on('videosourcejoinedsuccess', () => {
-        // start screenshare
-        RtcScreenUtil.ScreenRTC.videoSourceSetVideoProfile(49, false);
-        let screenCode = RtcScreenUtil.ScreenRTC.videoSourceStartScreenCaptureByScreen(displays[0].displayId, {
-            x: 0, y: 0, width: 0, height: 0
-        }, {
-            width: 0,
-            height: 0,
-            bitrate: 500,
-            frameRate: 5,
-            captureMouseCursor: true,
-            windowFocus: false
-        });
-        console.log("开始共享屏幕", screenCode);
-    });*/
 }
 
 // 停止屏幕共享
 RtcScreenUtil.stopScreen = function () {
+
+    //停止发动本地视频流
+    let muteVideoCode = RtcScreenUtil.ScreenRTC.muteLocalVideoStream(true);
+    console.log("停止发动本地视频流", muteVideoCode);
+    //停止采集音频
+    let enableCode = RtcScreenUtil.ScreenRTC.enableLoopbackRecording(false);
+    console.log("停止采集音频", enableCode);
+
     let screenCode = RtcScreenUtil.ScreenRTC.stopScreenCapture();
     console.log("停止共享屏幕", screenCode);
 }

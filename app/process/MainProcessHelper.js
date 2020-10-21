@@ -305,6 +305,8 @@ function mainWin_event() {
             webWindowConfig.webPreferences.enableRemoteModule = true;
             // 关闭请求跨域限制
             webWindowConfig.webPreferences.webSecurity = false;
+            // 注入脚本
+            webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/test.js");
         }
 
         // 创建窗口
@@ -319,6 +321,12 @@ function mainWin_event() {
         childWindow.removeMenu();
 
         // 如果是打开会议链接
+        if (isMeeting) {
+            // TODO 强制打开开发者工具
+            childWindow.webContents.openDevTools();
+        }
+        // TODO 测试
+        isMeeting = false;
         if (isMeeting) {
             let meetuuid = getUrlParamValue(url, "uuid");
             // 通过js来获取对象上token

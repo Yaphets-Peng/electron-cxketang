@@ -47,7 +47,7 @@ function init() {
     RtmUtil.joinRTM();
     // RtcAudioVideoUtil.joinAudioVideo(sdkLogPath);
     // RtcScreenUtil.joinScreen(sdkLogPath);
-    RtcAudioVideoScreenUtil.joinAudioVideoScreen(sdkLogPath);
+    RtcAudioVideoScreenUtil.init(sdkLogPath);
 }
 
 httpService.post(config.getConfigVal("meet_info_url"), {"uuid": MeetInfoUtil.meetUUID}, function (response) {

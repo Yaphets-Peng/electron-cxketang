@@ -306,7 +306,7 @@ function mainWin_event() {
             // 关闭请求跨域限制
             webWindowConfig.webPreferences.webSecurity = false;
             // 注入脚本
-            webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/test.js");
+            webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/preload.js");
         }
 
         // 创建窗口

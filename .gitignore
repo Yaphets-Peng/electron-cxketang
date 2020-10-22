@@ -2,3 +2,5 @@
 /build
 /log
 /.history
+/yarn.lock
+/package-lock.json

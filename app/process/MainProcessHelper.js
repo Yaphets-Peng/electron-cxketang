@@ -25,13 +25,6 @@ global.sharedObject = {
     },
 };
 
-//全局状态机共享区
-let statusMap = new Map();
-statusMap.set("default", "default_value");
-global.sharedStatus = {
-    statusMap: statusMap, //全局状态对象
-};
-
 //全局窗口记录
 let windowMap = new Map();
 global.sharedWindow = {
@@ -140,7 +133,7 @@ function createMainWindow() {
                     global.sharedWindow.windowMap.forEach(function (value, key) {
                         if (key !== mainWindowUUID) {
                             value.flashFrame(true);
-                            value.show();
+                            //value.show();
                             return;
                         }
                     });
@@ -194,7 +187,7 @@ function createMainWindow() {
             global.sharedWindow.windowMap.forEach(function (value, key) {
                 if (key !== mainWindowUUID) {
                     value.flashFrame(true);
-                    value.show();
+                    //value.show();
                     return;
                 }
             });

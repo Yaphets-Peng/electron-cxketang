@@ -61,5 +61,5 @@
   "login_url": "https://k.chaoxing.com/pc/meet/index?v=v2",
   "notifyTimeOut": 60000,
   "trayIcon": "/icons/tray.png",
-  "icon": "/static/img/min.ico"
+  "icon": "/icons/min.ico"
 }

@@ -2,6 +2,8 @@
 const {app, BrowserWindow, Tray, Menu} = require("electron"); //引入electron
 const path = require("path"); //原生库path模块
 
+const {v4: uuidv4} = require('uuid');// 引入uuid工具类
+const md5 = require('md5');// 引入md5工具类
 const logger = require("../common/Logger"); //引入全局日志组件
 const config = require("../common/Config"); //引入全局配置组件
 const sessionCookie = require("../common/SessionCookie"); //引入全局sessionCookie组件
@@ -10,6 +12,9 @@ const sessionCookie = require("../common/SessionCookie"); //引入全局sessionC
 // 否则当方法执行完成时就会被JavaScript的垃圾回收机制清理
 let mainWindow = null;
 let tray = null;
+// 主窗口uuid和level
+const mainWindowUUID = "mainWindow";
+const mainWindowLevel = 1;
 
 /* ↓全局变量配置区开始↓ */
 
@@ -49,12 +54,19 @@ function createMainWindow() {
 
     logger.info("[MainProcessHelper][createMainWindow]初始化渲染窗口");
 
+    // 生成窗口唯一uuid值
+    let windowUUID = mainWindowUUID;
+    // 生成窗口层级主窗口默认为1
+    let windowLevel = mainWindowLevel;
     // 创建浏览器窗口
     let mainWindowConfig = config.getConfigVal("main_window");
     mainWindowConfig.icon = path.join(
         path.resolve(__dirname, ".."),
         config.getConfigVal("icon")
     );
+    // 放入窗口唯一值
+    mainWindowConfig.customUUID = windowUUID;
+    mainWindowConfig.customLevel = windowLevel;
     mainWindow = new BrowserWindow(mainWindowConfig);
 
     // 引入主入口界面
@@ -68,13 +80,17 @@ function createMainWindow() {
     // 删除菜单
     mainWindow.removeMenu();
 
-    // 主窗口监控
-    mainWin_event();
+    // 放入窗口集合中
+    global.sharedWindow.windowMap.set(windowUUID, mainWindow);
+
+    // 窗口监控
+    all_win_event(mainWindow);
 
     // 当窗口关闭时触发
     mainWindow.on("closed", function () {
         logger.info("[MainProcessHelper][_mainWindow_.on._closed_]渲染窗口关闭");
         //将全局mainWindow置为null
+        global.sharedWindow.windowMap.delete(windowUUID);
         mainWindow = null;
     });
 
@@ -111,10 +127,10 @@ function createMainWindow() {
                 } else {
                     // 循环关闭窗口
                     global.sharedWindow.windowMap.forEach(function (value, key) {
-                        value.destroy();
-                        console.log(
-                            "[MainProcessHelper][closeWindow]视图 " + key + " 已关闭"
-                        );
+                        if (key !== mainWindowUUID) {
+                            value.destroy();
+                            console.log("[MainProcessHelper][closeWindow]视图 " + key + " 已关闭");
+                        }
                     });
                     mainWindow.destroy();
                     mainWindow = null;
@@ -128,14 +144,24 @@ function createMainWindow() {
         if (!sessionCookie.isLogin()) {
             return;
         }
-        // 显示任务栏
-        mainWindow.setSkipTaskbar(false);
-        // 闪烁提醒
-        //mainWindow.flashFrame(true);
-        // 显示聚焦
-        mainWindow.show();
-        // 显示不聚焦
-        //mainWindow.showInactive();
+        if (global.sharedWindow.windowMap.size > 1) {
+            // 循环判断窗口
+            global.sharedWindow.windowMap.forEach(function (value, key) {
+                if (key !== mainWindowUUID) {
+                    value.flashFrame(true);
+                    return;
+                }
+            });
+        } else {
+            // 显示任务栏
+            mainWindow.setSkipTaskbar(false);
+            // 闪烁提醒
+            //mainWindow.flashFrame(true);
+            // 显示聚焦
+            mainWindow.show();
+            // 显示不聚焦
+            //mainWindow.showInactive();
+        }
     });
 }
 
@@ -159,7 +185,6 @@ function openNewWindow(view, args) {
     if (!sessionCookie.isLogin()) {
         return;
     }
-
     // 打开窗口逻辑
     if (args != null) {
         global.sharedObject.args.default = args; //保存路由传递参数到缓冲区
@@ -193,6 +218,8 @@ function openNewWindow(view, args) {
             path.resolve(__dirname, ".."),
             config.getConfigVal("icon")
         );
+        // 放入窗口唯一值
+        viewWindowConfig.uuid = uuidv4();
         viewWindow = new BrowserWindow(viewWindowConfig);
         logger.info("[MainProcessHelper][openNewWindow]新视图 " + view + " 已加载");
         if (isWeb) {
@@ -227,147 +254,165 @@ function openNewWindow(view, args) {
     }
 }
 
-// 监控主窗口新打开地址
-function mainWin_event() {
+// 监控窗口浏览器事件
+function all_win_event(win) {
     // 拦截window.open事件
-    mainWindow.webContents.on("new-window", function (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) {
-        // 默认配置项
-        let webWindowConfig = config.getConfigVal("web_window");
+    win.webContents.on("new-window", function (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) {
+        // 当前窗口值
+        let nowWindowUUID = event.sender.browserWindowOptions.customUUID;
+        let nowWindowLevel = event.sender.browserWindowOptions.customLevel;
+        // 生成窗口唯一uuid值
+        let windowUUID = md5(url);
+        let windowLevel = nowWindowLevel + 1;
+        // 获取窗口集合中
+        let childWindow = global.sharedWindow.windowMap.get(windowUUID);
+        if (!childWindow) {
+            // 默认配置项
+            let webWindowConfig = config.getConfigVal("web_window");
 
-        // 链接中width
-        let viewWindowWidth = getUrlParamValue(url, "windowWidth");
-        if (viewWindowWidth) {
-            webWindowConfig.width = parseInt(viewWindowWidth);
-        }
-        // 链接中height
-        let viewWindowHeight = getUrlParamValue(url, "windowHeight");
-        if (viewWindowHeight) {
-            webWindowConfig.height = parseInt(viewWindowHeight);
-        }
-
-        // 链接中minWidth
-        let viewWindowMinWidth = getUrlParamValue(url, "minWindowWidth");
-        if (viewWindowMinWidth) {
-            webWindowConfig.minWidth = parseInt(viewWindowMinWidth);
-        }
-        // 链接中minHeight
-        let viewWindowMinHeight = getUrlParamValue(url, "minWindowHeight");
-        if (viewWindowMinHeight) {
-            webWindowConfig.minHeight = parseInt(viewWindowMinHeight);
-        }
-
-        // 链接中是否可拖拽
-        let viewWindowDrag = getUrlParamValue(url, "canDragWindowSize");
-        if (viewWindowDrag) {
-            if (viewWindowDrag === "true") {
-                webWindowConfig.resizable = true;
-            } else {
-                webWindowConfig.resizable = false;
+            // 链接中width
+            let viewWindowWidth = getUrlParamValue(url, "windowWidth");
+            if (viewWindowWidth) {
+                webWindowConfig.width = parseInt(viewWindowWidth);
             }
-        } else {
-            // 链接中resizable固定大小（弃用）
-            let viewWindowFixedSize = getUrlParamValue(url, "fixedWindowSize");
-            if (viewWindowFixedSize) {
-                if (viewWindowFixedSize === "true") {
-                    webWindowConfig.resizable = false;
-                } else {
+            // 链接中height
+            let viewWindowHeight = getUrlParamValue(url, "windowHeight");
+            if (viewWindowHeight) {
+                webWindowConfig.height = parseInt(viewWindowHeight);
+            }
+
+            // 链接中minWidth
+            let viewWindowMinWidth = getUrlParamValue(url, "minWindowWidth");
+            if (viewWindowMinWidth) {
+                webWindowConfig.minWidth = parseInt(viewWindowMinWidth);
+            }
+            // 链接中minHeight
+            let viewWindowMinHeight = getUrlParamValue(url, "minWindowHeight");
+            if (viewWindowMinHeight) {
+                webWindowConfig.minHeight = parseInt(viewWindowMinHeight);
+            }
+
+            // 链接中是否可拖拽
+            let viewWindowDrag = getUrlParamValue(url, "canDragWindowSize");
+            if (viewWindowDrag) {
+                if (viewWindowDrag === "true") {
                     webWindowConfig.resizable = true;
-                }
-            }
-        }
-
-        // 链接中canMaximizeWindow是否可最大化
-        let viewWindowMaximizable = getUrlParamValue(url, "canMaximizeWindow");
-        if (viewWindowMaximizable) {
-            if (viewWindowMaximizable === "true") {
-                webWindowConfig.maximizable = true;
-            } else {
-                webWindowConfig.maximizable = false;
-            }
-        }
-
-        // 图标
-        webWindowConfig.icon = path.join(
-            path.resolve(__dirname, ".."),
-            config.getConfigVal("icon")
-        );
-
-        // 设置主窗口和模态窗口
-        webWindowConfig.parent = mainWindow;
-        webWindowConfig.modal = true;
-
-        // 会议链接判断
-        let isMeeting = false;
-        if (url.startsWith(config.getConfigVal("open_meet_url"))) {
-            isMeeting = true;
-            // 开启nodejs
-            webWindowConfig.webPreferences.nodeIntegration = true;
-            webWindowConfig.webPreferences.enableRemoteModule = true;
-            // 关闭请求跨域限制
-            webWindowConfig.webPreferences.webSecurity = false;
-            // 注入脚本
-            webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/preload.js");
-        }
-
-        // 创建窗口
-        let childWindow = new BrowserWindow(webWindowConfig);
-
-        if (config.getConfigVal("debug")) {
-            // 打开开发者工具
-            childWindow.webContents.openDevTools();
-        }
-
-        // 关闭菜单
-        childWindow.removeMenu();
-
-        // 如果是打开会议链接
-        if (isMeeting) {
-            // TODO 强制打开开发者工具
-            childWindow.webContents.openDevTools();
-        }
-        // TODO 测试
-        isMeeting = false;
-        if (isMeeting) {
-            let meetuuid = getUrlParamValue(url, "uuid");
-            // 通过js来获取对象上token
-            let runJsCodeTemp = "document.querySelector(\".meeting_record_item[data_uuid='" + meetuuid + "']\").getAttribute(\"data_tokens\")";
-            mainWindow.webContents.executeJavaScript(runJsCodeTemp).then((meetTokens) => {
-                let urlAllParamValues = getUrlAllParamValues(url);
-                if (urlAllParamValues) {
-                    urlAllParamValues = "?" + urlAllParamValues + "&tokens=";
                 } else {
-                    urlAllParamValues = "?tokens=";
+                    webWindowConfig.resizable = false;
                 }
-                urlAllParamValues = urlAllParamValues + meetTokens;
-                childWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/meeting.html"), {"search": urlAllParamValues});
+            } else {
+                // 链接中resizable固定大小（弃用）
+                let viewWindowFixedSize = getUrlParamValue(url, "fixedWindowSize");
+                if (viewWindowFixedSize) {
+                    if (viewWindowFixedSize === "true") {
+                        webWindowConfig.resizable = false;
+                    } else {
+                        webWindowConfig.resizable = true;
+                    }
+                }
+            }
+
+            // 链接中canMaximizeWindow是否可最大化
+            let viewWindowMaximizable = getUrlParamValue(url, "canMaximizeWindow");
+            if (viewWindowMaximizable) {
+                if (viewWindowMaximizable === "true") {
+                    webWindowConfig.maximizable = true;
+                } else {
+                    webWindowConfig.maximizable = false;
+                }
+            }
+
+            // 图标
+            webWindowConfig.icon = path.join(
+                path.resolve(__dirname, ".."),
+                config.getConfigVal("icon")
+            );
+
+            // 设置主窗口和模态窗口
+            // webWindowConfig.parent = mainWindow;
+            // webWindowConfig.modal = true;
+
+            // 会议链接判断
+            let isMeeting = false;
+            let isAddMeeting = false;
+            let isPreloadJs = false;
+            if (url.startsWith(config.getConfigVal("open_meet_url"))) {
+                // 如果是会议
+                isMeeting = true;
+                isPreloadJs = true;
+            } else if (url.startsWith(config.getConfigVal("open_add_url"))) {
+                // 如果是加入会议
+                isAddMeeting = true;
+                isPreloadJs = true;
+            }
+
+            // 注入js脚本
+            if (isPreloadJs) {
+                // 开启nodejs
+                webWindowConfig.webPreferences.nodeIntegration = true;
+                webWindowConfig.webPreferences.enableRemoteModule = true;
+                // 关闭请求跨域限制
+                //webWindowConfig.webPreferences.webSecurity = false;
+                // 注入脚本
+                webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/preload.js");
+            }
+            // 放入窗口唯一uuid值
+            webWindowConfig.customUUID = windowUUID;
+            webWindowConfig.customLevel = windowLevel;
+            webWindowConfig.customParentUUID = nowWindowUUID;
+            webWindowConfig.customParentLevel = nowWindowLevel;
+
+            // 创建窗口
+            childWindow = new BrowserWindow(webWindowConfig);
+
+            if (config.getConfigVal("debug")) {
+                // 打开开发者工具
+                childWindow.webContents.openDevTools();
+            }
+
+            // 关闭菜单
+            childWindow.removeMenu();
+
+            // 如果是打开会议链接
+            if (isMeeting) {
                 // TODO 强制打开开发者工具
                 childWindow.webContents.openDevTools();
-                //TODO 窗口关闭的监听,此处获取不到无法处理
-                /*childWindow.on("closed", (event) => {
-                    // 全局是否存在声网,释放
-                    if (global.rtcEngine) {
-                        global.rtcEngine.release();
-                    }
-                    childWindow = null;
-                });*/
-            });
-            logger.info("[MainProcessHelper][new-window]新视图 " + url + " 已加载-打开会议");
-        } else {
+            }
+            if (isAddMeeting) {
+                // TODO 强制打开开发者工具
+                childWindow.webContents.openDevTools();
+            }
             childWindow.loadURL(url);
             logger.info("[MainProcessHelper][new-window]新视图 " + url + " 已加载");
+            // 放入窗口集合中
+            global.sharedWindow.windowMap.set(windowUUID, childWindow);
+            //绑定事件
+            all_win_event(childWindow);
+            // 如果父窗口是一级
+            if (nowWindowLevel === mainWindowLevel && mainWindow != null) {
+                //隐藏父窗口
+                mainWindow.hide();
+            }
+            // 当子窗口关闭时触发
+            childWindow.on("closed", function () {
+                logger.info("closed");
+                if (nowWindowLevel === mainWindowLevel && mainWindow != null) {
+                    //显示父窗口
+                    mainWindow.show();
+                }
+                // 删除窗口集合中
+                global.sharedWindow.windowMap.delete(windowUUID);
+            });
+        } else {
+            childWindow.show();
         }
-
-        //隐藏父窗口
-        mainWindow.hide();
-        // 当子窗口关闭时触发
-        childWindow.on("closed", function () {
-            logger.info("closed");
-            mainWindow.show();
-        });
         event.preventDefault();
     });
     // 拦截跳转
-    mainWindow.webContents.on("will-navigate", function (event, url) {
+    win.webContents.on("will-navigate", function (event, url) {
+        // 当前窗口值
+        let nowWindowUUID = event.sender.browserWindowOptions.customUUID;
+        let nowWindow = global.sharedWindow.windowMap.get(nowWindowUUID);
         // 默认配置项
         let web_window = config.getConfigVal("web_window");
         // 默认宽高
@@ -386,9 +431,11 @@ function mainWin_event() {
         // 链接中height
         let viewWindowHeight = getUrlParamValue(url, "windowHeight") || web_windowHeight;
         if (viewWindowWidth && viewWindowHeight) {
-            mainWindow.setSize(parseInt(viewWindowWidth), parseInt(viewWindowHeight));
-            // 居中
-            mainWindow.center();
+            if (nowWindow) {
+                nowWindow.setSize(parseInt(viewWindowWidth), parseInt(viewWindowHeight));
+                // 居中
+                nowWindow.center();
+            }
         }
 
         // 链接中minWidth
@@ -396,7 +443,9 @@ function mainWin_event() {
         // 链接中minHeight
         let viewWindowMinHeight = getUrlParamValue(url, "minWindowHeight") || web_windowMinHeight;
         if (viewWindowMinWidth && viewWindowMinHeight) {
-            mainWindow.setMinimumSize(parseInt(viewWindowMinWidth), parseInt(viewWindowMinHeight));
+            if (nowWindow) {
+                nowWindow.setMinimumSize(parseInt(viewWindowMinWidth), parseInt(viewWindowMinHeight));
+            }
         }
 
         // 链接中是否可拖拽
@@ -418,7 +467,9 @@ function mainWin_event() {
                 }
             }
         }
-        mainWindow.setResizable(web_windowResizable);
+        if (nowWindow) {
+            nowWindow.setResizable(web_windowResizable);
+        }
 
         // 链接中canMaximizeWindow是否可最大化
         let viewWindowMaximizable = getUrlParamValue(url, "canMaximizeWindow");
@@ -429,18 +480,25 @@ function mainWin_event() {
                 web_windowMaximizable = false;
             }
         }
-        mainWindow.setMaximizable(web_windowMaximizable);
+        if (nowWindow) {
+            nowWindow.setMaximizable(web_windowMaximizable);
+        }
 
         // 关闭菜单
-        mainWindow.removeMenu();
+        if (nowWindow) {
+            nowWindow.removeMenu();
+        }
         //判断是否开启菜单
         if (url.startsWith(config.getConfigVal("menu_url"))) {
-            //mainWindow.setMenu(;);
+            //nowWindow.setMenu(;);
         }
         logger.info("[MainProcessHelper][will-navigate]新视图 " + url + " 已加载");
     });
     // 拦截重定向
-    mainWindow.webContents.on("will-redirect", function (event, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
+    win.webContents.on("will-redirect", function (event, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
+        // 上层窗口值
+        let nowWindowUUID = event.sender.browserWindowOptions.customUUID;
+        let nowWindow = global.sharedWindow.windowMap.get(nowWindowUUID);
         // 默认配置项
         let web_window = config.getConfigVal("web_window");
         // 默认宽高
@@ -459,9 +517,11 @@ function mainWin_event() {
         // 链接中height
         let viewWindowHeight = getUrlParamValue(url, "windowHeight") || web_windowHeight;
         if (viewWindowWidth && viewWindowHeight) {
-            mainWindow.setSize(parseInt(viewWindowWidth), parseInt(viewWindowHeight));
-            // 居中
-            mainWindow.center();
+            if (nowWindow) {
+                nowWindow.setSize(parseInt(viewWindowWidth), parseInt(viewWindowHeight));
+                // 居中
+                nowWindow.center();
+            }
         }
 
         // 链接中minWidth
@@ -469,7 +529,9 @@ function mainWin_event() {
         // 链接中minHeight
         let viewWindowMinHeight = getUrlParamValue(url, "minWindowHeight") || web_windowMinHeight;
         if (viewWindowMinWidth && viewWindowMinHeight) {
-            mainWindow.setMinimumSize(parseInt(viewWindowMinWidth), parseInt(viewWindowMinHeight));
+            if (nowWindow) {
+                nowWindow.setMinimumSize(parseInt(viewWindowMinWidth), parseInt(viewWindowMinHeight));
+            }
         }
 
         // 链接中是否可拖拽
@@ -491,7 +553,9 @@ function mainWin_event() {
                 }
             }
         }
-        mainWindow.setResizable(web_windowResizable);
+        if (nowWindow) {
+            nowWindow.setResizable(web_windowResizable);
+        }
 
         // 链接中canMaximizeWindow是否可最大化
         let viewWindowMaximizable = getUrlParamValue(url, "canMaximizeWindow");
@@ -502,10 +566,14 @@ function mainWin_event() {
                 web_windowMaximizable = false;
             }
         }
-        mainWindow.setMaximizable(web_windowMaximizable);
+        if (nowWindow) {
+            nowWindow.setMaximizable(web_windowMaximizable);
+        }
 
         // 关闭菜单
-        mainWindow.removeMenu();
+        if (nowWindow) {
+            nowWindow.removeMenu();
+        }
 
         logger.info("[MainProcessHelper][will-navigate]新视图 " + url + " 已加载重定向");
     });

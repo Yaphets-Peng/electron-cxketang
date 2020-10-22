@@ -66,6 +66,9 @@ InjectRtcScreenUtil.init = function () {
     // 打开音频功能
     let openAudioCode = InjectRtcScreenUtil.ScreenRTC.enableAudio();
     console.log("ScreenRTC打开音频功能", openAudioCode);
+    //设置当前音频录制设备静音
+    /*let audioRecordingCode = InjectRtcScreenUtil.ScreenRTC.setAudioRecordingDeviceMute(true);
+    console.log("ScreenRTC设置当前音频录制设备静音", audioRecordingCode);*/
     //调节录音音量
     /*let audioVolumeCode = InjectRtcScreenUtil.ScreenRTC.adjustRecordingSignalVolume(1);
     console.log("ScreenRTC调节录音音量", audioVolumeCode);*/

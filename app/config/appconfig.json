@@ -16,6 +16,7 @@
   },
   "menu_url": "https://k.chaoxing.com/pc/meet/index",
   "open_meet_url": "https://k.chaoxing.com/pc/meet/meeting",
+  "open_add_url": "https://k.chaoxing.com/pc/meet/join",
   "main_url": "https://k.chaoxing.com/pc/meet/index?v=v2&windowWidth=375&windowHeight=667&canDragWindowSize=false&canMaximizeWindow=false",
   "cookie_url": "https://k.chaoxing.com",
   "meet_info_url": "https://k.chaoxing.com/pc/meet/getMeetInfo",

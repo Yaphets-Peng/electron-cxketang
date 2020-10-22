@@ -2,6 +2,7 @@
   "appname": "demo",
   "firstview": "./app/view/app",
   "debug": false,
+  "meet_debug": false,
   "AGORA_APPID": "70ab64cac53c4be1bddd00adb23d5608",
   "default_window": {
     "width": 1100,
@@ -59,5 +60,6 @@
   "login_window_cookies_url": "https://k.chaoxing.com",
   "login_url": "https://k.chaoxing.com/pc/meet/index?v=v2",
   "notifyTimeOut": 60000,
+  "trayIcon": "/icons/tray.png",
   "icon": "/static/img/min.ico"
 }

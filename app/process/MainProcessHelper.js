@@ -49,6 +49,10 @@ global.userInfo = {
 /* ↑全局变量配置区结束↑ */
 
 function createMainWindow() {
+    // 清空所有菜单
+    //Menu.setApplicationMenu(Menu.buildFromTemplate([]));
+    //Menu.setApplicationMenu(null);
+
     logger.info("[SessionCookie][init]初始化cookie");
     sessionCookie.init();
 
@@ -96,9 +100,20 @@ function createMainWindow() {
 
     // 窗口关闭回调
     mainWindow.on("close", (event) => {
-        mainWindow.hide();
+        if (process.platform !== "darwin") {
+            mainWindow.hide();
+            mainWindow.setSkipTaskbar(true);
+            event.preventDefault();
+        } else {
+            // mac销毁托盘
+            if (tray != null) {
+                tray.destroy();
+                tray = null;
+            }
+        }
+        /*mainWindow.hide();
         mainWindow.setSkipTaskbar(true);
-        event.preventDefault();
+        event.preventDefault();*/
     });
 
     // 窗口显示
@@ -112,11 +127,35 @@ function createMainWindow() {
 
     //创建系统通知区菜单
     tray = new Tray(
-        path.join(path.resolve(__dirname, ".."), config.getConfigVal("icon"))
+        path.join(path.resolve(__dirname, ".."), config.getConfigVal("trayIcon"))
     );
 
     // 托盘按钮
     const contextMenu = Menu.buildFromTemplate([
+        {
+            label: "显示",
+            click: () => {
+                if (global.sharedWindow.windowMap.size > 1) {
+                    // 循环判断窗口
+                    global.sharedWindow.windowMap.forEach(function (value, key) {
+                        if (key !== mainWindowUUID) {
+                            value.flashFrame(true);
+                            value.show();
+                            return;
+                        }
+                    });
+                } else {
+                    // 显示任务栏
+                    mainWindow.setSkipTaskbar(false);
+                    // 闪烁提醒
+                    //mainWindow.flashFrame(true);
+                    // 显示聚焦
+                    mainWindow.show();
+                    // 显示不聚焦
+                    //mainWindow.showInactive();
+                }
+            },
+        },
         {
             label: "退出",
             click: () => {
@@ -132,6 +171,12 @@ function createMainWindow() {
                             console.log("[MainProcessHelper][closeWindow]视图 " + key + " 已关闭");
                         }
                     });
+                    // 销毁托盘
+                    if (tray != null) {
+                        tray.destroy();
+                        tray = null;
+                    }
+                    // 销毁主窗口
                     mainWindow.destroy();
                     mainWindow = null;
                 }
@@ -376,12 +421,14 @@ function all_win_event(win) {
 
             // 如果是打开会议链接
             if (isMeeting) {
-                // TODO 强制打开开发者工具
-                childWindow.webContents.openDevTools();
+                if (config.getConfigVal("meet_debug")) {
+                    childWindow.webContents.openDevTools();
+                }
             }
             if (isAddMeeting) {
-                // TODO 强制打开开发者工具
-                childWindow.webContents.openDevTools();
+                if (config.getConfigVal("meet_debug")) {
+                    childWindow.webContents.openDevTools();
+                }
             }
             childWindow.loadURL(url);
             logger.info("[MainProcessHelper][new-window]新视图 " + url + " 已加载");
@@ -396,7 +443,7 @@ function all_win_event(win) {
             }
             // 当子窗口关闭时触发
             childWindow.on("closed", function () {
-                logger.info("closed");
+                logger.info("[MainProcessHelper][_childWindow_.on._closed_]渲染窗口关闭url=" + url);
                 if (nowWindowLevel === mainWindowLevel && mainWindow != null) {
                     //显示父窗口
                     mainWindow.show();

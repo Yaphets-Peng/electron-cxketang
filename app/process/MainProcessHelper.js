@@ -149,6 +149,7 @@ function createMainWindow() {
             global.sharedWindow.windowMap.forEach(function (value, key) {
                 if (key !== mainWindowUUID) {
                     value.flashFrame(true);
+                    value.show();
                     return;
                 }
             });

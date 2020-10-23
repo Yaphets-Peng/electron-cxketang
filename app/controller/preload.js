@@ -9,7 +9,10 @@ if (require('electron').remote) {
         delete window.exports;
         delete window.module;
     } else {
+        const os = require("os");
+        const path = require("path");
         window.AgoraRtcEngine = require("agora-electron-sdk").default;
         window.InjectRtcScreenUtil = require('../static/js/agaro/InjectRtcScreenUtil');
+        window.InjectRtcScreenUtil.sdkLogPath = path.resolve(os.homedir(), "./cxktlog/agoramainsdk.log");
     }
 }

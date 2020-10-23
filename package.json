@@ -1,6 +1,6 @@
 {
   "name": "electron-cxketang",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "cxketang",
   "main": "app/main.js",
   "scripts": {
@@ -28,16 +28,15 @@
   "build": {
     "appId": "com.cxyd.cxketang",
     "copyright": "ChaogXing",
-    "productName": "cxketang",
+    "productName": "超星课堂",
     "compression": "store",
     "directories": {
       "output": "build"
     },
     "files": [
-      "**/*",
-      "!**/.vscode",
-      "!**/.history",
-      "!**/log"
+      "app/",
+      "node_modules/",
+      "package.json"
     ],
     "electronDownload": {
       "mirror": "https://npm.taobao.org/mirrors/electron/"
@@ -67,7 +66,11 @@
       ]
     },
     "mac": {
-      "icon": "app/icons/icon.icns"
+      "icon": "app/icons/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "icon": "app/icons/icon.ico",

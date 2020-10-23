@@ -1,20 +1,25 @@
 const log4js = require("log4js"); //使用log4js作为全局日志模块
+const os = require("os");
+const path = require("path");
 //log4js配置项
 log4js.configure({
-  appenders: {
-    everything: {
-      type: "dateFile",
-      filename: __dirname + "/../../log/cxketang.log",
-      pattern: ".yyyy-MM-dd-hh",
-      keepFileExt: true,
+    appenders: {
+        everything: {
+            type: "dateFile",
+            //filename: __dirname + "/../../log/cxketang.log",
+            filename: path.resolve(os.homedir(), "./cxktlog/cxketang.log"),
+            pattern: ".yyyy-MM-dd-hh",
+            encoding: "utf-8",
+            keepFileExt: true,
+            maxLogSize: 11024
+        },
     },
-  },
-  categories: {
-    default: {
-      appenders: ["everything"],
-      level: "all",
+    categories: {
+        default: {
+            appenders: ["everything"],
+            level: "all",
+        },
     },
-  },
 });
 //获取logger对象
 const logger = log4js.getLogger();
@@ -25,9 +30,9 @@ const logger = log4js.getLogger();
  * @param {any} data 日志数据
  */
 function trace(data) {
-  logger.level = "trace";
-  logger.trace(data);
-  console.log(data);
+    logger.level = "trace";
+    logger.trace(data);
+    console.log(data);
 }
 
 /**
@@ -36,9 +41,9 @@ function trace(data) {
  * @param {any} data 日志数据
  */
 function debug(data) {
-  logger.level = "debug";
-  logger.debug(data);
-  console.log(data);
+    logger.level = "debug";
+    logger.debug(data);
+    console.log(data);
 }
 
 /**
@@ -47,9 +52,9 @@ function debug(data) {
  * @param {any} data 日志数据
  */
 function info(data) {
-  logger.level = "info";
-  logger.info(data);
-  console.log(data);
+    logger.level = "info";
+    logger.info(data);
+    console.log(data);
 }
 
 /**
@@ -58,9 +63,9 @@ function info(data) {
  * @param {any} data 日志数据
  */
 function warn(data) {
-  logger.level = "warn";
-  logger.warn(data);
-  console.warn(data);
+    logger.level = "warn";
+    logger.warn(data);
+    console.warn(data);
 }
 
 /**
@@ -69,9 +74,9 @@ function warn(data) {
  * @param {any} data 日志数据
  */
 function log(data) {
-  logger.level = "log";
-  logger.log(data);
-  console.log(data);
+    logger.level = "log";
+    logger.log(data);
+    console.log(data);
 }
 
 /**
@@ -80,9 +85,9 @@ function log(data) {
  * @param {any} data 日志数据
  */
 function error(data) {
-  logger.level = "error";
-  logger.error(data);
-  console.error(data);
+    logger.level = "error";
+    logger.error(data);
+    console.error(data);
 }
 
 /**
@@ -91,18 +96,18 @@ function error(data) {
  * @param {any} data 日志数据
  */
 function fatal(data) {
-  logger.level = "fatal";
-  logger.fatal(data);
-  console.log(data);
+    logger.level = "fatal";
+    logger.fatal(data);
+    console.log(data);
 }
 
 //对外暴露方法
 module.exports = {
-  trace,
-  debug,
-  info,
-  warn,
-  log,
-  error,
-  fatal,
+    trace,
+    debug,
+    info,
+    warn,
+    log,
+    error,
+    fatal,
 };

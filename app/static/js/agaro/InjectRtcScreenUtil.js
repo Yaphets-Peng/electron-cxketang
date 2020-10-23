@@ -1,6 +1,7 @@
 //注入js
 var InjectRtcScreenUtil = {
     ScreenRTC: null,//rtc实例
+    sdkLogPath: null,//日志路径
 }
 
 // 开始加入频道
@@ -88,7 +89,7 @@ InjectRtcScreenUtil.init = function () {
     let enableWebCode = InjectRtcScreenUtil.ScreenRTC.enableWebSdkInteroperability(true);
     console.log("ScreenRTC打开与WebSDK的互通", enableWebCode);
     // 设置日志文件
-    //InjectRtcScreenUtil.ScreenRTC.setLogFile(logPath)
+    InjectRtcScreenUtil.ScreenRTC.setLogFile(InjectRtcScreenUtil.sdkLogPath);
 
 }
 

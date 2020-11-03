@@ -204,6 +204,14 @@ function createMainWindow() {
     });
 }
 
+// 返回是否登录
+function isLogin() {
+    if (!sessionCookie.isLogin()) {
+        return false;
+    }
+    return true;
+}
+
 /**
  * 返回全局mainWindow对象
  */
@@ -336,8 +344,12 @@ function all_win_event(win) {
             if (viewWindowDrag) {
                 if (viewWindowDrag === "true") {
                     webWindowConfig.resizable = true;
+                    webWindowConfig.maximizable = true;
+                    webWindowConfig.fullscreenable = true;
                 } else {
                     webWindowConfig.resizable = false;
+                    webWindowConfig.maximizable = false;
+                    webWindowConfig.fullscreenable = false;
                 }
             } else {
                 // 链接中resizable固定大小（弃用）
@@ -345,8 +357,12 @@ function all_win_event(win) {
                 if (viewWindowFixedSize) {
                     if (viewWindowFixedSize === "true") {
                         webWindowConfig.resizable = false;
+                        webWindowConfig.maximizable = false;
+                        webWindowConfig.fullscreenable = false;
                     } else {
                         webWindowConfig.resizable = true;
+                        webWindowConfig.maximizable = true;
+                        webWindowConfig.fullscreenable = true;
                     }
                 }
             }
@@ -356,8 +372,10 @@ function all_win_event(win) {
             if (viewWindowMaximizable) {
                 if (viewWindowMaximizable === "true") {
                     webWindowConfig.maximizable = true;
+                    webWindowConfig.fullscreenable = true;
                 } else {
                     webWindowConfig.maximizable = false;
+                    webWindowConfig.fullscreenable = false;
                 }
             }
 
@@ -400,7 +418,10 @@ function all_win_event(win) {
             webWindowConfig.customLevel = windowLevel;
             webWindowConfig.customParentUUID = nowWindowUUID;
             webWindowConfig.customParentLevel = nowWindowLevel;
-
+            // 是否需要刷新父页面
+            if (url.startsWith(config.getConfigVal("meet_setting_url"))) {
+                webWindowConfig.customParentRefresh = true;
+            }
             // 创建窗口
             childWindow = new BrowserWindow(webWindowConfig);
 
@@ -434,10 +455,35 @@ function all_win_event(win) {
                 //隐藏父窗口
                 mainWindow.hide();
             }
+            // 如果是会议界面加入关闭判断
+            if (isMeeting || isAddMeeting) {
+                // 当子窗口关闭前触发
+                childWindow.on("close", function (e) {
+                    // 先判断是否存在对象
+                    e.sender.webContents.executeJavaScript("typeof beforeWindowClose").then((result) => {
+                        if (result !== "undefined") {
+                            // 存在执行此方法获取返回值
+                            e.sender.webContents.executeJavaScript("beforeWindowClose()").then((result) => {
+                                if (result !== "1") {
+                                    e.sender.destroy();
+                                }
+                            });
+                        } else {
+                            // 不存在直接销毁
+                            e.sender.destroy();
+                        }
+                    })
+                    e.preventDefault();
+                });
+            }
             // 当子窗口关闭时触发
             childWindow.on("closed", function () {
                 logger.info("[MainProcessHelper][_childWindow_.on._closed_]渲染窗口关闭url=" + url);
                 if (nowWindowLevel === mainWindowLevel && mainWindow != null) {
+                    if (webWindowConfig.customParentRefresh) {
+                        // 刷新主窗口页面
+                        mainWindow.webContents.reloadIgnoringCache();
+                    }
                     //显示父窗口
                     mainWindow.show();
                 }
@@ -466,6 +512,8 @@ function all_win_event(win) {
         let web_windowMaximizable = web_window.maximizable;
         // 是否可拖拽大小
         let web_windowResizable = web_window.resizable;
+        // 是否全屏
+        let web_windowFullscreenable = web_window.fullscreenable;
 
         // 链接中width
         let viewWindowWidth = getUrlParamValue(url, "windowWidth") || web_windowWidth;
@@ -494,8 +542,12 @@ function all_win_event(win) {
         if (viewWindowDrag) {
             if (viewWindowDrag === "true") {
                 web_windowResizable = true;
+                web_windowMaximizable = true;
+                web_windowFullscreenable = true;
             } else {
                 web_windowResizable = false;
+                web_windowMaximizable = false;
+                web_windowFullscreenable = false;
             }
         } else {
             // 链接中resizable固定大小（弃用）
@@ -503,8 +555,12 @@ function all_win_event(win) {
             if (viewWindowFixedSize) {
                 if (viewWindowFixedSize === "true") {
                     web_windowResizable = false;
+                    web_windowMaximizable = false;
+                    web_windowFullscreenable = false;
                 } else {
                     web_windowResizable = true;
+                    web_windowMaximizable = true;
+                    web_windowFullscreenable = true;
                 }
             }
         }
@@ -517,12 +573,15 @@ function all_win_event(win) {
         if (viewWindowMaximizable) {
             if (viewWindowMaximizable === "true") {
                 web_windowMaximizable = true;
+                web_windowFullscreenable = true;
             } else {
                 web_windowMaximizable = false;
+                web_windowFullscreenable = false;
             }
         }
         if (nowWindow) {
             nowWindow.setMaximizable(web_windowMaximizable);
+            nowWindow.setFullScreenable(web_windowFullscreenable);
         }
 
         // 关闭菜单
@@ -552,6 +611,8 @@ function all_win_event(win) {
         let web_windowMaximizable = web_window.maximizable;
         // 是否可拖拽大小
         let web_windowResizable = web_window.resizable;
+        // 是否全屏
+        let web_windowFullscreenable = web_window.fullscreenable;
 
         // 链接中width
         let viewWindowWidth = getUrlParamValue(url, "windowWidth") || web_windowWidth;
@@ -580,8 +641,12 @@ function all_win_event(win) {
         if (viewWindowDrag) {
             if (viewWindowDrag === "true") {
                 web_windowResizable = true;
+                web_windowMaximizable = true;
+                web_windowFullscreenable = true;
             } else {
                 web_windowResizable = false;
+                web_windowMaximizable = false;
+                web_windowFullscreenable = false;
             }
         } else {
             // 链接中resizable固定大小（弃用）
@@ -589,8 +654,12 @@ function all_win_event(win) {
             if (viewWindowFixedSize) {
                 if (viewWindowFixedSize === "true") {
                     web_windowResizable = false;
+                    web_windowMaximizable = false;
+                    web_windowFullscreenable = false;
                 } else {
                     web_windowResizable = true;
+                    web_windowMaximizable = true;
+                    web_windowFullscreenable = true;
                 }
             }
         }
@@ -603,12 +672,15 @@ function all_win_event(win) {
         if (viewWindowMaximizable) {
             if (viewWindowMaximizable === "true") {
                 web_windowMaximizable = true;
+                web_windowFullscreenable = true;
             } else {
                 web_windowMaximizable = false;
+                web_windowFullscreenable = false;
             }
         }
         if (nowWindow) {
             nowWindow.setMaximizable(web_windowMaximizable);
+            nowWindow.setFullScreenable(web_windowFullscreenable);
         }
 
         // 关闭菜单
@@ -631,6 +703,7 @@ function win_event(win) {
     ) {
         // 创建浏览器窗口
         let webWindowConfig = config.getConfigVal("web_window");
+
         // 链接中width
         let viewWindowWidth = getUrlParamValue(url, "windowWidth");
         if (viewWindowWidth) {
@@ -641,14 +714,48 @@ function win_event(win) {
         if (viewWindowHeight) {
             webWindowConfig.height = parseInt(viewWindowHeight);
         }
-        // 链接中resizable
-        let viewWindowFixedSize = getUrlParamValue(url, "fixedWindowSize");
-        if (viewWindowFixedSize) {
-            let viewresizable = false;
-            if (viewWindowFixedSize === "true") {
-                viewresizable = true;
+
+        // 链接中minWidth
+        let viewWindowMinWidth = getUrlParamValue(url, "minWindowWidth");
+        if (viewWindowMinWidth) {
+            webWindowConfig.minWidth = parseInt(viewWindowMinWidth);
+        }
+        // 链接中minHeight
+        let viewWindowMinHeight = getUrlParamValue(url, "minWindowHeight");
+        if (viewWindowMinHeight) {
+            webWindowConfig.minHeight = parseInt(viewWindowMinHeight);
+        }
+
+        // 链接中是否可拖拽
+        let viewWindowDrag = getUrlParamValue(url, "canDragWindowSize");
+        if (viewWindowDrag) {
+            if (viewWindowDrag === "true") {
+                webWindowConfig.resizable = true;
+            } else {
+                webWindowConfig.resizable = false;
             }
-            webWindowConfig.resizable = !viewresizable;
+        } else {
+            // 链接中resizable固定大小（弃用）
+            let viewWindowFixedSize = getUrlParamValue(url, "fixedWindowSize");
+            if (viewWindowFixedSize) {
+                if (viewWindowFixedSize === "true") {
+                    webWindowConfig.resizable = false;
+                } else {
+                    webWindowConfig.resizable = true;
+                }
+            }
+        }
+
+        // 链接中canMaximizeWindow是否可最大化
+        let viewWindowMaximizable = getUrlParamValue(url, "canMaximizeWindow");
+        if (viewWindowMaximizable) {
+            if (viewWindowMaximizable === "true") {
+                webWindowConfig.maximizable = true;
+                webWindowConfig.fullscreenable = true;
+            } else {
+                webWindowConfig.maximizable = false;
+                webWindowConfig.fullscreenable = false;
+            }
         }
         webWindowConfig.icon = path.join(
             path.resolve(__dirname, ".."),
@@ -752,4 +859,4 @@ function registeCallback(signal, callback) {
     }
 }
 
-module.exports = {createMainWindow, getMainWindow, openNewWindow};
+module.exports = {createMainWindow, getMainWindow, openNewWindow, isLogin};

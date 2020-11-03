@@ -10,6 +10,11 @@ const cookieKey = config.getConfigVal("cookie_key");
 
 // 初始化
 function init() {
+    // 设置默认userAgent
+    let userAgent = config.getConfigVal("userAgent");
+    if (userAgent) {
+        session.defaultSession.setUserAgent(userAgent);
+    }
     //检测cookies变动事件，标记cookies发生变化
     session.defaultSession.cookies.on("changed", function (event, cookie, cause, removed) {
         if (cookie.name === cookieKey.UID) {

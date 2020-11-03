@@ -1,37 +1,43 @@
 {
-  "name": "electron-cxketang",
+  "name": "cxketang",
   "version": "2.0.0",
   "description": "cxketang",
   "main": "app/main.js",
   "scripts": {
-    "start": "CHCP 65001 & electron .",
-    "dev": "CHCP 65001 & electron . --debug",
+    "upfig": "node script/before_all.js",
+    "start": "node script/before_all.js && CHCP 65001 & electron .",
+    "pack": "node script/before_all.js && electron-builder --dir",
     "dist": "npm-run-all build:*",
-    "build:win": "electron-builder --win --ia32",
-    "build:mac": "electron-builder --mac --x64",
-    "build:linux": "electron-builder --linux --x64"
+    "build:win": "node script/before_all.js && electron-builder --win --ia32",
+    "build:mac": "node script/before_all.js && electron-builder --mac --x64",
+    "build:linux": "node script/before_all.js && electron-builder --linux --x64"
   },
   "license": "",
   "repository": "https://gitee.com/mdaimon/electron-cxketang.git",
   "devDependencies": {
+    "dotenv": "^8.2.0",
     "electron": "^5.0.8",
     "electron-builder": "^22.8.1",
+    "electron-notarize": "^1.0.0",
     "electron-notifications": "^1.0.0",
     "yarn-run-all": "^3.1.1"
   },
   "dependencies": {
     "agora-electron-sdk": "2.9.0-rc.106-build.804",
-    "log4js": "^6.3.0",
+    "electron-log": "^4.3.0",
     "md5": "^2.3.0",
     "uuid": "^8.3.1"
   },
   "build": {
-    "appId": "com.cxyd.cxketang",
+    "afterSign": "script/notarize.js",
+    "afterAllArtifactBuild": "script/after_build.js",
+    "appId": "com.ssreader.cxketang",
     "copyright": "ChaogXing",
     "productName": "超星课堂",
+    "artifactName": "ketang_${version}.${ext}",
     "compression": "store",
     "directories": {
-      "output": "build"
+      "output": "build/${os}"
     },
     "files": [
       "app/",
@@ -41,14 +47,27 @@
     "electronDownload": {
       "mirror": "https://npm.taobao.org/mirrors/electron/"
     },
+    "win": {
+      "icon": "app/icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32"
+          ]
+        }
+      ]
+    },
     "nsis": {
       "oneClick": false,
+      "perMachine": true,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "app/icons/icon.ico",
       "uninstallerIcon": "app/icons/icon.ico",
       "installerHeaderIcon": "app/icons/icon.ico",
-      "createDesktopShortcut": true
+      "createDesktopShortcut": true,
+      "include": "script/urlProtoco.nsh"
     },
     "dmg": {
       "contents": [
@@ -63,26 +82,42 @@
           "y": 150,
           "type": "file"
         }
-      ]
+      ],
+      "sign": false
+    },
+    "pkg": {
+      "identity": "wenhao li",
+      "installLocation": "/Applications",
+      "allowAnywhere": true,
+      "allowCurrentUserHome": true,
+      "allowRootDirectory": true,
+      "isVersionChecked": true,
+      "isRelocatable": false,
+      "overwriteAction": "upgrade"
     },
     "mac": {
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "identity": "wenhao li",
+      "entitlements": "script/entitlements.plist",
+      "entitlementsInherit": "script/entitlements.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "请允许本程序访问您的麦克风",
+        "NSCameraUsageDescription": "请允许本程序访问您的摄像头"
+      },
       "icon": "app/icons/icon.icns",
       "target": [
-        "dmg",
-        "zip"
+        "pkg"
       ]
     },
-    "win": {
-      "icon": "app/icons/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "ia32"
-          ]
-        }
-      ]
-    },
+    "protocols": [
+      {
+        "name": "your-protocol-name",
+        "schemes": [
+          "your-protocol-name"
+        ]
+      }
+    ],
     "linux": {
       "icon": "app/icons"
     },

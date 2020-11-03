@@ -6,10 +6,16 @@ var InjectRtcScreenUtil = {
 
 // 开始加入频道
 InjectRtcScreenUtil.init = function () {
+    console.log("sdkLogPath=", InjectRtcScreenUtil.sdkLogPath);
     // 开始加入频道
     InjectRtcScreenUtil.ScreenRTC = new AgoraRtcEngine();
     InjectRtcScreenUtil.ScreenRTC.initialize(Meeting.rtc_appid);
     console.log("rtc_appid=", Meeting.rtc_appid);
+
+    // 设置日志文件
+    InjectRtcScreenUtil.ScreenRTC.setLogFile(InjectRtcScreenUtil.sdkLogPath);
+    // TODO 开发设置2020-11-03
+    //InjectRtcScreenUtil.ScreenRTC.setParameters("{\"che.audio.start_debug_recording\":\"NoName\"}");
 
     // 加入频道回调
     InjectRtcScreenUtil.ScreenRTC.on('joinedChannel', (channel, uid, elapsed) => {
@@ -88,9 +94,6 @@ InjectRtcScreenUtil.init = function () {
     //打开与WebSDK的互通
     let enableWebCode = InjectRtcScreenUtil.ScreenRTC.enableWebSdkInteroperability(true);
     console.log("ScreenRTC打开与WebSDK的互通", enableWebCode);
-    // 设置日志文件
-    InjectRtcScreenUtil.ScreenRTC.setLogFile(InjectRtcScreenUtil.sdkLogPath);
-
 }
 
 InjectRtcScreenUtil.startScreen = function () {

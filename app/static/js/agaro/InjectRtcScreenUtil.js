@@ -2,6 +2,8 @@
 var InjectRtcScreenUtil = {
     ScreenRTC: null,//rtc实例
     sdkLogPath: null,//日志路径
+    clientRole: 2,//直播场景下的用户角色, 1：主播, 2：（默认）观众
+    screenStatus:0,//屏幕共享0：关闭，1：开启
 }
 
 // 开始加入频道
@@ -62,29 +64,17 @@ InjectRtcScreenUtil.init = function () {
         //设置直播场景下的用户角色, 1：主播, 2：（默认）观众
         InjectRtcScreenUtil.ScreenRTC.setClientRole(1);
     }*/
-    // 必须开主播身份
-    InjectRtcScreenUtil.ScreenRTC.setClientRole(1);
+    // 必须关主播身份
+    InjectRtcScreenUtil.ScreenRTC.setClientRole(InjectRtcScreenUtil.clientRole);
+    // 关闭音频功能
+    let audioCode = RtcScreenUtil.ScreenRTC.disableAudio();
+    console.log("ScreenRTC关闭音频功能", audioCode);
     // 打开视频功能
     let openVideoCode = InjectRtcScreenUtil.ScreenRTC.enableVideo();
     console.log("ScreenRTC打开视频功能", openVideoCode);
     //停止视频预览
     let stopPreviewCode = InjectRtcScreenUtil.ScreenRTC.stopPreview();
     console.log("ScreenRTC停止视频预览", stopPreviewCode);
-    // 打开音频功能
-    let openAudioCode = InjectRtcScreenUtil.ScreenRTC.enableAudio();
-    console.log("ScreenRTC打开音频功能", openAudioCode);
-    //设置当前音频录制设备静音
-    /*let audioRecordingCode = InjectRtcScreenUtil.ScreenRTC.setAudioRecordingDeviceMute(true);
-    console.log("ScreenRTC设置当前音频录制设备静音", audioRecordingCode);*/
-    //调节录音音量
-    /*let audioVolumeCode = InjectRtcScreenUtil.ScreenRTC.adjustRecordingSignalVolume(1);
-    console.log("ScreenRTC调节录音音量", audioVolumeCode);*/
-    // 设置音频编码配置
-    /*let audioprofileCode = InjectRtcScreenUtil.ScreenRTC.setAudioProfile(0, 3);
-    console.log("ScreenRTC设置音频编码配置", audioprofileCode);*/
-    //停止本地音频采集
-    /*let stopLocalAudioCode = InjectRtcScreenUtil.ScreenRTC.enableLocalAudio(false);
-    console.log("ScreenRTC停止本地音频采集", stopLocalAudioCode);*/
     // 停止接收所有视频流
     let stopAudioCode = InjectRtcScreenUtil.ScreenRTC.muteAllRemoteAudioStreams(true);
     console.log("ScreenRTC停止接收所有音频流", stopAudioCode);
@@ -100,14 +90,18 @@ InjectRtcScreenUtil.startScreen = function () {
     //获取屏幕信息
     let displays = InjectRtcScreenUtil.ScreenRTC.getScreenDisplaysInfo()
     if (displays.length === 0) {
-        return alert('no display found')
+        return console.log('no display found')
     }
     console.log(displays);
-
+    // 必须开主播身份
+    InjectRtcScreenUtil.screenStatus = 1;
+    InjectRtcScreenUtil.clientRole = 1;
+    InjectRtcScreenUtil.ScreenRTC.setClientRole(InjectRtcScreenUtil.clientRole);
     //开始采集音频
-    let enableCode = InjectRtcScreenUtil.ScreenRTC.enableLoopbackRecording(true);
-    console.log("开始采集音频", enableCode);
-    console.log("当前的音频录制设备", InjectRtcScreenUtil.ScreenRTC.getCurrentAudioRecordingDevice());
+    if (typeof InjectRtcAudioVideoUtil) {
+        // 开启麦克风
+        InjectRtcAudioVideoUtil.startAudio();
+    }
     // 加入频道
     let userIdTemp = parseInt(Meeting.getScreenPuid(Meeting.login_puid));
     let joinChannelCode = InjectRtcScreenUtil.ScreenRTC.joinChannel(Meeting.rtc_screen_token, Meeting.meet_qrcode, null, userIdTemp);
@@ -133,9 +127,14 @@ InjectRtcScreenUtil.startScreen = function () {
 
 // 停止屏幕共享
 InjectRtcScreenUtil.stopScreen = function () {
+    // 必须关主播身份
+    InjectRtcScreenUtil.screenStatus = 0;
+    InjectRtcScreenUtil.clientRole = 2;
+    InjectRtcScreenUtil.ScreenRTC.setClientRole(InjectRtcScreenUtil.clientRole);
     //停止采集音频
-    let enableCode = InjectRtcScreenUtil.ScreenRTC.enableLoopbackRecording(false);
-    console.log("停止采集音频", enableCode);
+    if (typeof InjectRtcAudioVideoUtil) {
+        InjectRtcAudioVideoUtil.stopLoopbackRecording();
+    }
     //离开频道
     let leaveCode = InjectRtcScreenUtil.ScreenRTC.leaveChannel();
     console.log("ScreenRTC leaveChannel", leaveCode);

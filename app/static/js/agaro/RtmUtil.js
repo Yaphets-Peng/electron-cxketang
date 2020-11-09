@@ -44,4 +44,8 @@ RtmUtil.joinRTM = function () {
     });
 }
 
+// 离开频道
+RtmUtil.leaveRTM = function () {
+    RtmUtil.RTM.logout();
+}
 module.exports = RtmUtil;

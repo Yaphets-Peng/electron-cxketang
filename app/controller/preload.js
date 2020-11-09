@@ -1,7 +1,8 @@
 window.AgoraRtcEngine = null;
 window.InjectRtcScreenUtil = null;
+window.InjectRtcAudioVideoUtil = null;
 if (require('electron').remote) {
-    if (!window.location.href.startsWith("https://k.chaoxing.com/pc/meet/meeting")) {
+    if (!window.location.href.startsWith("https://k.chaoxing.com/pc/meet/meeting") && !window.location.href.startsWith("file://")) {
         window.nodeRequire = require;
         delete window.require;
         delete window.exports;
@@ -12,8 +13,10 @@ if (require('electron').remote) {
         console.log(logger.getLogPath());
         window.AgoraRtcEngine = require("agora-electron-sdk").default;
         window.InjectRtcScreenUtil = require('../static/js/agaro/InjectRtcScreenUtil');
+        window.InjectRtcAudioVideoUtil = require('../static/js/agaro/InjectRtcAudioVideoUtil');
         // 获取日志路径后存放
-        window.InjectRtcScreenUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoramainsdk.log");
+        window.InjectRtcScreenUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoraScreenSdk.log");
+        window.InjectRtcAudioVideoUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoraAudioVideoSdk.log");
 
         // 会议退出全屏
         const remote = require("electron").remote;

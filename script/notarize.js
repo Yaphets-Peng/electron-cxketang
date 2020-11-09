@@ -7,6 +7,10 @@ exports.default = async function notarizing(context) {
     if (electronPlatformName !== 'darwin') {
         return
     }
+    // 开发环境
+    if (process.env.NODE_ENV === "dev") {
+        return
+    }
 
     let appPath = `${appOutDir}/${appName}.app`
     let appBundleId = context.packager.info._configuration.appId;

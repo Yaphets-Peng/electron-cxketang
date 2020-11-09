@@ -1,11 +1,11 @@
 {
   "appname": "cxketang",
   "protocol": "ChaoxingClassroomPc",
-  "userAgent": "Mozilla/5.0 (Windows) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 ChaoxingClassroomPc_2.0.0_windows10.0.19041_202011031544",
-  "buildTime": "202011031544",
+  "userAgent": "Mozilla/5.0 (Windows) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 ChaoxingClassroomPc_2.0.0_windows10.0.19041_202011091003",
+  "buildTime": "202011091003",
   "firstview": "./app/view/app",
   "debug": false,
-  "meet_debug": false,
+  "meet_debug": true,
   "default_window": {
     "width": 1100,
     "height": 750,

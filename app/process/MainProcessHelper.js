@@ -7,6 +7,7 @@ const md5 = require('md5');// 引入md5工具类
 const logger = require("../common/Logger"); //引入全局日志组件
 const config = require("../common/Config"); //引入全局配置组件
 const sessionCookie = require("../common/SessionCookie"); //引入全局sessionCookie组件
+const urlHelper = require("../common/UrlHelper");
 
 // 为了保证一个对全局windows对象的引用，就必须在方法体外声明变量
 // 否则当方法执行完成时就会被JavaScript的垃圾回收机制清理
@@ -91,7 +92,7 @@ function createMainWindow() {
         mainWindow = null;
     });
 
-    // 窗口关闭回调
+    /*// 窗口关闭回调
     mainWindow.on("close", (event) => {
         if (process.platform !== "darwin") {
             mainWindow.hide();
@@ -104,18 +105,9 @@ function createMainWindow() {
                 tray = null;
             }
         }
-        /*mainWindow.hide();
+        /!*mainWindow.hide();
         mainWindow.setSkipTaskbar(true);
-        event.preventDefault();*/
-    });
-
-    // 窗口显示
-    mainWindow.on("show", () => {
-        console.log("show");
-    });
-    // 窗口隐藏
-    mainWindow.on("hide", () => {
-        console.log("hide");
+        event.preventDefault();*!/
     });
 
     //创建系统通知区菜单
@@ -201,15 +193,7 @@ function createMainWindow() {
             // 显示不聚焦
             //mainWindow.showInactive();
         }
-    });
-}
-
-// 返回是否登录
-function isLogin() {
-    if (!sessionCookie.isLogin()) {
-        return false;
-    }
-    return true;
+    });*/
 }
 
 /**
@@ -393,10 +377,12 @@ function all_win_event(win) {
             let isMeeting = false;
             let isAddMeeting = false;
             let isPreloadJs = false;
+            let isTestDemo = false;
             if (url.startsWith(config.getConfigVal("open_meet_url"))) {
                 // 如果是会议
                 isMeeting = true;
                 isPreloadJs = true;
+                //isTestDemo = true;
             } else if (url.startsWith(config.getConfigVal("open_add_url"))) {
                 // 如果是加入会议
                 isAddMeeting = true;
@@ -410,8 +396,11 @@ function all_win_event(win) {
                 webWindowConfig.webPreferences.enableRemoteModule = true;
                 // 关闭请求跨域限制
                 //webWindowConfig.webPreferences.webSecurity = false;
-                // 注入脚本
-                webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/preload.js");
+                // 如果是测试关闭注入
+                if (!isTestDemo) {
+                    // 注入脚本
+                    webWindowConfig.webPreferences.preload = path.join(path.resolve(__dirname, ".."), "/controller/preload.js");
+                }
             }
             // 放入窗口唯一uuid值
             webWindowConfig.customUUID = windowUUID;
@@ -444,7 +433,27 @@ function all_win_event(win) {
                     childWindow.webContents.openDevTools();
                 }
             }
-            childWindow.loadURL(url);
+            // 如果是打开会议链接
+            if (isTestDemo) {
+                let meetuuid = urlHelper.getQueryStringByUrl(url, "uuid");
+                // 通过js来获取对象上token
+                let runJsCodeTemp = "document.querySelector(\".meeting_record_item[data_uuid='" + meetuuid + "']\").getAttribute(\"data_tokens\")";
+                mainWindow.webContents.executeJavaScript(runJsCodeTemp).then((meetTokens) => {
+                    runJsCodeTemp = "document.querySelector(\".meeting_record_item[data_uuid='" + meetuuid + "']\").getAttribute(\"data_qrcode\")";
+                    mainWindow.webContents.executeJavaScript(runJsCodeTemp).then((meetQrcode) => {
+                        let urlAllParamValues = urlHelper.getUrlAllParamValues(url);
+                        if (urlAllParamValues) {
+                            urlAllParamValues = "?" + urlAllParamValues + "&tokens=";
+                        } else {
+                            urlAllParamValues = "?tokens=";
+                        }
+                        urlAllParamValues = urlAllParamValues + meetTokens + "&meetQrcode=" + meetQrcode;
+                        childWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/meeting.html"), {"search": urlAllParamValues});
+                    });
+                });
+            } else {
+                childWindow.loadURL(url);
+            }
             logger.info("[MainProcessHelper][new-window]新视图 " + url + " 已加载");
             // 放入窗口集合中
             global.sharedWindow.windowMap.set(windowUUID, childWindow);
@@ -591,6 +600,23 @@ function all_win_event(win) {
         //判断是否开启菜单
         if (url.startsWith(config.getConfigVal("menu_url"))) {
             //nowWindow.setMenu(;);
+        }
+        // 会议链接判断
+        let isTestDemo = false;
+        if (url.startsWith(config.getConfigVal("open_meet_url"))) {
+            // 如果是会议
+            //isTestDemo = true;
+        }
+        // 如果是打开会议链接
+        if (isTestDemo) {
+            let urlAllParamValues = urlHelper.getUrlAllParamValues(url);
+            if (urlAllParamValues) {
+                urlAllParamValues = "?" + urlAllParamValues + "&isTestDemo=1";
+            } else {
+                urlAllParamValues = "?isTestDemo=1";
+            }
+            nowWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/meeting.html"), {"search": urlAllParamValues});
+            event.preventDefault();
         }
         logger.info("[MainProcessHelper][will-navigate]新视图 " + url + " 已加载");
     });
@@ -859,4 +885,4 @@ function registeCallback(signal, callback) {
     }
 }
 
-module.exports = {createMainWindow, getMainWindow, openNewWindow, isLogin};
+module.exports = {createMainWindow, getMainWindow, openNewWindow};

@@ -84,7 +84,8 @@ RtcScreenUtil.startScreen = function () {
     //获取屏幕信息
     let displays = RtcScreenUtil.ScreenRTC.getScreenDisplaysInfo()
     if (displays.length === 0) {
-        return alert('no display found')
+        console.log('no display found');
+        return;
     }
     console.log(displays);
 

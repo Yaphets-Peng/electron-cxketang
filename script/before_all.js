@@ -23,7 +23,7 @@ async function befor_all() {
     let osVersion = os.release();
 
     // 配置文件
-    let configFilePath = path.join(path.resolve(__dirname, ".."), "app/config/appconfig.json");
+    let configFilePath = path.join(path.resolve(__dirname, ".."), "app/config/buildInfo.json");
     // 获取本次时间
     let dateTime = dateFormat(new Date(), "yyyyMMddHHmm");
 
@@ -42,9 +42,9 @@ async function befor_all() {
 
         let dataStr = JSON.stringify(configJson, null, 2);
         fs.writeFileSync(configFilePath, dataStr, "utf-8");
-        console.log("appconfig.json更新时间戳完成buildTime=" + dateTime);
+        console.log("buildInfo.json更新时间戳完成buildTime=" + dateTime);
     } else {
-        console.error("appconfig.json更新时间戳失败");
+        console.error("buildInfo.json更新时间戳失败");
     }
 }
 

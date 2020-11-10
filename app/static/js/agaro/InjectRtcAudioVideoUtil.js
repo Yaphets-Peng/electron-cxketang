@@ -8,8 +8,28 @@ var InjectRtcAudioVideoUtil = {
     loopbackStatus: 0,//声卡采集0：关闭，1：开启
 }
 
-// 开始加入频道
 InjectRtcAudioVideoUtil.init = function () {
+    InjectRtcAudioVideoScreenUtil.init();
+}
+
+InjectRtcAudioVideoUtil.startAudio = function () {
+    InjectRtcAudioVideoScreenUtil.startAudio();
+}
+
+InjectRtcAudioVideoUtil.stopAudio = function () {
+    InjectRtcAudioVideoScreenUtil.stopAudio();
+}
+
+InjectRtcAudioVideoUtil.startVideo = function () {
+    InjectRtcAudioVideoScreenUtil.startVideo();
+}
+
+InjectRtcAudioVideoUtil.stopVideo = function () {
+    InjectRtcAudioVideoScreenUtil.stopVideo();
+}
+
+// 开始加入频道
+/*InjectRtcAudioVideoUtil.init = function () {
     console.log("sdkLogPath=", InjectRtcAudioVideoUtil.sdkLogPath);
     // 开始加入频道
     InjectRtcAudioVideoUtil.AudioVideoRTC = new AgoraRtcEngine();
@@ -24,20 +44,42 @@ InjectRtcAudioVideoUtil.init = function () {
     // 加入频道回调
     InjectRtcAudioVideoUtil.AudioVideoRTC.on('joinedChannel', (channel, uid, elapsed) => {
         console.log(`AudioVideoRTC joined Screen channel ${channel} with uid ${uid}, elapsed ${elapsed}ms`);
+        if ($("#camera_" + uid).length === 0) {
+            $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
+        }
+        let localVideoContainer = document.getElementById("camera_" + uid);
+        console.log(localVideoContainer);
+        let domLocalVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.setupLocalVideo(localVideoContainer);
+        console.log("AudioVideoRTC设置本地视频渲染位置", domLocalVideoCode);
     });
     // 重新加入频道回调
     InjectRtcAudioVideoUtil.AudioVideoRTC.on('rejoinedChannel', (channel, uid, elapsed) => {
         console.log(`AudioVideoRTC rejoined Screen channel ${channel} with uid ${uid}, elapsed ${elapsed}ms`);
-        //设置本地视频渲染位置
-        //AudioVideoRTC.setupLocalVideo(localVideoContainer);
+        if ($("#camera_" + uid).length === 0) {
+            $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
+        }
+        let localVideoContainer = $("camera_" + uid);
+        if (localVideoContainer.length > 0) {
+            let domLocalVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.setupLocalVideo(localVideoContainer[0]);
+            console.log("AudioVideoRTC设置本地视频渲染位置", domLocalVideoCode);
+        }
     });
     // 他人加入频道回调
     InjectRtcAudioVideoUtil.AudioVideoRTC.on('userJoined', (uid, elapsed) => {
         console.log(`AudioVideoRTC userJoined uid ${uid}, elapsed ${elapsed}ms`);
-        // 设置视窗内容显示模式
-        //AudioVideoRTC.setupViewContentMode(uid, 1);
-        // 订阅该远端用户流
-        //AudioVideoRTC.subscribe(uid, remoteVideoContainer)
+        if (Meeting.isVideoId(uid)) {
+            // 设置视窗内容显示模式
+            InjectRtcAudioVideoUtil.AudioVideoRTC.setupViewContentMode(uid, 1);
+            // 订阅该远端用户流
+            if ($("#camera_" + uid).length === 0) {
+                $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
+            }
+            let remoteVideoContainer = $("camera_" + uid);
+            if (remoteVideoContainer.length > 0) {
+                let domRemoteVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.subscribe(uid, remoteVideoContainer[0])
+                console.log("AudioVideoRTC设置远端视频渲染位置", domRemoteVideoCode);
+            }
+        }
     });
     // 他人离开频道回调
     // 用户主动离开
@@ -59,13 +101,17 @@ InjectRtcAudioVideoUtil.init = function () {
         console.log(`AudioVideoRTC error: code ${err} - ${msg}`)
         //consoleContainer.innerHTML = `error: code ${err} - ${msg}`
     });
+    // 说话回调
+    InjectRtcAudioVideoUtil.AudioVideoRTC.on('groupAudioVolumeIndication', (speakers, speakerNumber, totalVolume) => {
+        console.log(`AudioVideoRTC说话回调: ${speakers} - ${speakerNumber} - ${totalVolume}`)
+    });
 
     // 设置频道场景, 0: 通信, 1: 直播
     InjectRtcAudioVideoUtil.AudioVideoRTC.setChannelProfile(1);
-    /*if (MeetInfoUtil.isMyMeet) {
+    /!*if (MeetInfoUtil.isMyMeet) {
         //设置直播场景下的用户角色, 1：主播, 2：（默认）观众
         InjectRtcAudioVideoUtil.AudioVideoRTC.setClientRole(1);
-    }*/
+    }*!/
     // 必须关主播身份
     InjectRtcAudioVideoUtil.AudioVideoRTC.setClientRole(InjectRtcAudioVideoUtil.clientRole);
     // 打开音频功能
@@ -74,12 +120,18 @@ InjectRtcAudioVideoUtil.init = function () {
     // 停止发送本地音频流
     let localAudioCode = InjectRtcAudioVideoUtil.AudioVideoRTC.muteLocalAudioStream(true);
     console.log("AudioVideoRTC停止发送本地音频流", localAudioCode);
+    // 启用说话者音量提示
+    let volumeAudioCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableAudioVolumeIndication(2000, 3, false);
+    console.log("AudioVideoRTC启用说话者音量提示", volumeAudioCode);
     // 打开视频功能
     let openVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableVideo();
     console.log("AudioVideoRTC打开视频功能", openVideoCode);
     //停止本地视频采集
     let localVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableLocalVideo(false);
     console.log("AudioVideoRTC停止本地视频采集", localVideoCode);
+    // 停止视频预览
+    let previewCode = InjectRtcAudioVideoUtil.AudioVideoRTC.stopPreview();
+    console.log("RtcAudioVideoScreen停止视频预览", previewCode);
     //打开与WebSDK的互通
     let enableWebCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableWebSdkInteroperability(true);
     console.log("AudioVideoRTC打开与WebSDK的互通", enableWebCode);
@@ -91,6 +143,17 @@ InjectRtcAudioVideoUtil.init = function () {
     console.log("rtc_video_token=", Meeting.rtc_video_token);
     console.log("meet_qrcode=", Meeting.meet_qrcode);
     console.log("userIdTemp=", userIdTemp);
+
+    // 麦克风和摄像头默认开关
+    var audioSet = Meeting.audioSetStatus;
+    var videoSet = Meeting.videoSetStatus;
+    if (audioSet == "1") {
+        InjectRtcAudioVideoUtil.startAudio();
+    }
+    if (videoSet == "1") {
+        InjectRtcAudioVideoUtil.startVideo();
+    }
+
 }
 
 // 开麦克风
@@ -112,7 +175,7 @@ InjectRtcAudioVideoUtil.startAudio = function () {
     let localAudioCode = InjectRtcAudioVideoUtil.AudioVideoRTC.muteLocalAudioStream(false);
     console.log("AudioVideoRTC开始发送本地音频流", localAudioCode);
     // 判断是否在屏幕共享
-    if (typeof InjectRtcScreenUtil) {
+    if (typeof InjectRtcScreenUtil != "undefined") {
         if (InjectRtcScreenUtil.screenStatus == 1) {
             InjectRtcAudioVideoUtil.loopbackStatus = 1;
             //开始采集声卡
@@ -120,6 +183,8 @@ InjectRtcAudioVideoUtil.startAudio = function () {
             console.log("开始采集声卡", enableCode);
         }
     }
+    // 页面交互-开启自己麦克风
+    RtcMediaUtil.myAudioStatusChange(1);
 }
 
 // 关麦克风
@@ -138,15 +203,17 @@ InjectRtcAudioVideoUtil.stopAudio = function () {
     console.log("AudioVideoRTC停止发送本地音频流", localAudioCode);
     //停止采集声卡
     InjectRtcAudioVideoUtil.loopbackStatus = 0;
-    let enableCode = RtcAudioVideoScreenUtil.RtcAudioVideoScreen.enableLoopbackRecording(false);
+    let enableCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableLoopbackRecording(false);
     console.log("停止采集声卡", enableCode);
+    // 页面交互-开启自己麦克风
+    RtcMediaUtil.myAudioStatusChange(0);
 }
 
 //开始采集声卡
 InjectRtcAudioVideoUtil.startLoopbackRecording = function () {
     //开始采集声卡
     InjectRtcAudioVideoUtil.loopbackStatus = 1;
-    let enableCode = InjectRtcAudioVideoUtil.RtcAudioVideoScreen.enableLoopbackRecording(true);
+    let enableCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableLoopbackRecording(true);
     console.log("开始采集声卡", enableCode);
 }
 
@@ -154,7 +221,7 @@ InjectRtcAudioVideoUtil.startLoopbackRecording = function () {
 InjectRtcAudioVideoUtil.stopLoopbackRecording = function () {
     //停止采集声卡
     InjectRtcAudioVideoUtil.loopbackStatus = 0;
-    let enableCode = InjectRtcAudioVideoUtil.RtcAudioVideoScreen.enableLoopbackRecording(false);
+    let enableCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableLoopbackRecording(false);
     console.log("停止采集声卡", enableCode);
 }
 
@@ -172,10 +239,23 @@ InjectRtcAudioVideoUtil.startVideo = function () {
         InjectRtcAudioVideoUtil.clientRole = 1;
         InjectRtcAudioVideoUtil.AudioVideoRTC.setClientRole(InjectRtcAudioVideoUtil.clientRole);
     }
+    /!*let uid = parseInt(Meeting.login_puid);
+    if ($("#camera_" + uid).length === 0) {
+        $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
+    }
+    let localVideoContainer = document.getElementById("camera_" + uid);
+    console.log(localVideoContainer);
+    let domLocalVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.setupLocalVideo(localVideoContainer);
+    console.log("AudioVideoRTC设置本地视频渲染位置", domLocalVideoCode);*!/
+    // 开启视频预览
+    let previewCode = InjectRtcAudioVideoUtil.AudioVideoRTC.startPreview();
+    console.log("RtcAudioVideoScreen开启视频预览", previewCode);
     // 开始本地视频采集
     InjectRtcAudioVideoUtil.videoStatus = 1;
     let localVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableLocalVideo(true);
     console.log("AudioVideoRTC开始本地视频采集", localVideoCode);
+    // 页面交互-开启自己摄像头
+    RtcMediaUtil.myVideoStatusChange(1);
 }
 
 // 关摄像头
@@ -188,10 +268,15 @@ InjectRtcAudioVideoUtil.stopVideo = function () {
             InjectRtcAudioVideoUtil.AudioVideoRTC.setClientRole(InjectRtcAudioVideoUtil.clientRole);
         }
     }
+    // 停止视频预览
+    let previewCode = InjectRtcAudioVideoUtil.AudioVideoRTC.stopPreview();
+    console.log("RtcAudioVideoScreen停止视频预览", previewCode);
     // 停止本地视频采集
     InjectRtcAudioVideoUtil.videoStatus = 0;
     let localVideoCode = InjectRtcAudioVideoUtil.AudioVideoRTC.enableLocalVideo(false);
     console.log("AudioVideoRTC停止本地视频采集", localVideoCode);
-}
+    // 页面交互-关闭自己摄像头
+    RtcMediaUtil.myVideoStatusChange(0);
+}*/
 
 module.exports = InjectRtcAudioVideoUtil;

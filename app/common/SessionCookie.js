@@ -12,7 +12,7 @@ const cookieKey = config.getConfigVal("cookie_key");
 // 初始化
 function init() {
     // 设置默认userAgent
-    let userAgent = config.getConfigVal("userAgent");
+    let userAgent = config.getBuildConfigVal("userAgent");
     if (userAgent) {
         session.defaultSession.setUserAgent(userAgent);
     }

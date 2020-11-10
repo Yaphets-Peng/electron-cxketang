@@ -3,11 +3,22 @@ var InjectRtcScreenUtil = {
     ScreenRTC: null,//rtc实例
     sdkLogPath: null,//日志路径
     clientRole: 2,//直播场景下的用户角色, 1：主播, 2：（默认）观众
-    screenStatus:0,//屏幕共享0：关闭，1：开启
+    screenStatus: 0,//屏幕共享0：关闭，1：开启
+}
+
+InjectRtcScreenUtil.init = function () {
+}
+
+InjectRtcScreenUtil.startScreen = function () {
+    InjectRtcAudioVideoScreenUtil.startScreen();
+}
+
+InjectRtcScreenUtil.stopScreen = function () {
+    InjectRtcAudioVideoScreenUtil.stopScreen();
 }
 
 // 开始加入频道
-InjectRtcScreenUtil.init = function () {
+/*InjectRtcScreenUtil.init = function () {
     console.log("sdkLogPath=", InjectRtcScreenUtil.sdkLogPath);
     // 开始加入频道
     InjectRtcScreenUtil.ScreenRTC = new AgoraRtcEngine();
@@ -60,15 +71,18 @@ InjectRtcScreenUtil.init = function () {
 
     // 设置频道场景, 0: 通信, 1: 直播
     InjectRtcScreenUtil.ScreenRTC.setChannelProfile(1);
-    /*if (MeetInfoUtil.isMyMeet) {
+    /!*if (MeetInfoUtil.isMyMeet) {
         //设置直播场景下的用户角色, 1：主播, 2：（默认）观众
         InjectRtcScreenUtil.ScreenRTC.setClientRole(1);
-    }*/
+    }*!/
     // 必须关主播身份
     InjectRtcScreenUtil.ScreenRTC.setClientRole(InjectRtcScreenUtil.clientRole);
     // 关闭音频功能
-    let audioCode = RtcScreenUtil.ScreenRTC.disableAudio();
+    let audioCode = InjectRtcScreenUtil.ScreenRTC.disableAudio();
     console.log("ScreenRTC关闭音频功能", audioCode);
+    // 停止接收所有音频流
+    let stopAudioCode = InjectRtcScreenUtil.ScreenRTC.muteAllRemoteAudioStreams(true);
+    console.log("ScreenRTC停止接收所有音频流", stopAudioCode);
     // 打开视频功能
     let openVideoCode = InjectRtcScreenUtil.ScreenRTC.enableVideo();
     console.log("ScreenRTC打开视频功能", openVideoCode);
@@ -76,9 +90,6 @@ InjectRtcScreenUtil.init = function () {
     let stopPreviewCode = InjectRtcScreenUtil.ScreenRTC.stopPreview();
     console.log("ScreenRTC停止视频预览", stopPreviewCode);
     // 停止接收所有视频流
-    let stopAudioCode = InjectRtcScreenUtil.ScreenRTC.muteAllRemoteAudioStreams(true);
-    console.log("ScreenRTC停止接收所有音频流", stopAudioCode);
-    // 停止接收所有音频流
     let stopVideoCode = InjectRtcScreenUtil.ScreenRTC.muteAllRemoteVideoStreams(true);
     console.log("ScreenRTC停止接收所有视频流", stopVideoCode);
     //打开与WebSDK的互通
@@ -90,7 +101,8 @@ InjectRtcScreenUtil.startScreen = function () {
     //获取屏幕信息
     let displays = InjectRtcScreenUtil.ScreenRTC.getScreenDisplaysInfo()
     if (displays.length === 0) {
-        return console.log('no display found')
+        console.log('no display found');
+        return;
     }
     console.log(displays);
     // 必须开主播身份
@@ -98,7 +110,7 @@ InjectRtcScreenUtil.startScreen = function () {
     InjectRtcScreenUtil.clientRole = 1;
     InjectRtcScreenUtil.ScreenRTC.setClientRole(InjectRtcScreenUtil.clientRole);
     //开始采集音频
-    if (typeof InjectRtcAudioVideoUtil) {
+    if (typeof InjectRtcAudioVideoUtil != "undefined") {
         // 开启麦克风
         InjectRtcAudioVideoUtil.startAudio();
     }
@@ -132,7 +144,7 @@ InjectRtcScreenUtil.stopScreen = function () {
     InjectRtcScreenUtil.clientRole = 2;
     InjectRtcScreenUtil.ScreenRTC.setClientRole(InjectRtcScreenUtil.clientRole);
     //停止采集音频
-    if (typeof InjectRtcAudioVideoUtil) {
+    if (typeof InjectRtcAudioVideoUtil != "undefined") {
         InjectRtcAudioVideoUtil.stopLoopbackRecording();
     }
     //离开频道
@@ -141,6 +153,6 @@ InjectRtcScreenUtil.stopScreen = function () {
     //停止共享屏幕
     let screenCode = InjectRtcScreenUtil.ScreenRTC.stopScreenCapture();
     console.log("停止共享屏幕", screenCode);
-}
+}*/
 
 module.exports = InjectRtcScreenUtil;

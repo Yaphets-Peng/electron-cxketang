@@ -51,15 +51,8 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('userJoined', (uid, elapsed) => {
         console.log(`AudioVideoScreenRTC userJoined uid ${uid}, elapsed ${elapsed}ms`);
         if (Meeting.isVideoId(uid)) {
-            // 设置视窗内容显示模式
-            InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupViewContentMode(uid, 1);
-            // 订阅该远端用户流
-            if ($("#camera_" + uid).length === 0) {
-                $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
-            }
-            let remoteVideoContainer = document.getElementById("camera_" + uid);
-            let domRemoteVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.subscribe(uid, remoteVideoContainer)
-            console.log("AudioVideoScreenRTC设置远端视频渲染位置", domRemoteVideoCode);
+            //用户加入
+            RtcMediaUtil.onPeerOnline({"uid": uid});
         }
     });
     // 他人离开频道回调
@@ -68,6 +61,8 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     // （直播场景下）用户身份从主播切换为观众
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('userOffline', (uid, elapsed) => {
         console.log(`AudioVideoScreenRTC userOffline uid ${uid}, elapsed ${elapsed}ms`);
+        //用户离开
+        RtcMediaUtil.onPeerLeave({"uid": uid});
     });
     //当远端流被移除时（例如远端用户调用了 Stream.unpublish）， 停止播放该流并移除它的画面。
     // 0：用户主动离开。
@@ -75,7 +70,10 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     // 2：用户身份从主播切换为观众。
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('removeStream', (uid, reason) => {
         console.log(`AudioVideoScreenRTC removeStream: uid ${uid} -reason ${reason}`)
-        //consoleContainer.innerHTML = `error: code ${err} - ${msg}`
+        //用户离开
+        if (reason != 2) {
+            RtcMediaUtil.onPeerLeave({"uid": uid});
+        }
     });
     // 异常回调
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('error', (err, msg) => {
@@ -84,9 +82,74 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     });
     // 说话回调
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('groupAudioVolumeIndication', (speakers, speakerNumber, totalVolume) => {
-        console.log(`AudioVideoScreenRTC说话回调: ${speakers} - ${speakerNumber} - ${totalVolume}`)
-        console.log(speakers);
+        //console.log(`AudioVideoScreenRTC说话回调: ${speakers} - ${speakerNumber} - ${totalVolume}`)
         RtcMediaUtil.onVolumeIndicator(speakers);
+    });
+    // 远端音频流状态发生改变回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('remoteAudioStateChanged', (uid, state, reason, elapsed) => {
+        console.log(`AudioVideoScreenRTC远端音频流状态发生改变回调: ${uid} - ${state} - ${reason} - ${elapsed}`)
+        if (Meeting.isVideoId(uid)) {
+            if (state == 0) {
+                if (reason == 3 || reason == 5 || reason == 7) {
+
+                }
+                RtcMediaUtil.onMuteAudio({"uid": uid});
+            } else if (state == 1 || state == 2) {
+                RtcMediaUtil.onUnmuteAUdio({"uid": uid});
+            }
+        }
+    });
+    // 远端视频流状态发生改变回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('remoteVideoStateChanged', (uid, state, reason, elapsed) => {
+        console.log(`AudioVideoScreenRTC远端视频流状态发生改变回调: ${uid} - ${state} - ${reason} - ${elapsed}`)
+        if (state == 0) {
+            if (reason == 3 || reason == 5 || reason == 7) {
+
+            }
+            if (Meeting.isVideoId(uid)) {
+                RtcMediaUtil.onDisableVideo({"uid": uid});
+            } else if (Meeting.isScreenId(uid)) {
+                RtcScreenUtil.userScreenStatusChange(uid, 0);
+            }
+        } else if (state == 1 || state == 2) {
+            if (Meeting.isVideoId(uid)) {
+                // 设置视窗内容显示模式
+                InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupViewContentMode(uid, 1);
+                // 订阅该远端用户流
+                if ($("#camera_" + uid).length === 0) {
+                    $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
+                }
+                let remoteVideoContainer = document.getElementById("camera_" + uid);
+                let domRemoteVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.subscribe(uid, remoteVideoContainer)
+                console.log("AudioVideoScreenRTC设置远端视频渲染位置", domRemoteVideoCode);
+                RtcMediaUtil.onEnableVideo({"uid": uid});
+            } else if (Meeting.isScreenId(uid)) {
+                RtcScreenUtil.userScreenStatusChange(uid, 1);
+            }
+        }
+    });
+    // 远端视频状态发生改变回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('userMuteVideo', (uid, muted) => {
+        console.log(`AudioVideoScreenRTC远端视频状态发生改变回调: ${uid} - ${muted}`)
+        if (muted) {
+            RtcMediaUtil.onDisableVideo({"uid": uid});
+        } else {
+            RtcMediaUtil.onEnableVideo({"uid": uid});
+        }
+    });
+    // 通话中每个用户的网络上下行
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('networkQuality', (uid, txquality, rxquality) => {
+        console.log(`AudioVideoScreenRTC通话中每个用户的网络上下行: ${uid} - ${txquality} - ${rxquality}`);
+        // 自己
+        if (uid == 0 || Meeting.isScreenId(uid)) {
+            if (txquality == 6 || rxquality == 6) {
+                NetShooting.netWorkTips(2);
+            } else if (rxquality == 4 || rxquality == 5) {
+                NetShooting.netWorkTips(1);
+            }
+        } else {
+
+        }
     });
 
     // 设置频道场景, 0: 通信, 1: 直播
@@ -97,6 +160,20 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     }*/
     // 必须关主播身份
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setClientRole(InjectRtcAudioVideoScreenUtil.clientRole);
+    // 麦克风设备判断
+    let audioDev = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getCurrentAudioRecordingDevice();
+    if (audioDev) {
+        Meeting.hasAudioDev = true;
+    } else {
+        Meeting.hasAudioDev = false;
+    }
+    // 摄像头设备判断
+    let videoDev = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getCurrentVideoDevice();
+    if (videoDev) {
+        Meeting.hasVideoDev = true;
+    } else {
+        Meeting.hasVideoDev = false;
+    }
     // 打开音频功能
     let openAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableAudio();
     console.log("AudioVideoScreenRTC打开音频功能", openAudioCode);
@@ -104,7 +181,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     let localAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.muteLocalAudioStream(true);
     console.log("AudioVideoScreenRTC停止发送本地音频流", localAudioCode);
     // 启用说话者音量提示
-    let volumeAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableAudioVolumeIndication(2000, 3, false);
+    let volumeAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableAudioVolumeIndication(1000, 3, false);
     console.log("AudioVideoScreenRTC启用说话者音量提示", volumeAudioCode);
     // 打开视频功能
     let openVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableVideo();
@@ -166,6 +243,17 @@ InjectRtcAudioVideoScreenUtil.startAudio = function () {
     }
     // 页面交互-开启自己麦克风
     RtcMediaUtil.myAudioStatusChange(1);
+    // 发送开启麦克风的频道消息
+    let jsonMessage = {"mediaOperate": {"op": 1, "type": "audio"}};
+    Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)}).then(() => {
+        // 发送成功
+        console.info("发送麦克风信令" + JSON.stringify(jsonMessage));
+    }).catch(error => {
+        // 失败重试一次
+        setTimeout(function () {
+            Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)});
+        }, 3000);
+    })
 }
 
 // 关麦克风
@@ -188,6 +276,19 @@ InjectRtcAudioVideoScreenUtil.stopAudio = function () {
     console.log("停止采集声卡", enableCode);
     // 页面交互-开启自己麦克风
     RtcMediaUtil.myAudioStatusChange(0);
+    // 发送关闭麦克风的频道消息
+    let jsonMessage = {"mediaOperate": {"op": 0, "type": "audio"}};
+    Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)}).then(() => {
+        // 发送成功
+        console.info("发送麦克风信令" + JSON.stringify(jsonMessage));
+        // Meeting.logs("发送麦克风信令"+JSON.stringify(jsonMessage));
+    }).catch(error => {
+        // 失败重试一次
+        setTimeout(function () {
+            Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)});
+            Meeting.logs("发送麦克风信令失败重试一次" + JSON.stringify(jsonMessage));
+        }, 3000);
+    })
 }
 
 //开始采集声卡
@@ -229,6 +330,19 @@ InjectRtcAudioVideoScreenUtil.startVideo = function () {
     console.log("AudioVideoScreenRTC开始本地视频采集", localVideoCode);
     // 页面交互-开启自己摄像头
     RtcMediaUtil.myVideoStatusChange(1);
+    // 发送开启摄像头的频道消息
+    let jsonMessage = {"mediaOperate": {"op": 1, "type": "video"}};
+    Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)}).then(() => {
+        // 发送成功
+        console.info("发送摄像头信令" + JSON.stringify(jsonMessage));
+        // Meeting.logs("发送摄像头信令"+JSON.stringify(jsonMessage));
+    }).catch(error => {
+        // 失败重试一次
+        setTimeout(function () {
+            Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)});
+            // Meeting.logs("发送摄像头信令失败重试一次"+JSON.stringify(jsonMessage));
+        }, 3000);
+    })
 }
 
 // 关摄像头
@@ -250,6 +364,19 @@ InjectRtcAudioVideoScreenUtil.stopVideo = function () {
     console.log("AudioVideoScreenRTC停止本地视频采集", localVideoCode);
     // 页面交互-关闭自己摄像头
     RtcMediaUtil.myVideoStatusChange(0);
+    // 发送关闭摄像头的频道消息
+    let jsonMessage = {"mediaOperate": {"op": 0, "type": "video"}};
+    Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)}).then(() => {
+        // 发送成功
+        console.info("发送摄像头信令" + JSON.stringify(jsonMessage));
+        // Meeting.logs("发送摄像头信令"+JSON.stringify(jsonMessage));
+    }).catch(error => {
+        // 失败重试一次
+        setTimeout(function () {
+            Meeting.rtm.channel.sendMessage({text: JSON.stringify(jsonMessage)});
+            // Meeting.logs("发送摄像头信令失败重试一次"+JSON.stringify(jsonMessage));
+        }, 3000);
+    })
 }
 
 // 开始投屏
@@ -297,6 +424,8 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
             windowFocus: false
         });
         console.log("开始共享屏幕", screenCode);
+        // 页面交互-开自己投屏
+        RtcScreenUtil.myScreenStatusChange(1);
     });
 }
 
@@ -322,6 +451,22 @@ InjectRtcAudioVideoScreenUtil.stopScreen = function () {
 
     let releaseScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRelease();
     console.log("释放共享屏幕频道", releaseScreenCode);
+    // 页面交互-开自己投屏
+    RtcScreenUtil.myScreenStatusChange(0);
+}
+
+//创建投屏dom
+InjectRtcAudioVideoScreenUtil.createScreenDom = function (uid) {
+    console.log($("#screen_" + uid))
+    // 设置视窗内容显示模式
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupViewContentMode(uid, 1);
+    // 订阅该远端用户流
+    if ($("#screen_" + uid).length === 0) {
+        $(".videoDiv").append('<div class="shareScreen" id="screen_' + uid + '"></div>')
+    }
+    let remoteVideoContainer = document.getElementById("screen_" + uid);
+    let domRemoteVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.subscribe(uid, remoteVideoContainer)
+    console.log("AudioVideoScreenRTC设置远端投屏渲染位置", domRemoteVideoCode);
 }
 
 // 关闭销毁

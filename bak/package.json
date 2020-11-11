@@ -6,17 +6,17 @@
   "scripts": {
     "upfig": "node script/before_all.js",
     "start": "node script/before_all.js && CHCP 65001 & electron .",
-    "pack": "node script/before_all.js && electron-builder --dir",
     "dist": "npm-run-all build:*",
     "build:win": "node script/before_all.js && electron-builder --win --ia32",
     "build:mac": "node script/before_all.js && electron-builder --mac --x64",
+    "build-dev:mac": "export NODE_ENV=dev && node script/before_all.js && electron-builder --mac --x64",
     "build:linux": "node script/before_all.js && electron-builder --linux --x64"
   },
   "license": "",
   "devDependencies": {
     "dotenv": "^8.2.0",
     "electron": "^5.0.8",
-    "electron-builder": "^22.8.1",
+    "electron-builder": "^22.9.1",
     "electron-notarize": "^1.0.0",
     "electron-notifications": "^1.0.0",
     "yarn-run-all": "^3.1.1"
@@ -24,8 +24,10 @@
   "dependencies": {
     "agora-electron-sdk": "2.9.0-rc.106-build.804",
     "agora-rtm-sdk": "^1.4.0-1",
+    "axios": "^0.21.0",
     "electron-log": "^4.3.0",
     "md5": "^2.3.0",
+    "qs": "^6.9.4",
     "uuid": "^8.3.1"
   },
   "build": {

@@ -33,7 +33,6 @@ InjectRtcAudioVideoScreenUtil.init = function () {
             $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
         }
         let localVideoContainer = document.getElementById("camera_" + uid);
-        console.log(localVideoContainer);
         let domLocalVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupLocalVideo(localVideoContainer);
         console.log("AudioVideoScreenRTC设置本地视频渲染位置", domLocalVideoCode);
     });
@@ -187,6 +186,9 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     // 打开音频功能
     let openAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableAudio();
     console.log("AudioVideoScreenRTC打开音频功能", openAudioCode);
+    // 设置音频场景
+    let audioProfileCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setAudioProfile(0, 2);
+    console.log("AudioVideoScreenRTC设置音频场景", audioProfileCode);
     // 停止发送本地音频流
     let localAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.muteLocalAudioStream(true);
     console.log("AudioVideoScreenRTC停止发送本地音频流", localAudioCode);
@@ -330,6 +332,14 @@ InjectRtcAudioVideoScreenUtil.startVideo = function () {
     if (InjectRtcAudioVideoScreenUtil.clientRole == 2) {
         InjectRtcAudioVideoScreenUtil.clientRole = 1;
         InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setClientRole(InjectRtcAudioVideoScreenUtil.clientRole);
+        // 处理麦克风
+        if (InjectRtcAudioVideoScreenUtil.audioStatus == 0) {
+            let localAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.muteLocalAudioStream(true);
+            console.log("AudioVideoScreenRTC停止发送本地音频流", localAudioCode);
+        } else {
+            let localAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.muteLocalAudioStream(false);
+            console.log("AudioVideoScreenRTC开始发送本地音频流", localAudioCode);
+        }
     }
     // 开启视频预览
     let previewCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.startPreview();
@@ -474,7 +484,6 @@ InjectRtcAudioVideoScreenUtil.stopScreen = function () {
 
 //创建投屏dom
 InjectRtcAudioVideoScreenUtil.createScreenDom = function (uid) {
-    console.log($("#screen_" + uid))
     // 设置视窗内容显示模式
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupViewContentMode(uid, 1);
     // 订阅该远端用户流
@@ -482,7 +491,7 @@ InjectRtcAudioVideoScreenUtil.createScreenDom = function (uid) {
         $(".videoDiv").append('<div class="shareScreen" id="screen_' + uid + '"></div>')
     }
     let remoteVideoContainer = document.getElementById("screen_" + uid);
-    let domRemoteVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.subscribe(uid, remoteVideoContainer)
+    let domRemoteVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.subscribe(uid, remoteVideoContainer);
     console.log("AudioVideoScreenRTC设置远端投屏渲染位置", domRemoteVideoCode);
 }
 

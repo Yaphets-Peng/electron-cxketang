@@ -58,16 +58,7 @@
             "ia32"
           ]
         }
-      ],
-      "verifyUpdateCodeSignature": false,
-      "signingHashAlgorithms": [
-        "sha1",
-        "sha256"
-      ],
-      "signDlls": true,
-      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
-      "certificateFile": "script/selfsigncert.pfx",
-      "certificatePassword": "dev"
+      ]
     },
     "nsis": {
       "oneClick": false,

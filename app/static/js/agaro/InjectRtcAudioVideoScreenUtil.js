@@ -151,6 +151,16 @@ InjectRtcAudioVideoScreenUtil.init = function () {
 
         }
     });
+    // 音视频token过期
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('tokenPrivilegeWillExpire', (token) => {
+        console.log(`AudioVideoScreenRTC音视频token过期: ${token}`);
+        RtcMediaUtil.onTokenPrivilegeWillExpire(1);
+    });
+    // 投屏token过期
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('videoSourceRequestNewToken', (token) => {
+        console.log(`AudioVideoScreenRTC投屏token过期: ${token}`);
+        RtcMediaUtil.onTokenPrivilegeWillExpire(2);
+    });
 
     // 设置频道场景, 0: 通信, 1: 直播
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setChannelProfile(1);
@@ -379,6 +389,12 @@ InjectRtcAudioVideoScreenUtil.stopVideo = function () {
     })
 }
 
+//更新音视频token
+InjectRtcAudioVideoScreenUtil.renewAudioVideoToken = function (token) {
+    let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.renewToken(token)
+    console.log("AudioVideoScreenRTC更新音视频token", renewAudioVideoTokenCode);
+}
+
 // 开始投屏
 InjectRtcAudioVideoScreenUtil.startScreen = function () {
     //获取屏幕信息
@@ -404,6 +420,7 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
     console.log("初始化共享屏幕频道", initScreenCode);
 
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetChannelProfile(1);
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceEnableWebSdkInteroperability(true);
     // 加入videoSource频道
     let userIdTemp = parseInt(Meeting.getScreenPuid(Meeting.login_puid));
     let joinScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceJoin(Meeting.rtc_screen_token, Meeting.meet_qrcode, null, userIdTemp)
@@ -467,6 +484,12 @@ InjectRtcAudioVideoScreenUtil.createScreenDom = function (uid) {
     let remoteVideoContainer = document.getElementById("screen_" + uid);
     let domRemoteVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.subscribe(uid, remoteVideoContainer)
     console.log("AudioVideoScreenRTC设置远端投屏渲染位置", domRemoteVideoCode);
+}
+
+//更新投屏token
+InjectRtcAudioVideoScreenUtil.renewScreenToken = function (token) {
+    let renewScreenTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRenewToken(token)
+    console.log("AudioVideoScreenRTC更新投屏token", renewScreenTokenCode);
 }
 
 // 关闭销毁

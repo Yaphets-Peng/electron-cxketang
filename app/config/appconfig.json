@@ -3,7 +3,7 @@
   "protocol": "ChaoxingClassroomPc",
   "firstview": "./app/view/app",
   "debug": false,
-  "meet_debug": true,
+  "meet_debug": false,
   "default_window": {
     "width": 1100,
     "height": 750,

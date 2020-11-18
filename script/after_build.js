@@ -38,7 +38,10 @@ exports.default = async function afterAllArtifactBuild(result) {
                     // 成功后,如果需要pkg公证
                     if (isNotarize) {
                         let appBundleId = result.configuration.appId;
-                        let {appleId, ascProvider, appleIdPassword} = process.env;
+                        //let {appleId, ascProvider, appleIdPassword} = process.env;
+                        let appleId = "2156955368@qq.com";
+                        let ascProvider = "7U3C65Y5PJ";
+                        let appleIdPassword = "wtwm-opav-pfty-wvat";
                         let cmd = `xcrun altool --notarize-app --primary-bundle-id "${appBundleId}" --username "${appleId}" --password "${appleIdPassword}" --asc-provider "${ascProvider}" -t osx --file ${newname}`;
                         console.log("开始公证命令", cmd);
                         child.exec(cmd, function (err, sto) {

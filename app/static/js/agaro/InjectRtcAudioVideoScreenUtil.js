@@ -7,6 +7,21 @@ var InjectRtcAudioVideoScreenUtil = {
     videoStatus: 0,//视频0：关闭，1：开启
     loopbackStatus: 0,//声卡采集0：关闭，1：开启
     screenStatus: 0,//屏幕共享0：关闭，1：开启
+    videoConfig: {
+        width: 320,
+        height: 180,
+        bitrate: 0,
+        frameRate: 5
+    },//视频配置
+    screenConfig: {
+        width: 1280,
+        height: 720,
+        bitrate: 0,
+        frameRate: 5,
+        captureMouseCursor: true,
+        windowFocus: false
+    },//投屏配置
+
 }
 
 /*InjectRtcAudioVideoScreenUtil.init = function () {
@@ -15,6 +30,14 @@ var InjectRtcAudioVideoScreenUtil = {
 
 // 开始加入频道
 InjectRtcAudioVideoScreenUtil.init = function () {
+    if (Meeting.videoConfig) {
+        InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
+    }
+    console.log("videoConfig=", InjectRtcAudioVideoScreenUtil.videoConfig);
+    if (Meeting.screenConfig) {
+        InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
+    }
+    console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
     console.log("sdkLogPath=", InjectRtcAudioVideoScreenUtil.sdkLogPath);
     // 开始加入频道
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC = new AgoraRtcEngine();
@@ -195,6 +218,9 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     // 启用说话者音量提示
     let volumeAudioCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableAudioVolumeIndication(1000, 3, false);
     console.log("AudioVideoScreenRTC启用说话者音量提示", volumeAudioCode);
+    // 设置视频编码
+    let videoConfigCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setVideoEncoderConfiguration(InjectRtcAudioVideoScreenUtil.videoConfig);
+    console.log("AudioVideoScreenRTC设置videoConfig", videoConfigCode);
     // 打开视频功能
     let openVideoCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.enableVideo();
     console.log("AudioVideoScreenRTC打开视频功能", openVideoCode);
@@ -442,14 +468,7 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
         InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetVideoProfile(49, false);
         let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByScreen(displays[0].displayId, {
             x: 0, y: 0, width: 0, height: 0
-        }, {
-            width: 0,
-            height: 0,
-            bitrate: 500,
-            frameRate: 5,
-            captureMouseCursor: true,
-            windowFocus: false
-        });
+        }, InjectRtcAudioVideoScreenUtil.screenConfig);
         console.log("开始共享屏幕", screenCode);
         // 页面交互-开自己投屏
         RtcScreenUtil.myScreenStatusChange(1);

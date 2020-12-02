@@ -9,11 +9,14 @@ if (require('electron').remote) {
     } else {
         const path = require("path");
         let logger = require("../common/Logger");
+        let rendererProcessHelper = require("../process/RendererProcessHelper");
         console.log(logger.getLogPath());
         window.AgoraRtcEngine = require("agora-electron-sdk").default;
         window.InjectRtcAudioVideoScreenUtil = require('../static/js/agaro/InjectRtcAudioVideoScreenUtil');
         // 获取日志路径后存放
         window.InjectRtcAudioVideoScreenUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoraAudioVideoScreenSdk.log");
+        // ipc通信
+        window.InjectRtcAudioVideoScreenUtil.RendererProcessHelper = rendererProcessHelper;
 
         // 会议退出全屏
         const remote = require("electron").remote;

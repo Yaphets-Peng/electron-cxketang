@@ -1,6 +1,7 @@
 //注入js
 var InjectRtcAudioVideoScreenUtil = {
     AudioVideoScreenRTC: null,//rtc实例
+    RendererProcessHelper: null,//ipc通信实例
     sdkLogPath: null,//日志路径
     clientRole: 2,//直播场景下的用户角色, 1：主播, 2：（默认）观众
     audioStatus: 0,//麦克风0：关闭，1：开启
@@ -11,17 +12,16 @@ var InjectRtcAudioVideoScreenUtil = {
         width: 320,
         height: 180,
         bitrate: 0,
-        frameRate: 5
+        frameRate: 15
     },//视频配置
     screenConfig: {
         width: 1280,
         height: 720,
         bitrate: 0,
-        frameRate: 5,
+        frameRate: 15,
         captureMouseCursor: true,
         windowFocus: false
     },//投屏配置
-
 }
 
 /*InjectRtcAudioVideoScreenUtil.init = function () {
@@ -38,6 +38,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
         InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
     }
     console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
+    
     console.log("sdkLogPath=", InjectRtcAudioVideoScreenUtil.sdkLogPath);
     // 开始加入频道
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC = new AgoraRtcEngine();
@@ -48,6 +49,9 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setLogFile(InjectRtcAudioVideoScreenUtil.sdkLogPath);
     // TODO 开发设置2020-11-03
     //InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setParameters("{\"che.audio.start_debug_recording\":\"NoName\"}");
+    // 禁止修改码率
+    // let parametersCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setParameters("{\"che.video.enableAutoVideoResize\":0}");
+    // console.log("parameters=", parametersCode)
 
     // 加入频道回调
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('joinedChannel', (channel, uid, elapsed) => {
@@ -464,12 +468,24 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
 
     // 初始化成功开启
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('videosourcejoinedsuccess', () => {
+        // 选择当前第一个屏幕
+        let displayScreen = displays[0];
         // start screenshare
         InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetVideoProfile(49, false);
-        let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByScreen(displays[0].displayId, {
+        let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByScreen(displayScreen.displayId, {
             x: 0, y: 0, width: 0, height: 0
         }, InjectRtcAudioVideoScreenUtil.screenConfig);
         console.log("开始共享屏幕", screenCode);
+        // 打开屏幕框
+        if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+            let cmdTemp = "startScreen";
+            let winHeightTemp = displayScreen.height;
+            let winWidthTemp = displayScreen.width;
+            if (winHeightTemp && winWidthTemp) {
+                cmdTemp += "?width=" + winWidthTemp + "&height=" + winHeightTemp;
+            }
+            InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess("screenTools",cmdTemp);
+        }
         // 页面交互-开自己投屏
         RtcScreenUtil.myScreenStatusChange(1);
     });
@@ -497,6 +513,10 @@ InjectRtcAudioVideoScreenUtil.stopScreen = function () {
 
     let releaseScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRelease();
     console.log("释放共享屏幕频道", releaseScreenCode);
+    // 关闭屏幕框
+    if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess("screenTools", "stopScreen");
+    }
     // 页面交互-开自己投屏
     RtcScreenUtil.myScreenStatusChange(0);
 }

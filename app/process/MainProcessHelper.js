@@ -885,4 +885,77 @@ function registeCallback(signal, callback) {
     }
 }
 
+/**
+ *投屏相关
+ */
+//ipcMain收到screenTools信号
+ipcMain.on("screenTools", function (sys, cmd) {
+    if (!cmd) {
+        return;
+    }
+    logger.info("[MainProcessHelper][_screenTools_]主进程main.js收到投屏指令信号 指令 " + cmd);
+    let screenToolsWindowUUID = "screenTools";
+    if (cmd.startsWith("startScreen")) {
+        let screenToolsWindow = global.sharedWindow.windowMap.get(screenToolsWindowUUID);
+        if (!screenToolsWindow) {
+            let winWidthTemp = getUrlParamValue(cmd, "width");
+            if (winWidthTemp) {
+                winWidthTemp = parseInt(winWidthTemp);
+            } else {
+                winWidthTemp = 800;
+            }
+            let winHeightTemp = getUrlParamValue(cmd, "height");
+            if (winHeightTemp) {
+                winHeightTemp = parseInt(winHeightTemp);
+            } else {
+                winHeightTemp = 600;
+            }
+            screenToolsWindow = new BrowserWindow({
+                "width": winWidthTemp,
+                "height": winHeightTemp,
+                "x": 0,
+                "y": 0,
+                "frame": false,
+                "center": true,
+                "movable": false,
+                "hasShadow": false,
+                "resizable": false,
+                "alwaysOnTop": true,
+                "skipTaskbar": true,
+                "transparent": true,
+                "autoHideMenuBar": true,
+                "enableLargerThanScreen": true,
+            });
+            // 引入主入口界面
+            screenToolsWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/box.html"));
+
+            // win直接全屏,macos直接简单全屏
+            if (process.platform === 'darwin') {
+                //screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
+                //screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
+                //screenToolsWindow.setSimpleFullScreen(true);
+                //screenToolsWindow.maximize();
+                screenToolsWindow.setAlwaysOnTop(true, 'screen-saver') // mac
+                screenToolsWindow.setVisibleOnAllWorkspaces(true) // mac
+            }else{
+                //screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
+                //screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
+                screenToolsWindow.setFullScreen(true);
+            }
+            
+            screenToolsWindow.setIgnoreMouseEvents(true);
+            // 放入窗口集合中
+            global.sharedWindow.windowMap.set(screenToolsWindowUUID, screenToolsWindow);
+        }
+    } else if ("stopScreen" == cmd) {
+        let screenToolsWindow = global.sharedWindow.windowMap.get(screenToolsWindowUUID);
+        if (screenToolsWindow) {
+            // 销毁窗口
+            screenToolsWindow.destroy();
+            //将screenToolsWindow置为null
+            global.sharedWindow.windowMap.delete(screenToolsWindowUUID);
+        }
+    }
+});
+
 module.exports = {createMainWindow, getMainWindow, openNewWindow};

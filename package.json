@@ -5,12 +5,11 @@
   "main": "app/main.js",
   "scripts": {
     "upfig": "node script/before_all.js",
-    "start": "node script/before_all.js && CHCP 65001 & electron .",
+    "start": "CHCP 65001 & electron .",
     "dist": "npm-run-all build:*",
     "build:win": "node script/before_all.js && electron-builder --win --ia32",
     "build:mac": "node script/before_all.js && electron-builder --mac --x64",
-    "build-dev:mac": "export NODE_ENV=dev && node script/before_all.js && electron-builder --mac --x64",
-    "build:linux": "node script/before_all.js && electron-builder --linux --x64"
+    "build-dev:mac": "export NODE_ENV=dev && node script/before_all.js && electron-builder --mac --x64"
   },
   "license": "",
   "devDependencies": {
@@ -39,7 +38,7 @@
     "artifactName": "ketang_${version}.${ext}",
     "compression": "store",
     "directories": {
-      "output": "build/${os}"
+      "output": "build/3/${os}"
     },
     "files": [
       "app/",
@@ -110,17 +109,6 @@
       "target": [
         "pkg"
       ]
-    },
-    "protocols": [
-      {
-        "name": "your-protocol-name",
-        "schemes": [
-          "your-protocol-name"
-        ]
-      }
-    ],
-    "linux": {
-      "icon": "app/icons"
     },
     "asar": false,
     "extraFiles": []

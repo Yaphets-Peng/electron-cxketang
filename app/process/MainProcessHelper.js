@@ -58,6 +58,8 @@ function createMainWindow() {
     let windowLevel = mainWindowLevel;
     // 创建浏览器窗口
     let mainWindowConfig = config.getConfigVal("main_window");
+    //更新标题和图标
+    mainWindowConfig.title = config.getConfigVal("title");
     mainWindowConfig.icon = path.join(
         path.resolve(__dirname, ".."),
         config.getConfigVal("icon")
@@ -245,6 +247,10 @@ function openNewWindow(view, args) {
                 }
             }
         }
+        //更新标题和图标
+        viewWindowConfig.title = config.getConfigVal("title");
+        //更新标题和图标
+        viewWindowConfig.title = config.getConfigVal("title");
         viewWindowConfig.icon = path.join(
             path.resolve(__dirname, ".."),
             config.getConfigVal("icon")
@@ -362,7 +368,8 @@ function all_win_event(win) {
                     webWindowConfig.fullscreenable = false;
                 }
             }
-
+            //更新标题和图标
+            webWindowConfig.title = config.getConfigVal("title");
             // 图标
             webWindowConfig.icon = path.join(
                 path.resolve(__dirname, ".."),
@@ -783,6 +790,8 @@ function win_event(win) {
                 webWindowConfig.fullscreenable = false;
             }
         }
+        //更新标题和图标
+        webWindowConfig.title = config.getConfigVal("title");
         webWindowConfig.icon = path.join(
             path.resolve(__dirname, ".."),
             config.getConfigVal("icon")

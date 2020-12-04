@@ -122,9 +122,9 @@
     },
     "protocols": [
       {
-        "name": "your-protocol-name",
+        "name": "ChaoxingClassroomPc",
         "schemes": [
-          "your-protocol-name"
+          "ChaoxingClassroomPc"
         ]
       }
     ],

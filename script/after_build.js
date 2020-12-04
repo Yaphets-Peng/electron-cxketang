@@ -72,7 +72,7 @@ async function sendSuccess(fileName) {
  */
 function getConfigVal(configname) {
     // 配置文件
-    let config_file_path = path.join(path.resolve(__dirname, ".."), "app/config/buildInfo.json");
+    let config_file_path = path.join(path.resolve(__dirname, ".."), "app/config/appconfig.json");
     let json_config_ = fs.readFileSync(config_file_path);
     let config_obj_ = JSON.parse(json_config_);
     return config_obj_[configname];

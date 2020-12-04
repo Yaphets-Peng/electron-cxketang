@@ -1,0 +1,30 @@
+图标结构
+/product/${productId}/icons 对应 /app/icons
+
+产品json配置文件说明
+{
+  "${productId}": {
+    "schoolName": "单位名称",
+    "name": "项目名称",
+    "version": "版本号",
+    "description": "文件说明",
+    "productName": "应用名称",
+    "title": "内置窗口默认标题",
+    "copyright": "应用版权",
+    "filePrefix": "最终打包文件前缀"
+  }
+}
+
+示例：
+{
+  "3": {
+    "schoolName": "超星集团",
+    "name": "cxketang",
+    "version": "2.0.2",
+    "description": "cxketang",
+    "productName": "超星课堂",
+    "title": "超星课堂",
+    "copyright": "ChaogXing",
+    "filePrefix": "ketang"
+  }
+}

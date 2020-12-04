@@ -1,5 +1,5 @@
 //用于创建原生浏览器窗口的组件对象
-const {app, BrowserWindow, Tray, Menu} = require("electron"); //引入electron
+const {app, shell, BrowserWindow, Tray, Menu} = require("electron"); //引入electron
 const path = require("path"); //原生库path模块
 
 const {v4: uuidv4} = require('uuid');// 引入uuid工具类
@@ -295,6 +295,15 @@ function openNewWindow(view, args) {
 function all_win_event(win) {
     // 拦截window.open事件
     win.webContents.on("new-window", function (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) {
+        // 事件拦截
+        if (url.startsWith("cxkt://openUrlOnBrowser?url=")) {
+            // 用默认浏览器打开地址
+            let openBrowserUrl = url.replace("cxkt://openUrlOnBrowser?url=", "");
+            //shell.openExternal(decodeURIComponent(openBrowserUrl));
+            shell.openExternal(openBrowserUrl);
+            event.preventDefault();
+            return;
+        }
         // 当前窗口值
         let nowWindowUUID = event.sender.browserWindowOptions.customUUID;
         let nowWindowLevel = event.sender.browserWindowOptions.customLevel;
@@ -513,6 +522,15 @@ function all_win_event(win) {
     });
     // 拦截跳转
     win.webContents.on("will-navigate", function (event, url) {
+        // 事件拦截
+        if (url.startsWith("cxkt://openUrlOnBrowser?url=")) {
+            // 用默认浏览器打开地址
+            let openBrowserUrl = url.replace("cxkt://openUrlOnBrowser?url=", "");
+            //shell.openExternal(decodeURIComponent(openBrowserUrl));
+            shell.openExternal(openBrowserUrl);
+            event.preventDefault();
+            return;
+        }
         // 当前窗口值
         let nowWindowUUID = event.sender.browserWindowOptions.customUUID;
         let nowWindow = global.sharedWindow.windowMap.get(nowWindowUUID);
@@ -629,6 +647,15 @@ function all_win_event(win) {
     });
     // 拦截重定向
     win.webContents.on("will-redirect", function (event, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) {
+        // 事件拦截
+        if (url.startsWith("cxkt://openUrlOnBrowser?url=")) {
+            // 用默认浏览器打开地址
+            let openBrowserUrl = url.replace("cxkt://openUrlOnBrowser?url=", "");
+            //shell.openExternal(decodeURIComponent(openBrowserUrl));
+            shell.openExternal(openBrowserUrl);
+            event.preventDefault();
+            return;
+        }
         // 上层窗口值
         let nowWindowUUID = event.sender.browserWindowOptions.customUUID;
         let nowWindow = global.sharedWindow.windowMap.get(nowWindowUUID);

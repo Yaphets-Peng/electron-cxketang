@@ -19,6 +19,7 @@
     "electron-builder": "^22.9.1",
     "electron-notarize": "^1.0.0",
     "electron-notifications": "^1.0.0",
+    "readline-sync": "^1.4.10",
     "yarn-run-all": "^3.1.1"
   },
   "dependencies": {

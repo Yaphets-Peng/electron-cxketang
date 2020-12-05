@@ -1,12 +1,12 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const readline = require("readline");
 
-async function befor_all() {
-
+function main() {
     // 产品ID
-    let productId = "3";
-    let productObject = {
+    let defaultProductId = "3";
+    let defaultPproductObject = {
         "schoolName": "超星集团",
         "name": "cxketang",
         "version": "2.0.2",
@@ -25,25 +25,35 @@ async function befor_all() {
         for (let productKey in productData) {
             process.stdout.write(productKey + "、" + productData[productKey].schoolName + "\n");
         }
-        process.stdout.write("请选择产品Id(直接回车默认选择3)\n");
-        process.stdin.pause();
-        let buf = Buffer.allocUnsafe(100);
-        let response = fs.readSync(process.stdin.fd, buf, 0, 100, 0);
-        process.stdin.end();
-        response = buf.toString('utf8', 0, response).trim();
-        // 验证一下
-        if (!response) {
-            response = "3";
-        }
-        productObject = productData[response];
-        if (!productObject) {
-            throw new Error("请检查所输入产品Id[" + response + "]是否存在于文件[" + productFilePath + "]中");
-            return;
-        }
-        console.log("当前选择产品ID为", response, productObject);
-        productId = response;
+        let rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        rl.question("请选择产品Id(直接回车默认选择3)\n", (response) => {
+            let productId = defaultProductId;
+            let productObject = defaultPproductObject;
+            // 验证一下
+            if (response) {
+                productId = response;
+                productObject = productData[response];
+                if (!productObject) {
+                    throw new Error("请检查所输入产品Id[" + response + "]是否存在于文件[" + productFilePath + "]中");
+                    return;
+                }
+            }
+            console.log("当前选择产品ID为", response, productObject);
+            befor_all(productId, productObject);
+            rl.close();
+        });
     }
+}
 
+
+async function befor_all(productId, productObject) {
+    if (!productId || !productObject) {
+        throw new Error("请检查参数是否正确");
+        return;
+    }
     // 编译信息部分
     let version = "";
     let appId = "";
@@ -53,7 +63,7 @@ async function befor_all() {
     let packageData = fs.readFileSync(packageFilePath, "utf-8");
     if (packageData) {
         let packageJson = JSON.parse(packageData);
-        
+
         // 更新项目名称
         packageJson.name = productObject.name;
         // 更新版本号
@@ -68,7 +78,7 @@ async function befor_all() {
         packageJson.build.artifactName = productObject.filePrefix + "_${version}.${ext}";
         // 更新打包输出目录
         packageJson.build.directories.output = "build/" + productId + "/${os}";
-        
+
         version = packageJson.version;
         appId = packageJson.build.appId;
 
@@ -206,4 +216,4 @@ function deleteDirectory(dir) {
     }
 }
 
-befor_all();
+main();

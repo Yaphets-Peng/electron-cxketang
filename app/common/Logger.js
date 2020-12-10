@@ -7,7 +7,7 @@
 const logger = require('electron-log');
 
 // 日志文件等级，默认值：silly
-//logger.transports.file.level = 'debug';
+logger.transports.file.level = 'info';
 // 日志控制台等级，默认值：silly
 //logger.transports.console.level = 'debug';
 // 日志文件名，默认：main.log

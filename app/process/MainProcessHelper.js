@@ -16,6 +16,10 @@ let tray = null;
 // 主窗口uuid和level
 const mainWindowUUID = "mainWindow";
 const mainWindowLevel = 1;
+// 会议窗口uuid
+const meetWindowUUID = "meetWindow";
+// 投屏工具栏窗口uuid
+const screenToolsWindowUUID = "screenTools";
 
 /* ↓全局变量配置区开始↓ */
 
@@ -309,6 +313,10 @@ function all_win_event(win) {
         let nowWindowLevel = event.sender.browserWindowOptions.customLevel;
         // 生成窗口唯一uuid值
         let windowUUID = md5(url);
+        if (url.startsWith(config.getConfigVal("open_meet_url"))) {
+            // 如果是会议
+            windowUUID = meetWindowUUID;
+        }
         let windowLevel = nowWindowLevel + 1;
         // 获取窗口集合中
         let childWindow = global.sharedWindow.windowMap.get(windowUUID);
@@ -922,35 +930,111 @@ function registeCallback(signal, callback) {
 }
 
 /**
- *投屏相关
+ *投屏相关-会议页面打开工具栏
+ * cmd 指令
+ * hasAudioDev 语音设备true或false
+ * hasVideoDev 视频设备true或false
+ * audioSetStatus 语音状态1或0
+ * videoSetStatus 视频状态1或0
+ * recordSetStatus 录制状态1或0
+ * isPublic 课堂是否开放1或0
+ * meetTime 会议开始时间
+ * membersNumber 成员数量
+ * chatNumber 未读消息数
+ * shareWindowWidth 会议屏幕共享后宽
+ * shareWindowHeight 会议屏幕共享后高
+ * width 会议屏幕共享后工具栏宽-即屏幕宽
+ * height 会议屏幕共享后工具栏高-即屏幕高
  */
 //ipcMain收到screenTools信号
-ipcMain.on("screenTools", function (sys, cmd) {
-    if (!cmd) {
+ipcMain.on("screenTools", function (sys, message) {
+    if (!message || !message.cmd) {
         return;
     }
-    logger.info("[MainProcessHelper][_screenTools_]主进程main.js收到投屏指令信号 指令 " + cmd);
-    let screenToolsWindowUUID = "screenTools";
-    if (cmd.startsWith("startScreen")) {
+    logger.debug("[MainProcessHelper][_screenTools_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    if ("startScreen" == message.cmd) {
         let screenToolsWindow = global.sharedWindow.windowMap.get(screenToolsWindowUUID);
         if (!screenToolsWindow) {
-            let winWidthTemp = getUrlParamValue(cmd, "width");
+            // 获取窗口集合中
+            let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+            if (!meetWindowTemp) {
+                return;
+            }
+            //会议屏幕共享后工具栏宽-即屏幕宽
+            let winWidthTemp = message.width;
             if (winWidthTemp) {
                 winWidthTemp = parseInt(winWidthTemp);
             } else {
                 winWidthTemp = 800;
             }
-            let winHeightTemp = getUrlParamValue(cmd, "height");
+            //会议屏幕共享后工具栏高-即屏幕高
+            let winHeightTemp = message.height;
             if (winHeightTemp) {
                 winHeightTemp = parseInt(winHeightTemp);
             } else {
                 winHeightTemp = 600;
             }
+            //会议屏幕共享后宽
+            let meetWinWidthTemp = message.shareWindowWidth;
+            if (meetWinWidthTemp) {
+                meetWinWidthTemp = parseInt(meetWinWidthTemp);
+            } else {
+                meetWinWidthTemp = 300;
+            }
+            //会议屏幕共享后高
+            let meetWinHeightTemp = message.shareWindowHeight;
+            if (meetWinHeightTemp) {
+                meetWinHeightTemp = parseInt(meetWinHeightTemp);
+            } else {
+                meetWinHeightTemp = 640;
+            }
+            // 获取窗口原参数
+            let meetWindowOptionsTemp = meetWindowTemp.webContents.browserWindowOptions;
+            // 更新会议窗口信息
+            meetWindowTemp.setMinimumSize(meetWinWidthTemp, meetWinHeightTemp);
+            meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);
+            meetWindowTemp.setContentSize(meetWinWidthTemp, meetWinHeightTemp);
+            meetWindowTemp.setResizable(false);
+            // 传递参数
+            let queryValues = "?_t=0";
+            //语音设备true或false
+            let hasAudioDev = message.hasAudioDev || "false";
+            queryValues += "&hasAudioDev=" + hasAudioDev;
+            //视频设备true或false
+            let hasVideoDev = message.hasVideoDev || "false";
+            queryValues += "&hasVideoDev=" + hasVideoDev;
+            //语音状态1或0
+            let audioSetStatus = message.audioSetStatus || "0";
+            queryValues += "&audioSetStatus=" + audioSetStatus;
+            //视频状态1或0
+            let videoSetStatus = message.videoSetStatus || "0";
+            queryValues += "&videoSetStatus=" + videoSetStatus;
+            //录制状态1或0
+            let recordSetStatus = message.recordSetStatus || "0";
+            queryValues += "&recordSetStatus=" + recordSetStatus;
+            //课堂是否开放1或0
+            let isPublic = message.isPublic || "0";
+            queryValues += "&isPublic=" + isPublic;
+            //会议开始时间
+            let meetTime = message.meetTime || new Date().getTime();
+            queryValues += "&meetTime=" + meetTime;
+            //成员数量
+            let membersNumber = message.membersNumber || "0";
+            queryValues += "&membersNumber=" + membersNumber;
+            //未读消息数
+            let chatNumber = message.chatNumber || "0";
+            queryValues += "&chatNumber=" + chatNumber;
+            
+            // 创建窗口
             screenToolsWindow = new BrowserWindow({
                 "width": winWidthTemp,
                 "height": winHeightTemp,
                 "x": 0,
                 "y": 0,
+                "webPreferences": {
+                    "nodeIntegration": true,
+                    "enableRemoteModule": true
+                },
                 "frame": false,
                 "center": true,
                 "movable": false,
@@ -963,8 +1047,7 @@ ipcMain.on("screenTools", function (sys, cmd) {
                 "enableLargerThanScreen": true,
             });
             // 引入主入口界面
-            screenToolsWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/box.html"));
-
+            screenToolsWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/box.html"),{"search":queryValues});
             // win直接全屏,macos直接简单全屏
             if (process.platform === 'darwin') {
                 //screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
@@ -973,25 +1056,92 @@ ipcMain.on("screenTools", function (sys, cmd) {
                 //screenToolsWindow.maximize();
                 screenToolsWindow.setAlwaysOnTop(true, 'screen-saver') // mac
                 screenToolsWindow.setVisibleOnAllWorkspaces(true) // mac
-            }else{
+            } else {
                 //screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
                 //screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
                 screenToolsWindow.setFullScreen(true);
             }
-            
-            screenToolsWindow.setIgnoreMouseEvents(true);
+
+            // if (config.getConfigVal("debug")) {
+            //     // 打开开发者工具
+            //     screenToolsWindow.webContents.openDevTools();
+            //     screenToolsWindow.setFullScreen(false);
+            //     winWidthTemp = 800;
+            //     winHeightTemp = 600;
+            //     screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
+            //     screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
+            // }
+            // 需要加上转发不然会失效
+            screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
             // 放入窗口集合中
             global.sharedWindow.windowMap.set(screenToolsWindowUUID, screenToolsWindow);
         }
-    } else if ("stopScreen" == cmd) {
+    } else if ("stopScreen" == message.cmd) {
         let screenToolsWindow = global.sharedWindow.windowMap.get(screenToolsWindowUUID);
         if (screenToolsWindow) {
+            // 获取窗口集合中
+            let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+            if (meetWindowTemp) {
+                // 获取窗口原参数
+                let meetWindowOptionsTemp = meetWindowTemp.webContents.browserWindowOptions;
+                // 更新会议窗口信息
+                meetWindowTemp.setMinimumSize(meetWindowOptionsTemp.minWidth, meetWindowOptionsTemp.minHeight);
+                meetWindowTemp.setSize(meetWindowOptionsTemp.width, meetWindowOptionsTemp.height);
+                meetWindowTemp.setContentSize(meetWindowOptionsTemp.width, meetWindowOptionsTemp.height);
+                meetWindowTemp.setResizable(true);
+                meetWindowTemp.center();
+                meetWindowTemp.show();
+            }
             // 销毁窗口
             screenToolsWindow.destroy();
             //将screenToolsWindow置为null
             global.sharedWindow.windowMap.delete(screenToolsWindowUUID);
         }
+    } else if ("changeMeetWindowSize" == message.cmd) {
+        let windowWidthTemp = message.windowWidth;
+        let windowHeightTemp = message.windowHeight;
+        if (!windowWidthTemp || !windowHeightTemp) {
+            return;
+        }
+        // 获取窗口集合中
+        let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+        if (meetWindowTemp) {
+            // 更新会议窗口信息
+            meetWindowTemp.setMinimumSize(windowWidthTemp, windowHeightTemp);
+            meetWindowTemp.setSize(windowWidthTemp, windowHeightTemp);
+            meetWindowTemp.setContentSize(windowWidthTemp, windowHeightTemp);
+            meetWindowTemp.setResizable(false);
+        }
+    } else {
+        // 直接转发到工具栏页面,由页面处理
+        // 获取窗口集合中
+        let screenToolsWindowTemp = global.sharedWindow.windowMap.get(screenToolsWindowUUID);
+        if (!screenToolsWindowTemp) {
+            return;
+        }
+        let meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
+        // 直接转发,由页面处理
+        screenToolsWindowTemp.webContents.send(meetToolsMessageFormMainChannel, message);
     }
+});
+
+/**
+ *顶部投屏工具栏相关-工具栏发送消息到会议
+ */
+//ipcMain收到meetTools信号
+ipcMain.on("meetTools", function (sys, message) {
+    if (!message || !message.cmd) {
+        return;
+    }
+    // 获取窗口集合中
+    let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+    if (!meetWindowTemp) {
+        return;
+    }
+    logger.debug("[MainProcessHelper][_meetTools_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    let meetToolsFormMainChannel = "meetToolsFormMain";
+    // 直接转发,由页面处理
+    meetWindowTemp.webContents.send(meetToolsFormMainChannel, message);
 });
 
 module.exports = {createMainWindow, getMainWindow, openNewWindow};

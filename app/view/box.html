@@ -2,13 +2,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Box</title>
+    <title></title>
     <style>
         body {
             margin: 0;
         }
 
         .popBox {
+            position: absolute;
             width: 100%;
             height: 100%;
             background: linear-gradient(to left, #0084FF, #0084FF) left top no-repeat,
@@ -21,20 +22,650 @@
             linear-gradient(to left, #0084FF, #0084FF) right bottom no-repeat;
             background-size: 4px 120px, 120px 4px, 4px 120px, 120px 4px;
         }
+
+        .topMenu {
+            width: 575px;
+            height: 58px;
+            background: #25282E;
+            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 0px 0px 8px 8px;
+            opacity: 0.7;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .menuItem {
+            cursor: pointer;
+        }
+
+        .function {
+            display: grid;
+            place-items: center;
+        }
+
+        .function > img {
+            width: 26px;
+            height: 26px;
+        }
+
+        .function_text {
+            font-size: 12px;
+            color: #CFD1D3;
+        }
+
+        .signal > span {
+            font-size: 14px;
+            color: #CFD1D3;
+        }
+
+        .endBtn {
+            width: 72px;
+            height: 26px;
+            border-radius: 4px;
+            border: 1px solid #FF4A40;
+            text-align: center;
+        }
+
+        .endBtn > span {
+            font-size: 12px;
+            color: #FF4A40;
+            line-height: 26px;
+        }
+
+        .interval {
+            width: 1px;
+            height: 34px;
+            background: #31353F;
+            border-radius: 32px 23px 54px 46px;
+        }
+
+        .information {
+            position: relative;
+        }
+
+        .information_number {
+            width: 27px;
+            height: 15px;
+            background: #FF4D55;
+            border-radius: 8px;
+            position: absolute;
+            left: 16px;
+            top: 0;
+            text-align: center;
+        }
+
+        .information_number > span {
+            font-size: 10px;
+            color: #F8F9FA;
+            line-height: 15px;
+        }
+
+        .recording_start {
+            width: 74px;
+            height: 34px;
+            background: #343B45;
+            border-radius: 4px;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .recording_start_state {
+            width: 8px;
+            height: 8px;
+            background: #FF3131;
+            border-radius: 50%
+        }
+
+        .recording_start_text {
+            font-size: 12px;
+            color: #EAEAEC;
+            line-height: 17px;
+
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .setting_btn {
+            position: relative;
+        }
+
+        .control_setting_box {
+            width: 177px;
+            height: 90px;
+            padding: 10px 10px 5px 16px;
+            background: rgba(37, 40, 46, 0.9);
+            box-sizing: border-box;
+            position: absolute;
+            text-align: left;
+            top: 64px;
+            border-radius: 8px;
+            z-index: 999;
+            left: -20px;
+        }
+
+        .control_setting_box:after {
+            content: "";
+            position: absolute;
+            left: 26px;
+            top: -5px;
+            width: 0;
+            height: 0;
+            border-right: 7px solid transparent;
+            border-left: 7px solid transparent;
+            border-bottom: 5px solid rgba(37, 40, 46, 0.9);
+        }
+
+        .setting_box_header {
+            font-size: 12px;
+            color: #9E9EA1;
+        }
+
+        .setting_box_item {
+            font-size: 12px;
+            color: #EAEAEC;;
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            height: 14px;
+        }
+
+        .setting_box_item_one > img {
+            margin-right: 3px;
+        }
+
+        .setting_box_item_img_one {
+            margin-right: 5px;
+        }
+
+        .setting_box_item_img_two {
+            margin-right: 5px;
+        }
+
+        .setting_box_item_join {
+            margin-left: 40px;
+        }
+
+        .choose_authority_one {
+            position: absolute;
+            left: 36px;
+        }
+
+        .choose_authority_two {
+            position: absolute;
+            left: 36px;
+        }
+
+        .setting_box_item_join {
+            position: absolute;
+            right: 16px;
+        }
+
+        .audioicon {
+            width: 26px;
+            height: 26px;
+            display: inline-block;
+            vertical-align: middle;
+            background-image: url(../static/images/talking.png);
+            background-repeat: no-repeat;
+            background-size: auto 26px;
+            background-position: 0 0;
+        }
+
+        .audioicon.animate {
+            -webkit-animation: ani 9s steps(18, end) infinite;
+            animation: ani 4s steps(18, end) infinite;
+        }
+
+        @-webkit-keyframes ani {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: -468px 0;
+            }
+        }
+
+        @keyframes ani {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: -468px 0;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="popBox">
 </div>
+<div class="recording_start hide">
+    <div class="recording_start_state">
+    </div>
+    <span class="recording_start_text">
+        正在录制…
+    </span>
+</div>
+<div class="topMenu" id="topMenuTools">
+    <div class="menuItem signal">
+        <img src="../static/images/share_screen_signal.png">
+        <span id="meetTime"></span>
+    </div>
+    <div class="menuItem interval">
+    </div>
+    <div class="menuItem function voice_btn" data-status="0">
+        <span class="voice_stop"><img src="../static/images/share_screen_voice_stop.png"></span>
+        <span class="audioicon hide"></span>
+        <span class="function_text">解除静音</span>
+    </div>
+    <div class="menuItem function video_btn" data-status="0">
+        <img src="../static/images/share_screen_video_stop.png">
+        <span class="function_text">开启视频</span>
+    </div>
+    <div class="menuItem function member_btn">
+        <img src="../static/images/share_screen_member.png">
+        <span class="function_text" id="memberNumber">成员</span>
+    </div>
+    <div class="menuItem function information chat_btn">
+        <img src="../static/images/share_screen_chat.png">
+        <div class="information_number" id="chatNumberDiv" style="display: none;">
+            <span id="chatNumber"></span>
+        </div>
+        <span class="function_text">互动</span>
+    </div>
+    <div class="menuItem function recording_btn" data-status="0">
+        <img src="../static/images/share_screen_recording_stop.png">
+        <span class="function_text">开始录制</span>
+    </div>
+    <div class="menuItem function setting_btn">
+        <img class="setting_btn_click" src="../static/images/share_screen_setting.png">
+        <span class="function_text setting_btn_click">设置</span>
+        <div class="control_setting_box hide">
+            <div class="setting_box_header">加课权限</div>
+            <div class="setting_box_item setting_box_item_one">
+                <span class="setting_box_item_img_one hide"><img src="../static/images/icon_sure.png"></span>
+                <span class="choose_authority_one">允许任何人加入</span>
+            </div>
+            <div class="setting_box_item setting_box_item_two">
+                <span class="setting_box_item_img_two hide"><img src="../static/images/icon_sure.png"></span>
+                <span class="choose_authority_two">允许指定人加入</span>
+                <span class="setting_box_item_join"><img src="../static/images/icon_join.png"></span>
+            </div>
+        </div>
+    </div>
+    <div class="menuItem interval">
+    </div>
+    <div class="menuItem">
+        <div class="endBtn">
+            <span>结束共享</span>
+        </div>
+    </div>
+</div>
 </body>
 <script>
-    // 窗口透明鼠标穿透事件
-    // let el = document.getElementById('joinBtn');
-    // el.addEventListener('mouseenter', () => {
-    //   remote.getCurrentWindow().setIgnoreMouseEvents(true, { forward: true });
-    // })
-    // el.addEventListener('mouseleave', () => {
-    //   remote.getCurrentWindow().setIgnoreMouseEvents(false);
-    // })
+    if (typeof module === "object") {
+        window.module = module;
+        module = undefined;
+    }
+</script>
+<script src="../static/js/jquery-3.5.1.min.js"></script>
+<script>
+    if (window.module) module = window.module;
+</script>
+<script>
+    let hasAudioDev = false;
+    let hasVideoDev = false;
+    // 会议计时
+    function meetTiming(meetTime) {
+        setInterval(function () {
+            let date = new Date().getTime();
+            let count = date - meetTime;
+            let h = parseInt(count / 1000 / 60 / 60);
+            let m = parseInt(count / 1000 / 60) % 60;
+            let s = parseInt(count / 1000) % 60;
+            h = h < 10 ? '0' + h : h;
+            m = m < 10 ? '0' + m : m;
+            s = s < 10 ? '0' + s : s;
+            if (h > 0) {
+                $('#meetTime').html(h + ':' + m + ':' + s);
+            } else {
+                $('#meetTime').html(m + ':' + s);
+            }
+        }, 1000);
+    }
+
+    // ipc回调事件
+    let ipcRendererCallback = function (args, sys) {
+        if (!args || !args.cmd) {
+            return;
+        }
+        console.log("[box.html][_meetToolsMessageFormMain_]收到投屏指令信号 指令 " + JSON.stringify(args));
+        if ("audioVolume" == args.cmd) {
+            if (!hasAudioDev) {
+                return;
+            }
+            // 说话回调
+            let currentStatus = $(".voice_btn").attr("data-status");
+            if (currentStatus == '1') {
+                $('.voice_btn .audioicon').removeClass('hide');
+                let statusTemp = args.status || 0;
+                if (statusTemp == 1) {
+                    // 正在说话
+                    $('.voice_btn .audioicon').addClass('animate');
+                } else {
+                    // 未说话
+                    $('.voice_btn .audioicon').removeClass('animate');
+                }
+            }
+        } else if ("openAudio" == args.cmd) {
+            if (!hasAudioDev) {
+                return;
+            }
+            // 打开麦克风
+            $(".voice_btn").attr("data-status", "1");
+            $('.voice_btn .function_text').text('静音');
+            $('.voice_stop').addClass('hide');
+            $('.voice_btn .audioicon').removeClass('hide animate');
+        } else if ("closeAudio" == args.cmd) {
+            if (!hasAudioDev) {
+                return;
+            }
+            // 关闭麦克风
+            $(".voice_btn").attr("data-status", "0");
+            $('.voice_btn .function_text').text('解除静音');
+            $('.voice_stop').removeClass('hide');
+            $('.voice_btn .audioicon').addClass('hide');
+        } else if ("openVideo" == args.cmd) {
+            if (!hasVideoDev) {
+                return;
+            }
+            // 打开视频
+            $(".video_btn").attr("data-status", "1");
+            $('.video_btn span').text('关闭视频');
+            $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
+        } else if ("closeVideo" == args.cmd) {
+            if (!hasVideoDev) {
+                return;
+            }
+            // 关闭视频
+            $(".video_btn").attr("data-status", "0");
+            $('.video_btn span').text('开启视频');
+            $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
+        } else if ("membersNumber" == args.cmd) {
+            // 成员数量
+            let numTemp = args.num || 0;
+            if (numTemp > 0) {
+                if (numTemp > 99) {
+                    numTemp = "99+";
+                }
+                $("#memberNumber").text("成员(" + numTemp + ")");
+            } else {
+                $("#memberNumber").text("成员");
+            }
+        } else if ("chatNumber" == args.cmd) {
+            // 互动消息数量
+            let numTemp = args.num || 0;
+            if (numTemp > 0) {
+                if (numTemp > 99) {
+                    numTemp = "99+";
+                }
+                $("#chatNumber").text(numTemp);
+                $("#chatNumberDiv").show();
+            } else {
+                $("#chatNumber").text("");
+                $("#chatNumberDiv").hide();
+            }
+        }
+    }
+
+    $(document).ready(function () {
+        // 窗口透明鼠标穿透事件
+        const currentWindow = require("electron").remote.getCurrentWindow();
+        $("#topMenuTools").mouseenter(function () {
+            currentWindow.setIgnoreMouseEvents(false);
+        });
+        $("#topMenuTools").mouseleave(function () {
+            currentWindow.setIgnoreMouseEvents(true, {forward: true});
+        });
+        // url工具类
+        const urlHelper = require("../common/UrlHelper");
+        //语音设备true或false
+        let hasAudioDevTemp = urlHelper.getQueryString("hasAudioDev") || "false";
+        if (hasAudioDevTemp == "true") {
+            hasAudioDev = true;
+        } else {
+            hasAudioDev = false;
+        }
+        //视频设备true或false
+        let hasVideoDevTemp = urlHelper.getQueryString("hasVideoDev") || "false"
+        if (hasVideoDevTemp == "true") {
+            hasVideoDev = true;
+        } else {
+            hasVideoDev = true;
+        }
+        //语音状态1或0
+        let audioSetStatus = urlHelper.getQueryString("audioSetStatus") || "0";
+        if (audioSetStatus == "1") {
+            if (hasAudioDev) {
+                $(".voice_btn").attr("data-status", "1");
+                $('.voice_btn .function_text').text('静音');
+                $('.voice_stop').addClass('hide');
+                $('.voice_btn .audioicon').removeClass('hide animate');
+            }
+        } else {
+            $(".voice_btn").attr("data-status", "0");
+            $('.voice_btn .function_text').text('解除静音');
+            $('.voice_stop').removeClass('hide');
+            $('.voice_btn .audioicon').addClass('hide');
+        }
+        //视频状态1或0
+        let videoSetStatus = urlHelper.getQueryString("videoSetStatus") || "0";
+        if (videoSetStatus == "1") {
+            if (hasVideoDev) {
+                $(".video_btn").attr("data-status", "1");
+                $('.video_btn span').text('关闭视频');
+                $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
+            }
+        } else {
+            $(".video_btn").attr("data-status", "0");
+            $('.video_btn span').text('开启视频');
+            $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
+        }
+        //课堂是否开放1或0
+        let isPublic = urlHelper.getQueryString("isPublic") || "0";
+        if (isPublic == "1") {
+            $(".control_setting_box").attr("data-status","1");
+            $('.setting_box_item_img_two').addClass('hide');
+            $('.setting_box_item_img_one').removeClass('hide');
+        } else {
+            $(".control_setting_box").attr("data-status","0");
+            $('.setting_box_item_img_one').addClass('hide');
+            $('.setting_box_item_img_two').removeClass('hide');
+        }
+        //录制状态1或0
+        let recordSetStatus = urlHelper.getQueryString("recordSetStatus") || "0";
+        if (recordSetStatus == "1") {
+            $(".recording_btn").attr("data-status", "1");
+            $('.recording_btn span').text('停止录制');
+            $('.recording_btn img').attr('src', '../static/images/share_screen_recording_start.png');
+            $('.recording_start').removeClass('hide');
+        } else {
+            $(".recording_btn").attr("data-status", "0");
+            $('.recording_btn span').text('开始录制');
+            $('.recording_btn img').attr('src', '../static/images/share_screen_recording_stop.png');
+            $('.recording_start').addClass('hide');
+        }
+        //成员数量
+        let membersNumber = urlHelper.getQueryString("membersNumber") || "0";
+        if (membersNumber) {
+            membersNumber = parseInt(membersNumber);
+            if (membersNumber > 0) {
+                if (membersNumber > 99) {
+                    membersNumber = "99+";
+                }
+                $("#memberNumber").text("成员(" + membersNumber + ")");
+            } else {
+                $("#memberNumber").text("成员");
+            }
+        } else {
+            $("#memberNumber").text("成员");
+        }
+        //未读消息数
+        let chatNumber = urlHelper.getQueryString("chatNumber") || "0";
+        if (chatNumber) {
+            chatNumber = parseInt(chatNumber);
+            if (chatNumber > 0) {
+                if (chatNumber > 99) {
+                    chatNumber = "99+";
+                }
+                $("#chatNumber").text(chatNumber);
+                $("#chatNumberDiv").show();
+            } else {
+                $("#chatNumber").text("");
+                $("#chatNumberDiv").hide();
+            }
+        } else {
+            $("#chatNumber").text("");
+            $("#chatNumberDiv").hide();
+        }
+        //会议开始时间
+        let meetTime = urlHelper.getQueryString("meetTime") || new Date().getTime();
+        if (meetTime) {
+            meetTime = parseInt(meetTime);
+        }
+        // ipc通讯
+        const rendererProcessHelper = require("../process/RendererProcessHelper");
+        // ipc通讯频道-主通讯
+        const meetToolsChannel = "meetTools";
+        // ipc通讯频道-被通讯
+        const meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
+        // ipc通讯回调
+        rendererProcessHelper.registeCallback(meetToolsMessageFormMainChannel, ipcRendererCallback);
+
+        // 麦克风
+        $('.voice_btn').on('click', () => {
+            if(!hasAudioDev){
+                return;
+            }
+            const currentStatus = $(".voice_btn").attr("data-status");
+            if (currentStatus == '1') {
+                $(".voice_btn").attr("data-status", "0");
+                $('.voice_btn .function_text').text('解除静音');
+                $('.voice_stop').removeClass('hide');
+                $('.voice_btn .audioicon').addClass('hide');
+                // 关闭麦克风
+                let messageTemp = {"cmd": "closeAudio"};
+                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            } else {
+                $(".voice_btn").attr("data-status", "1");
+                $('.voice_btn .function_text').text('静音');
+                $('.voice_stop').addClass('hide');
+                $('.voice_btn .audioicon').removeClass('hide animate');
+                // 打开麦克风
+                let messageTemp = {"cmd": "openAudio"};
+                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            }
+        });
+        // 视频
+        $('.video_btn').on('click', () => {
+            if(!hasVideoDev){
+                return;
+            }
+            const currentStatus = $(".video_btn").attr("data-status");
+            if (currentStatus == '1') {
+                $(".video_btn").attr("data-status", "0");
+                $('.video_btn span').text('开启视频');
+                $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
+                // 关闭视频
+                let messageTemp = {"cmd": "closeCamera"};
+                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            } else {
+                $(".video_btn").attr("data-status", "1");
+                $('.video_btn span').text('关闭视频');
+                $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
+                // 打开视频
+                let messageTemp = {"cmd": "openCamera"};
+                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            }
+        });
+        // 录制
+        $('.recording_btn').on('click', () => {
+            const currentStatus = $(".recording_btn").attr("data-status");
+            if (currentStatus == '1') {
+                $(".recording_btn").attr("data-status", "0");
+                $('.recording_btn span').text('开始录制');
+                $('.recording_btn img').attr('src', '../static/images/share_screen_recording_stop.png');
+                $('.recording_start').addClass('hide');
+                // 关闭录制
+                let messageTemp = {"cmd": "closeRecord"};
+                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            } else {
+                $(".recording_btn").attr("data-status", "1");
+                $('.recording_btn span').text('停止录制');
+                $('.recording_btn img').attr('src', '../static/images/share_screen_recording_start.png');
+                $('.recording_start').removeClass('hide');
+                // 打开录制
+                let messageTemp = {"cmd": "openRecord"};
+                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            }
+        });
+        // 成员
+        $('.member_btn').on('click', () => {
+            // 打开成员
+            let messageTemp = {"cmd": "openMember"};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+        });
+        // 互动
+        $('.chat_btn').on('click', () => {
+            // 打开互动
+            let messageTemp = {"cmd": "openChar"};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+        });
+        // 设置
+        $('.setting_btn_click').on('click', () => {
+            if ($('.control_setting_box').hasClass('hide')) {
+                $('.control_setting_box').removeClass('hide');
+            } else {
+                $('.control_setting_box').addClass('hide');
+            }
+        });
+        // 允许所有人加入
+        $('.choose_authority_one').on('click', () => {
+            $(".control_setting_box").attr("data-status","1");
+            $('.setting_box_item_img_two').addClass('hide');
+            $('.setting_box_item_img_one').removeClass('hide');
+            // 发送设置公开
+            let messageTemp = {"cmd": "toggleAllowSet","status":1};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            $('.control_setting_box').addClass('hide');
+        });
+        // 允许指定人加入
+        $('.choose_authority_two').on('click', () => {
+            $(".control_setting_box").attr("data-status","0");
+            $('.setting_box_item_img_one').addClass('hide');
+            $('.setting_box_item_img_two').removeClass('hide');
+            // 发送设置指定
+            let messageTemp = {"cmd": "toggleAllowSet","status":0};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            $('.control_setting_box').addClass('hide');
+        })
+        // 结束
+        $('.endBtn').on('click', () => {
+            // 结束投屏
+            let messageTemp = {"cmd": "stopScreen"};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+        });
+        // 会议开始计时
+        meetTiming(meetTime);
+    });
 </script>
 </html>

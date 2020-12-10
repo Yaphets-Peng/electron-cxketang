@@ -1,22 +1,29 @@
 {
-  "3": {
-    "schoolName": "超星集团",
-    "name": "cxketang",
-    "version": "2.0.2",
-    "description": "cxketang",
-    "productName": "超星课堂",
-    "title": "超星课堂",
-    "copyright": "ChaogXing",
-    "filePrefix": "ketang"
-  },
-  "1000309": {
-    "schoolName": "国科大在线",
-    "name": "gkonline",
-    "version": "1.0.0",
-    "description": "gkonline",
-    "productName": "国科大在线",
-    "title": "国科大在线",
-    "copyright": "GuoKe",
-    "filePrefix": "guoke"
+  "uaVersion": "2.0.2",
+  "productInfos": {
+    "3": {
+      "schoolName": "超星集团",
+      "name": "cxketang",
+      "version": "2.0.2",
+      "macAppId": "com.ssreader.cxketang",
+      "winAppId": "com.ssreader.cxketangwindows",
+      "description": "cxketang",
+      "productName": "超星课堂",
+      "title": "超星课堂",
+      "copyright": "ChaogXing",
+      "filePrefix": "ketang"
+    },
+    "1000309": {
+      "schoolName": "国科大在线",
+      "name": "gkonline",
+      "version": "1.0.0",
+      "macAppId": "com.ssreader.cxketang",
+      "winAppId": "com.ssreader.cxketangwindows",
+      "description": "gkonline",
+      "productName": "国科大在线",
+      "title": "国科大在线",
+      "copyright": "GuoKe",
+      "filePrefix": "guoke"
+    }
   }
 }

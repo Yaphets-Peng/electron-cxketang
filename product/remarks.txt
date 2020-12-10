@@ -3,28 +3,38 @@
 
 产品json配置文件说明
 {
-  "${productId}": {
-    "schoolName": "单位名称",
-    "name": "项目名称",
-    "version": "版本号",
-    "description": "文件说明",
-    "productName": "应用名称",
-    "title": "内置窗口默认标题",
-    "copyright": "应用版权",
-    "filePrefix": "最终打包文件前缀"
+  "uaVersion": "所有产品ua版本号",
+  "productInfos": {
+    "${productId}": {
+      "schoolName": "单位名称",
+      "name": "项目名称",
+      "version": "客户端版本号",
+      "macAppId": "mac的包名-app管理配置",
+      "winAppId": "win的包名-app管理配置",
+      "description": "文件说明",
+      "productName": "应用名称",
+      "title": "内置窗口默认标题",
+      "copyright": "应用版权",
+      "filePrefix": "最终打包文件前缀"
+    }
   }
 }
 
 示例：
 {
-  "3": {
-    "schoolName": "超星集团",
-    "name": "cxketang",
-    "version": "2.0.2",
-    "description": "cxketang",
-    "productName": "超星课堂",
-    "title": "超星课堂",
-    "copyright": "ChaogXing",
-    "filePrefix": "ketang"
+  "uaVersion": "2.0.2",
+  "productInfos": {
+    "3": {
+      "schoolName": "超星集团",
+      "name": "cxketang",
+      "version": "2.0.2",
+      "macAppId": "com.ssreader.cxketang",
+      "winAppId": "com.ssreader.cxketangwindows",
+      "description": "cxketang",
+      "productName": "超星课堂",
+      "title": "超星课堂",
+      "copyright": "ChaogXing",
+      "filePrefix": "ketang"
+    }
   }
 }

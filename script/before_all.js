@@ -4,24 +4,16 @@ const path = require("path");
 const readline = require("readline");
 
 function main() {
-    // 产品ID
-    let defaultProductId = "3";
-    let defaultPproductObject = {
-        "schoolName": "超星集团",
-        "name": "cxketang",
-        "version": "2.0.2",
-        "description": "cxketang",
-        "productName": "超星课堂",
-        "title": "超星课堂",
-        "copyright": "ChaogXing",
-        "filePrefix": "ketang"
-    };
     // 读取产品配置文件
     let productFilePath = path.join(path.resolve(__dirname, ".."), "product/product.json");
     let productData = fs.readFileSync(productFilePath, "utf-8");
     if (productData) {
         // 交互对话框
         productData = JSON.parse(productData);
+        // 实际ua版本号
+        let uaVersion = productData.uaVersion;
+        //强制替换对象
+        productData = productData.productInfos;
         for (let productKey in productData) {
             process.stdout.write(productKey + "、" + productData[productKey].schoolName + "\n");
         }
@@ -30,27 +22,28 @@ function main() {
             output: process.stdout
         });
         rl.question("请选择产品Id(直接回车默认选择3)\n", (response) => {
-            let productId = defaultProductId;
-            let productObject = defaultPproductObject;
+            // 产品ID
+            let productId = "3";
             // 验证一下
             if (response) {
                 productId = response;
-                productObject = productData[response];
-                if (!productObject) {
-                    throw new Error("请检查所输入产品Id[" + response + "]是否存在于文件[" + productFilePath + "]中");
-                    return;
-                }
             }
-            console.log("当前选择产品ID为", response, productObject);
-            befor_all(productId, productObject);
+            // 产品信息
+            let productObject = productData[productId];
+            if (!productObject) {
+                throw new Error("请检查所输入产品Id[" + response + "]是否存在于文件[" + productFilePath + "]中");
+                return;
+            }
+            console.log("当前选择产品ID为", response, productObject, uaVersion);
+            befor_all(productId, productObject, uaVersion);
             rl.close();
         });
     }
 }
 
 
-async function befor_all(productId, productObject) {
-    if (!productId || !productObject) {
+async function befor_all(productId, productObject, uaVersion) {
+    if (!productId || !productObject || !uaVersion) {
         throw new Error("请检查参数是否正确");
         return;
     }
@@ -63,11 +56,22 @@ async function befor_all(productId, productObject) {
     let packageData = fs.readFileSync(packageFilePath, "utf-8");
     if (packageData) {
         let packageJson = JSON.parse(packageData);
-
+        
+        // 系统版本信息
+        let appIdInfo = os.type().replace("Windows_NT", "winAppId").replace("Darwin", "macAppId");
+        // 获取包名
+        appIdInfo = productObject[appIdInfo];
+        if (!appIdInfo) {
+            throw new Error("请检查包名参数是否正确");
+            return;
+        }
+        
         // 更新项目名称
         packageJson.name = productObject.name;
         // 更新版本号
         packageJson.version = productObject.version;
+        // 更新应用包名
+        packageJson.build.appId = appIdInfo;
         // 更新文件说明
         packageJson.description = productObject.description;
         // 更新应用名称
@@ -138,7 +142,7 @@ async function befor_all(productId, productObject) {
         // 更新内置窗口标题
         configJson.title = productObject.title;
         // 更新ua
-        configJson.userAgent = `Mozilla/5.0 (${osName};${osArch};${osVersion}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 ${appId}/${protocol}_${version}_${productId}_${cusotmOsName}_${dateTime}`;
+        configJson.userAgent = `Mozilla/5.0 (${osName};${osArch};${osVersion}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 KeTangVersion/${version} ${appId}/${protocol}_${uaVersion}_${productId}_${cusotmOsName}_${dateTime}`;
 
         let configDataStr = JSON.stringify(configJson, null, 2);
         fs.writeFileSync(configFilePath, configDataStr, "utf-8");

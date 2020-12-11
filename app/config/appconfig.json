@@ -2,8 +2,8 @@
   "productId": "3",
   "title": "超星课堂",
   "protocol": "ChaoxingClassroomPc",
-  "userAgent": "Mozilla/5.0 (Windows;x64;10.0.19041) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 KeTangVersion/2.0.2 com.ssreader.cxketangwindows/ChaoxingClassroomPc_2.0.2_3_windows_202012101432",
-  "buildTime": "202012101432",
+  "userAgent": "Mozilla/5.0 (Windows;x64;10.0.19041) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 KeTangVersion/2.0.2 com.ssreader.cxketangwindows/ChaoxingClassroomPc_2.0.2_3_windows_202012111803",
+  "buildTime": "202012111803",
   "firstview": "./app/view/app",
   "debug": false,
   "meet_debug": false,
@@ -28,6 +28,7 @@
   "meet_info_url": "https://k.chaoxing.com/pc/meet/getMeetInfo",
   "meet_tokens_url": "https://k.chaoxing.com/pc/meet/refreshTokens",
   "meet_setting_url": "https://k.chaoxing.com/pc/meet/setPage",
+  "menu_box_url": "https://k.chaoxing.com/res/html/meetbox.html",
   "meet_url": "https://k.chaoxing.com/pc/meet/meeting?uuid={uuid}&classId={classId}&canMaximizeWindow=true&canDragWindowSize=true&windowWidth=1105&windowTitle=%E8%B6%85%E6%98%9F%E8%AF%BE%E5%A0%82&windowHeight=755&minWindowWidth=1105&minWindowHeight=755&v=v2&audioStatus=0&videoStatus=0",
   "cookie_key": {
     "UID": "UID",

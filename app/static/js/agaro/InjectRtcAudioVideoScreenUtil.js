@@ -355,6 +355,8 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
         InjectRtcAudioVideoScreenUtil.RendererProcessHelper.registeCallback(InjectRtcAudioVideoScreenUtil.meetToolsFormMainChannel, InjectRtcAudioVideoScreenUtil.ipcRendererCallback);
     }
+    // 测试
+    //InjectRtcAudioVideoScreenUtil.testScreen();
 }
 
 // 开麦克风
@@ -609,6 +611,8 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
             let winWidthTemp = displayScreen.width;
             let messageTemp = {
                 "cmd": "startScreen",//指令
+                "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
+                "language": window.i18.language||"language",//语言language中文,1英文
                 "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
                 "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
                 "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0
@@ -697,6 +701,46 @@ InjectRtcAudioVideoScreenUtil.closeAll = function () {
     // 离开销毁
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.leaveChannel();
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.release();
+}
+
+// 测试方法
+InjectRtcAudioVideoScreenUtil.testScreen = function () {
+    // 关闭所有
+    InjectRtcAudioVideoScreenUtil.stopAudio();
+    InjectRtcAudioVideoScreenUtil.stopVideo();
+    InjectRtcAudioVideoScreenUtil.stopScreen();
+    //获取屏幕信息
+    let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo()
+    if (displays.length === 0) {
+        console.log('no display found');
+        return;
+    }
+    console.log(displays);
+    // 选择当前第一个屏幕
+    let displayScreen = displays[0];
+    // 打开屏幕框
+    if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+        let winHeightTemp = displayScreen.height;
+        let winWidthTemp = displayScreen.width;
+        let messageTemp = {
+            "cmd": "startScreen",//指令
+            "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
+            "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
+            "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
+            "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0
+            "videoSetStatus": InjectRtcAudioVideoScreenUtil.videoStatus || 0,//视频状态1或0
+            "recordSetStatus": Meeting.recordStatus || 0,//录制状态1或0
+            "isPublic": Meeting.isPublic || 0,//课堂是否开放1或0
+            "meetTime": Meeting.meetTime || new Date().getTime,//会议开始时间
+            "membersNumber": Meeting.onlineMemberCount || 0,//成员数量
+            "chatNumber": Meeting.unreadMsgCount || 0,//未读消息数
+            "shareWindowWidth": RtcScreenUtil.shareWindowWidth || 300,//会议屏幕共享后宽
+            "shareWindowHeight": RtcScreenUtil.shareWindowHeight || 640,//会议屏幕共享后高
+            "width": winWidthTemp,//会议屏幕共享后工具栏宽-即屏幕宽
+            "height": winHeightTemp//会议屏幕共享后工具栏高-即屏幕高
+        };
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+    }
 }
 
 module.exports = InjectRtcAudioVideoScreenUtil;

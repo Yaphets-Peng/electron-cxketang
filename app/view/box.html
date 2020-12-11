@@ -62,7 +62,7 @@
         }
 
         .endBtn {
-            width: 72px;
+            padding: 0 13px;
             height: 26px;
             border-radius: 4px;
             border: 1px solid #FF4A40;
@@ -251,11 +251,9 @@
 <div class="recording_start hide">
     <div class="recording_start_state">
     </div>
-    <span class="recording_start_text">
-        正在录制…
-    </span>
+    <span class="recording_start_text">正在录制…</span>
 </div>
-<div class="topMenu" id="topMenuTools">
+<div class="topMenu" id="topMenuTools" style="display: none;">
     <div class="menuItem signal">
         <img src="../static/images/share_screen_signal.png">
         <span id="meetTime"></span>
@@ -297,7 +295,7 @@
             </div>
             <div class="setting_box_item setting_box_item_two">
                 <span class="setting_box_item_img_two hide"><img src="../static/images/icon_sure.png"></span>
-                <span class="choose_authority_two">允许指定人加入</span>
+                <span class="choose_authority_two">允许加入的人员</span>
                 <span class="setting_box_item_join"><img src="../static/images/icon_join.png"></span>
             </div>
         </div>
@@ -321,6 +319,39 @@
 <script>
     if (window.module) module = window.module;
 </script>
+<!--国际化开始-->
+<script>
+    let isEnLanguage = false;
+    window.i18 = {
+        "静音": "Mute",
+        "解除静音": "Unmute",
+        "解除静音": "Unmute",
+        "关闭视频": "Close Video",
+        "开启视频": "Open Video",
+        "成员": "Members",
+        "互动": "Interaction",
+        "开始录制": "Start Recording",
+        "停止录制": "Stop Recording",
+        "正在录制…": "Recording...",
+        "设置": "Settings",
+        "结束共享": "Stop Sharing",
+        "加课权限": "Permission",
+        "允许任何人加入": "Allow anyone to join",
+        "允许加入的人员": "Allowing list",
+    }
+    //国际化文本
+    const getI18Value = function (key) {
+        if (isEnLanguage && window.i18) {
+            var value = window.i18[key];
+            if (value) {
+                return value;
+            }
+        }
+        console.log("no value,key=" + key)
+        return key;
+    }
+</script>
+<!--国际化结束-->
 <script>
     let hasAudioDev = false;
     let hasVideoDev = false;
@@ -372,7 +403,7 @@
             }
             // 打开麦克风
             $(".voice_btn").attr("data-status", "1");
-            $('.voice_btn .function_text').text('静音');
+            $('.voice_btn .function_text').text(getI18Value('静音'));
             $('.voice_stop').addClass('hide');
             $('.voice_btn .audioicon').removeClass('hide animate');
         } else if ("closeAudio" == args.cmd) {
@@ -381,7 +412,7 @@
             }
             // 关闭麦克风
             $(".voice_btn").attr("data-status", "0");
-            $('.voice_btn .function_text').text('解除静音');
+            $('.voice_btn .function_text').text(getI18Value('解除静音'));
             $('.voice_stop').removeClass('hide');
             $('.voice_btn .audioicon').addClass('hide');
         } else if ("openVideo" == args.cmd) {
@@ -390,7 +421,7 @@
             }
             // 打开视频
             $(".video_btn").attr("data-status", "1");
-            $('.video_btn span').text('关闭视频');
+            $('.video_btn span').text(getI18Value('关闭视频'));
             $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
         } else if ("closeVideo" == args.cmd) {
             if (!hasVideoDev) {
@@ -398,7 +429,7 @@
             }
             // 关闭视频
             $(".video_btn").attr("data-status", "0");
-            $('.video_btn span').text('开启视频');
+            $('.video_btn span').text(getI18Value('开启视频'));
             $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
         } else if ("membersNumber" == args.cmd) {
             // 成员数量
@@ -407,9 +438,9 @@
                 if (numTemp > 99) {
                     numTemp = "99+";
                 }
-                $("#memberNumber").text("成员(" + numTemp + ")");
+                $("#memberNumber").text(getI18Value("成员") + "(" + numTemp + ")");
             } else {
-                $("#memberNumber").text("成员");
+                $("#memberNumber").text(getI18Value("成员"));
             }
         } else if ("chatNumber" == args.cmd) {
             // 互动消息数量
@@ -439,6 +470,13 @@
         // url工具类
         const urlHelper = require("../common/UrlHelper");
         //语音设备true或false
+        let language = urlHelper.getQueryString("language") || "language";
+        if (language == "language") {
+            isEnLanguage = false;
+        } else {
+            isEnLanguage = true;
+        }
+        //语音设备true或false
         let hasAudioDevTemp = urlHelper.getQueryString("hasAudioDev") || "false";
         if (hasAudioDevTemp == "true") {
             hasAudioDev = true;
@@ -457,13 +495,13 @@
         if (audioSetStatus == "1") {
             if (hasAudioDev) {
                 $(".voice_btn").attr("data-status", "1");
-                $('.voice_btn .function_text').text('静音');
+                $('.voice_btn .function_text').text(getI18Value('静音'));
                 $('.voice_stop').addClass('hide');
                 $('.voice_btn .audioicon').removeClass('hide animate');
             }
         } else {
             $(".voice_btn").attr("data-status", "0");
-            $('.voice_btn .function_text').text('解除静音');
+            $('.voice_btn .function_text').text(getI18Value('解除静音'));
             $('.voice_stop').removeClass('hide');
             $('.voice_btn .audioicon').addClass('hide');
         }
@@ -472,12 +510,12 @@
         if (videoSetStatus == "1") {
             if (hasVideoDev) {
                 $(".video_btn").attr("data-status", "1");
-                $('.video_btn span').text('关闭视频');
+                $('.video_btn span').text(getI18Value('关闭视频'));
                 $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
             }
         } else {
             $(".video_btn").attr("data-status", "0");
-            $('.video_btn span').text('开启视频');
+            $('.video_btn span').text(getI18Value('开启视频'));
             $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
         }
         //课堂是否开放1或0
@@ -495,15 +533,16 @@
         let recordSetStatus = urlHelper.getQueryString("recordSetStatus") || "0";
         if (recordSetStatus == "1") {
             $(".recording_btn").attr("data-status", "1");
-            $('.recording_btn span').text('停止录制');
+            $('.recording_btn span').text(getI18Value('停止录制'));
             $('.recording_btn img').attr('src', '../static/images/share_screen_recording_start.png');
             $('.recording_start').removeClass('hide');
         } else {
             $(".recording_btn").attr("data-status", "0");
-            $('.recording_btn span').text('开始录制');
+            $('.recording_btn span').text(getI18Value('开始录制'));
             $('.recording_btn img').attr('src', '../static/images/share_screen_recording_stop.png');
             $('.recording_start').addClass('hide');
         }
+        $('.recording_start .recording_start_text').text(getI18Value("正在录制…"));
         //成员数量
         let membersNumber = urlHelper.getQueryString("membersNumber") || "0";
         if (membersNumber) {
@@ -512,12 +551,12 @@
                 if (membersNumber > 99) {
                     membersNumber = "99+";
                 }
-                $("#memberNumber").text("成员(" + membersNumber + ")");
+                $("#memberNumber").text(getI18Value("成员")+"(" + membersNumber + ")");
             } else {
-                $("#memberNumber").text("成员");
+                $("#memberNumber").text(getI18Value("成员"));
             }
         } else {
-            $("#memberNumber").text("成员");
+            $("#memberNumber").text(getI18Value("成员"));
         }
         //未读消息数
         let chatNumber = urlHelper.getQueryString("chatNumber") || "0";
@@ -537,6 +576,12 @@
             $("#chatNumber").text("");
             $("#chatNumberDiv").hide();
         }
+        $('.chat_btn .function_text').text(getI18Value("互动"));
+        $('.setting_btn .setting_btn_click').text(getI18Value("设置"));
+        $('.setting_btn .setting_box_header').text(getI18Value("加课权限"));
+        $('.setting_btn .choose_authority_one').text(getI18Value("允许任何人加入"));
+        $('.setting_btn .choose_authority_two').text(getI18Value("允许加入的人员"));
+        $('.endBtn span').text(getI18Value("结束共享"));
         //会议开始时间
         let meetTime = urlHelper.getQueryString("meetTime") || new Date().getTime();
         if (meetTime) {
@@ -559,7 +604,7 @@
             const currentStatus = $(".voice_btn").attr("data-status");
             if (currentStatus == '1') {
                 $(".voice_btn").attr("data-status", "0");
-                $('.voice_btn .function_text').text('解除静音');
+                $('.voice_btn .function_text').text(getI18Value('解除静音'));
                 $('.voice_stop').removeClass('hide');
                 $('.voice_btn .audioicon').addClass('hide');
                 // 关闭麦克风
@@ -567,7 +612,7 @@
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             } else {
                 $(".voice_btn").attr("data-status", "1");
-                $('.voice_btn .function_text').text('静音');
+                $('.voice_btn .function_text').text(getI18Value('静音'));
                 $('.voice_stop').addClass('hide');
                 $('.voice_btn .audioicon').removeClass('hide animate');
                 // 打开麦克风
@@ -583,14 +628,14 @@
             const currentStatus = $(".video_btn").attr("data-status");
             if (currentStatus == '1') {
                 $(".video_btn").attr("data-status", "0");
-                $('.video_btn span').text('开启视频');
+                $('.video_btn span').text(getI18Value('开启视频'));
                 $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
                 // 关闭视频
                 let messageTemp = {"cmd": "closeCamera"};
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             } else {
                 $(".video_btn").attr("data-status", "1");
-                $('.video_btn span').text('关闭视频');
+                $('.video_btn span').text(getI18Value('关闭视频'));
                 $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
                 // 打开视频
                 let messageTemp = {"cmd": "openCamera"};
@@ -602,7 +647,7 @@
             const currentStatus = $(".recording_btn").attr("data-status");
             if (currentStatus == '1') {
                 $(".recording_btn").attr("data-status", "0");
-                $('.recording_btn span').text('开始录制');
+                $('.recording_btn span').text(getI18Value('开始录制'));
                 $('.recording_btn img').attr('src', '../static/images/share_screen_recording_stop.png');
                 $('.recording_start').addClass('hide');
                 // 关闭录制
@@ -610,7 +655,7 @@
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             } else {
                 $(".recording_btn").attr("data-status", "1");
-                $('.recording_btn span').text('停止录制');
+                $('.recording_btn span').text(getI18Value('停止录制'));
                 $('.recording_btn img').attr('src', '../static/images/share_screen_recording_start.png');
                 $('.recording_start').removeClass('hide');
                 // 打开录制
@@ -648,7 +693,7 @@
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             $('.control_setting_box').addClass('hide');
         });
-        // 允许指定人加入
+        // 允许加入的人员
         $('.choose_authority_two').on('click', () => {
             $(".control_setting_box").attr("data-status","0");
             $('.setting_box_item_img_one').addClass('hide');
@@ -666,6 +711,8 @@
         });
         // 会议开始计时
         meetTiming(meetTime);
+        // 显示
+        $("#topMenuTools").show();
     });
 </script>
 </html>

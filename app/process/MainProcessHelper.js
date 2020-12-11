@@ -934,6 +934,8 @@ function registeCallback(signal, callback) {
 /**
  *投屏相关-会议页面打开工具栏
  * cmd 指令
+ * useLocalTools 是否使用本地1或0
+ * language 语言language中文,1英文
  * hasAudioDev 语音设备true或false
  * hasVideoDev 视频设备true或false
  * audioSetStatus 语音状态1或0
@@ -961,6 +963,13 @@ ipcMain.on("screenTools", function (sys, message) {
             let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
             if (!meetWindowTemp) {
                 return;
+            }
+            //是否使用本地工具栏1或0
+            let useLocalTools = message.useLocalTools || 1;
+            if (useLocalTools == 1) {
+                useLocalTools = true;
+            } else {
+                useLocalTools = false;
             }
             //会议屏幕共享后工具栏宽-即屏幕宽
             let winWidthTemp = message.width;
@@ -1004,6 +1013,9 @@ ipcMain.on("screenTools", function (sys, message) {
             meetWindowTemp.show();
             // 传递参数
             let queryValues = "?_t=0";
+            //语言language中文,1英文
+            let language = message.language || "language";
+            queryValues += "&language=" + language;
             //语音设备true或false
             let hasAudioDev = message.hasAudioDev || "false";
             queryValues += "&hasAudioDev=" + hasAudioDev;
@@ -1054,7 +1066,13 @@ ipcMain.on("screenTools", function (sys, message) {
                 "enableLargerThanScreen": true,
             });
             // 引入主入口界面
-            screenToolsWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/box.html"),{"search":queryValues});
+            if (useLocalTools) {
+                // 引用本地比较快
+                screenToolsWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/box.html"), {"search": queryValues});
+            } else {
+                // 引用在线便于更新
+                screenToolsWindow.loadURL(config.getConfigVal("menu_box_url") + queryValues);
+            }
             // win直接全屏,macos直接简单全屏
             if (process.platform === 'darwin') {
                 //screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
@@ -1069,15 +1087,17 @@ ipcMain.on("screenTools", function (sys, message) {
                 screenToolsWindow.setFullScreen(true);
             }
 
-            // if (config.getConfigVal("debug")) {
-            //     // 打开开发者工具
-            //     screenToolsWindow.webContents.openDevTools();
-            //     screenToolsWindow.setFullScreen(false);
-            //     winWidthTemp = 800;
-            //     winHeightTemp = 600;
-            //     screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
-            //     screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
-            // }
+            if (config.getConfigVal("debug")) {
+                // 打开开发者工具
+                screenToolsWindow.webContents.openDevTools();
+                screenToolsWindow.setFullScreen(false);
+                winWidthTemp = 800;
+                winHeightTemp = 600;
+                screenToolsWindow.setSize(winWidthTemp, winHeightTemp);
+                screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
+                // 会议居中
+                meetWindowTemp.center();
+            }
             // 需要加上转发不然会失效
             screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
             // 放入窗口集合中

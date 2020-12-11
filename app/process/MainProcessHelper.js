@@ -484,7 +484,7 @@ function all_win_event(win) {
             //绑定事件
             all_win_event(childWindow);
             // 如果父窗口是一级
-            if (nowWindowLevel === mainWindowLevel && mainWindow != null) {
+            if (mainWindow != null) {
                 //隐藏父窗口
                 mainWindow.hide();
             }
@@ -512,13 +512,15 @@ function all_win_event(win) {
             // 当子窗口关闭时触发
             childWindow.on("closed", function () {
                 logger.info("[MainProcessHelper][_childWindow_.on._closed_]渲染窗口关闭url=" + url);
-                if (nowWindowLevel === mainWindowLevel && mainWindow != null) {
+                if (mainWindow != null) {
                     if (webWindowConfig.customParentRefresh) {
                         // 刷新主窗口页面
                         mainWindow.webContents.reloadIgnoringCache();
                     }
-                    //显示父窗口
-                    mainWindow.show();
+                    if (global.sharedWindow.windowMap.size == 2) {
+                        //显示父窗口
+                        mainWindow.show();
+                    }
                 }
                 // 删除窗口集合中
                 global.sharedWindow.windowMap.delete(windowUUID);
@@ -995,6 +997,11 @@ ipcMain.on("screenTools", function (sys, message) {
             meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setContentSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setResizable(false);
+            // 计算窗口位置
+            let moveX = winWidthTemp - (winWidthTemp * 0.3);
+            let moveY = winHeightTemp * 0.1;
+            meetWindowTemp.setPosition(moveX, moveY);
+            meetWindowTemp.show();
             // 传递参数
             let queryValues = "?_t=0";
             //语音设备true或false
@@ -1111,6 +1118,7 @@ ipcMain.on("screenTools", function (sys, message) {
             meetWindowTemp.setSize(windowWidthTemp, windowHeightTemp);
             meetWindowTemp.setContentSize(windowWidthTemp, windowHeightTemp);
             meetWindowTemp.setResizable(false);
+            meetWindowTemp.show();
         }
     } else {
         // 直接转发到工具栏页面,由页面处理

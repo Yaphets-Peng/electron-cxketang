@@ -627,6 +627,8 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
         }
         // 页面交互-开页面缩小
         RtcScreenUtil.changeWindowShareStyle(1);
+        // 页面交互-打开成员
+        Meeting.showMemTab();
         // 页面交互-开自己投屏
         RtcScreenUtil.myScreenStatusChange(1);
     });

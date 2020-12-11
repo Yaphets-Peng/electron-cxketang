@@ -1009,7 +1009,10 @@ ipcMain.on("screenTools", function (sys, message) {
             // 计算窗口位置
             let moveX = winWidthTemp - (winWidthTemp * 0.3);
             let moveY = winHeightTemp * 0.1;
-            meetWindowTemp.setPosition(moveX, moveY);
+            // 必须转int否则mac报错
+            moveX=parseInt(moveX);
+            moveY=parseInt(moveY);
+            meetWindowTemp.setPosition(moveX, moveY,false);
             meetWindowTemp.show();
             // 传递参数
             let queryValues = "?_t=0";

@@ -149,9 +149,14 @@ if (process.platform === 'darwin') {
         {
             label: "Edit",
             submenu: [
-                {label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:"},
-                {label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:"},
-                {label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:"},
+                {role: 'undo'},
+                {role: 'redo'},
+                {type: 'separator'},
+                {role: 'cut'},
+                {role: 'copy'},
+                {role: 'paste'},
+                {role: 'pasteAndMatchStyle'},
+                {role: 'selectAll'},
             ]
         }
     ];

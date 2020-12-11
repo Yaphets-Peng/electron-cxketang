@@ -725,6 +725,7 @@ InjectRtcAudioVideoScreenUtil.testScreen = function () {
         let messageTemp = {
             "cmd": "startScreen",//指令
             "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
+            "language": window.i18.language||"language",//语言language中文,1英文
             "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
             "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
             "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0

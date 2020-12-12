@@ -1122,10 +1122,10 @@ ipcMain.on("screenTools", function (sys, message) {
                 meetWindowTemp.center();
                 meetWindowTemp.show();
             }
-            // 销毁窗口
-            screenToolsWindow.destroy();
             //将screenToolsWindow置为null
             global.sharedWindow.windowMap.delete(screenToolsWindowUUID);
+            // 销毁窗口
+            screenToolsWindow.destroy();
         }
     } else if ("changeMeetWindowSize" == message.cmd) {
         let windowWidthTemp = message.windowWidth;
@@ -1152,7 +1152,11 @@ ipcMain.on("screenTools", function (sys, message) {
         }
         let meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
         // 直接转发,由页面处理
-        screenToolsWindowTemp.webContents.send(meetToolsMessageFormMainChannel, message);
+        try {
+            screenToolsWindowTemp.webContents.send(meetToolsMessageFormMainChannel, message);
+        } catch (e) {
+            console.error(e);
+        }
     }
 });
 

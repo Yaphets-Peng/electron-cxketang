@@ -1013,6 +1013,10 @@ ipcMain.on("screenTools", function (sys, message) {
             moveX=parseInt(moveX);
             moveY=parseInt(moveY);
             meetWindowTemp.setPosition(moveX, moveY,false);
+            // 再次更新窗口大小临时修复页面问题
+            /*meetWindowTemp.setMinimumSize(meetWinWidthTemp, meetWinHeightTemp);
+            meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);
+            meetWindowTemp.setContentSize(meetWinWidthTemp, meetWinHeightTemp);*/
             meetWindowTemp.show();
             // 传递参数
             let queryValues = "?_t=0";

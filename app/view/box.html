@@ -355,6 +355,7 @@
 <script>
     let hasAudioDev = false;
     let hasVideoDev = false;
+    const currentWindow = require("electron").remote.getCurrentWindow();
     // 会议计时
     function meetTiming(meetTime) {
         setInterval(function () {
@@ -370,6 +371,10 @@
                 $('#meetTime').html(h + ':' + m + ':' + s);
             } else {
                 $('#meetTime').html(m + ':' + s);
+            }
+            // 失去焦点时默认穿透
+            if (!currentWindow.isFocused()) {
+                currentWindow.setIgnoreMouseEvents(true, {forward: true});
             }
         }, 1000);
     }
@@ -460,7 +465,9 @@
 
     $(document).ready(function () {
         // 窗口透明鼠标穿透事件
-        const currentWindow = require("electron").remote.getCurrentWindow();
+        $("#topMenuTools").mousemove(function () {
+            currentWindow.setIgnoreMouseEvents(false);
+        });
         $("#topMenuTools").mouseenter(function () {
             currentWindow.setIgnoreMouseEvents(false);
         });

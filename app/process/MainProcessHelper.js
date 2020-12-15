@@ -1107,6 +1107,10 @@ ipcMain.on("screenTools", function (sys, message) {
             }
             // 需要加上转发不然会失效
             screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
+            // 失去焦点处理-针对mac
+            screenToolsWindow.on('blur', function () {
+                screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
+            });
             // 放入窗口集合中
             global.sharedWindow.windowMap.set(screenToolsWindowUUID, screenToolsWindow);
         }

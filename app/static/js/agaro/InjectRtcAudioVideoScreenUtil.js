@@ -1,5 +1,6 @@
 //注入js
 var InjectRtcAudioVideoScreenUtil = {
+    isTest: false,//是否测试
     AudioVideoScreenRTC: null,//rtc实例
     RendererProcessHelper: null,//ipc通信实例
     ipcRendererCallback : null,//ipc回调方法,主线程与本窗口通信
@@ -65,6 +66,19 @@ InjectRtcAudioVideoScreenUtil.sendAudioVolume = function (status) {
     }
 }
 
+// 发送录制状态-页面调用
+InjectRtcAudioVideoScreenUtil.sendRecordingStatus = function (status, msg) {
+    // 说话回调
+    if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+        let messageTemp = {
+            "cmd": "recordingStatus",
+            "status": status,
+            "msg": msg
+        };
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+    }
+}
+
 // 更新页面-页面调用
 InjectRtcAudioVideoScreenUtil.sendChangeMeetWindow = function (windowWidth,windowHeight) {
     if (!windowWidth || !windowHeight) {
@@ -76,6 +90,21 @@ InjectRtcAudioVideoScreenUtil.sendChangeMeetWindow = function (windowWidth,windo
             "cmd": "changeMeetWindowSize",
             "windowWidth": windowWidth,
             "windowHeight": windowHeight,
+        };
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+    }
+}
+
+// 发送执行方法函数-页面调用
+InjectRtcAudioVideoScreenUtil.sendFunToToolsWindow = function (fun) {
+    if (typeof fun !== "function") {
+        return;
+    }
+    // 方法回调
+    if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+        let messageTemp = {
+            "cmd": "execfunction",
+            "fun": fun
         };
         InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
     }
@@ -121,6 +150,12 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
         let statusTemp = args.status || 0;
         // 切换课堂开放设置
         Meeting.toggleAllowSet(statusTemp);
+    } else if ("execfunction" == args.cmd) {
+        // 执行函数
+        let funTemp = args.fun || "";
+        if (typeof funTemp === "function") {
+            funTemp();
+        }
     }
 }
 
@@ -143,7 +178,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
 
     // 设置日志文件
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setLogFile(InjectRtcAudioVideoScreenUtil.sdkLogPath);
-    // TODO 开发设置2020-11-03
+    // 开发设置2020-11-03
     //InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setParameters("{\"che.audio.start_debug_recording\":\"NoName\"}");
     // 禁止修改码率
     // let parametersCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setParameters("{\"che.video.enableAutoVideoResize\":0}");
@@ -356,7 +391,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
         InjectRtcAudioVideoScreenUtil.RendererProcessHelper.registeCallback(InjectRtcAudioVideoScreenUtil.meetToolsFormMainChannel, InjectRtcAudioVideoScreenUtil.ipcRendererCallback);
     }
     // 测试
-    //InjectRtcAudioVideoScreenUtil.testScreen();
+    InjectRtcAudioVideoScreenUtil.testScreenTools();
 }
 
 // 开麦克风
@@ -704,7 +739,10 @@ InjectRtcAudioVideoScreenUtil.closeAll = function () {
 }
 
 // 测试方法
-InjectRtcAudioVideoScreenUtil.testScreen = function () {
+InjectRtcAudioVideoScreenUtil.testScreenTools = function () {
+    if (!InjectRtcAudioVideoScreenUtil.isTest) {
+        return;
+    }
     // 关闭所有
     InjectRtcAudioVideoScreenUtil.stopAudio();
     InjectRtcAudioVideoScreenUtil.stopVideo();
@@ -725,7 +763,7 @@ InjectRtcAudioVideoScreenUtil.testScreen = function () {
         let messageTemp = {
             "cmd": "startScreen",//指令
             "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
-            "language": window.i18.language||"language",//语言language中文,1英文
+            "language": window.i18.language || "language",//语言language中文,1英文
             "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
             "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
             "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0

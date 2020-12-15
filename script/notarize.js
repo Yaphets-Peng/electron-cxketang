@@ -7,7 +7,7 @@ exports.default = async function notarizing(context) {
     if (electronPlatformName !== 'darwin') {
         return;
     }
-    // 开发环境-暂时不公正app，直接后续公证pkg 2020-11-18
+    // 开发环境-暂时不公正app，直接后续公证pkg或dmg 2020-11-18
     if (process.env.NODE_ENV === "dev") {
         return;
     } else {

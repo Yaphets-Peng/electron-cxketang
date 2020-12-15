@@ -20,6 +20,9 @@ exports.default = async function afterAllArtifactBuild(result) {
         let isRename = false;
         if (suffix === "exe") {
             isRename = true;
+        } else if (suffix === "dmg") {
+            isRename = true;
+            isNotarize = true;
         } else if (suffix === "pkg") {
             isRename = true;
             isNotarize = true;

@@ -83,6 +83,7 @@
           "type": "file"
         }
       ],
+      "format": "UDBZ",
       "sign": false
     },
     "pkg": {
@@ -107,7 +108,7 @@
       },
       "icon": "app/icons/icon.icns",
       "target": [
-        "pkg"
+        "dmg"
       ]
     },
     "asar": false,

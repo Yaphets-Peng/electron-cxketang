@@ -243,6 +243,188 @@
                 background-position: -468px 0;
             }
         }
+
+        .pop_overs {
+            width: 378px;
+            background: rgba(47, 50, 58, 1);
+            box-shadow: 0px 3px 10px 0px rgba(32, 35, 60, 0.23);
+            border-radius: 6px;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 30px 24px 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .pop_overs .textwaring {
+            min-height: 72px;
+            line-height: 20px;
+            color: #ffffff;
+            font-size: 14px;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .pop_overs .textwaring::before {
+            content: "";
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: url(../static/images/warnicon.png) no-repeat;
+            background-size: 18px auto;
+            display: block;
+        }
+
+        .textwaring p {
+            margin: 0;
+        }
+
+        .pop_overs .textwaring_lib {
+            margin-top: 12px;
+            margin-bottom: 29px;
+        }
+
+        .buttonsArr {
+            width: 100%;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: flex-end;
+            justify-content: flex-end;
+        }
+
+        .buttonsArr a {
+            width: 70px;
+            height: 32px;
+            display: block;
+            margin-left: 24px;
+            text-align: center;
+            line-height: 32px;
+            color: #F8F9FA;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .buttonsArr a:before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            top: 0;
+            left: 0;
+            width: 140px;
+            height: 64px;
+            border: 1px solid #595D68;
+            border-radius: 8px;
+            -webkit-transform: scale(.5, .5);
+            -moz-transform: scale(.5, .5);
+            -ms-transform: scale(.5, .5);
+            -o-transform: scale(.5, .5);
+            transform: scale(.5, .5);
+            -webkit-transform-origin: 0 0;
+            -moz-transform-origin: 0 0;
+            -o-transform-origin: 0 0;
+            -ms-transform-origin: 0 0;
+            transform-origin: 0 0;
+        }
+
+        .buttonsArr a:hover:before {
+            border-color: rgba(133, 138, 152, 1);
+            background-color: rgba(80, 84, 93, 1);
+        }
+
+        .buttonsArr a:active {
+            color: rgba(248, 249, 250, .6);
+        }
+
+        .buttonsArr a:active:before {
+            background-color: rgba(72, 77, 87, 1);
+            border-color: rgba(133, 138, 152, 1);
+        }
+
+        .buttonsArr .ok, .buttonsArr .remove {
+            background: #0084FF;
+            color: #FFF;
+            border-radius: 4px;
+        }
+
+        .buttonsArr a.leave, .buttonsArr a.trus {
+            color: #FFF;
+        }
+
+        .buttonsArr a.leave:before, .buttonsArr a.trus:before {
+            background-color: #FF4938;
+            border-color: #FF4938;
+        }
+
+        .buttonsArr a.leave:hover:before, .buttonsArr a.trus:hover:before {
+            background-color: #FF8277;
+            border-color: #FF8277;
+        }
+
+        .buttonsArr a.leave:active, .buttonsArr a.trus:active {
+            color: rgba(255, 255, 255, .6);
+        }
+
+        .buttonsArr a.leave:active:before, .buttonsArr a.trus:active:before {
+            background-color: #BD5046;
+            border-color: #BD5046;
+        }
+
+        .buttonsArr .ok, .buttonsArr .remove {
+            background: #0084FF;
+            color: #FFF;
+            border-radius: 4px;
+        }
+
+        .buttonsArr .ok:before, .buttonsArr .remove:before {
+            display: none;
+        }
+
+        .buttonsArr .ok:hover, .buttonsArr .remove:hover {
+            background: #2E9AFF;
+        }
+
+        .buttonsArr .ok:active, .buttonsArr .remove:active {
+            background: #1077D7;
+            color: rgba(255, 255, 255, .6);
+        }
+
+        .popError {
+            padding: 9px 14px;
+            border-radius: 4px;
+            top: 80px;
+            height: auto;
+            min-width: 100px;
+            min-height: 40px;
+            max-width: 200px;
+            text-align: center;
+            background-color: rgba(36, 39, 44, 1);
+            position: absolute;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            -webkit-transition: all 0.2s linear;
+            transition: all 0.2s linear;
+            color: rgba(236, 237, 240, 1);
+            display: -webkit-flex;
+            display: flex;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            z-index: 800;
+            font-size: 12px;
+            line-height: 17px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -308,6 +490,19 @@
         </div>
     </div>
 </div>
+<!--弹窗-->
+<div id="confirmMsgDiv" class="pop_overs" style="display: none;">
+    <div class="textwaring">
+        <p class="msgTitle"></p>
+        <div class="textwaring_lib msgContext"></div>
+    </div>
+    <div class="buttonsArr">
+        <a href="javascript:void(0);" class="trusCancle"></a>
+        <a href="javascript:void(0);" class="ok stopOvers confirm"></a>
+        <!--<a href="javascript:void(0);" class="leave stopOvers">End</a>
+        <a href="javascript:void(0);" class="leave stopOvers">Leave</a>-->
+    </div>
+</div>
 </body>
 <script>
     if (typeof module === "object") {
@@ -338,11 +533,26 @@
         "加课权限": "Permission",
         "允许任何人加入": "Allow anyone to join",
         "允许加入的人员": "Allowing list",
+        "确认开启视频？": "Be sure to open video?",
+        "当前设备不支持": "The current device is not supported",
+        "请开启设备权限": "Please enable device permissions",
+        "设置成功": "Set successfully",
+        "录制已停止": "Recording stopped",
+        "确认停止录制？": "Confirm to stop recording",
+        "录制视频生成需要一些时间，完成后将以通知形式发送结果": "It will take some time for the recorded video to be generated, and the result will be sent in the form of notice after completion",
+        "停止": "Stop",
+        "开启视频": "Open Video",
+        "确认开启视频？": "Be sure to open video?",
+        "开启": "Open",
+        "取消": "Cancel",
+        "确认": "Done",
+        "开启录制失败": "Failed to start recording",
+        "停止录制失败": "Failed to stop recording",
     }
     //国际化文本
     const getI18Value = function (key) {
         if (isEnLanguage && window.i18) {
-            var value = window.i18[key];
+            let value = window.i18[key];
             if (value) {
                 return value;
             }
@@ -356,6 +566,63 @@
     let hasAudioDev = false;
     let hasVideoDev = false;
     const currentWindow = require("electron").remote.getCurrentWindow();
+    // url工具类
+    const urlHelper = require("../common/UrlHelper");
+    // ipc通讯
+    const rendererProcessHelper = require("../process/RendererProcessHelper");
+    // ipc通讯频道-主通讯
+    const meetToolsChannel = "meetTools";
+    // ipc通讯频道-被通讯
+    const meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
+    // 视频和录制图标
+    const videoBtnStartImg = "../static/images/share_screen_video_start.png";
+    const videoBtnStopImg = "../static/images/share_screen_video_stop.png";
+    const recordingBtnStartImg = "../static/images/share_screen_recording_start.png";
+    const recordingBtnStopImg = "../static/images/share_screen_recording_stop.png";
+
+    // 消息弹框
+    function errorTipsBox(mes) {
+        $(".popError").remove();
+        $("body").append('<div class="popError">'+ (mes || "")+'</div>');
+        $(".popError").fadeIn().delay(2000).fadeOut();
+    }
+    // 对话框
+    function cmdConfirm(title, text, confirmBtn, callback, cancleBtn, cancle_callback) {
+        //解绑事件
+        $(".pop_overs").unbind("click");
+        $('.pop_overs .msgTitle').text('');
+        $('.pop_overs .msgContext').text('');
+        if (title) {
+            $('.pop_overs .msgTitle').text(title);
+        }
+        if (text) {
+            $('.pop_overs .msgContext').text(text);
+        }
+        if (confirmBtn) {
+            $('.pop_overs .confirm').text(confirmBtn);
+        } else {
+            $('.pop_overs .confirm').text(getI18Value("确认"));
+        }
+        if (cancleBtn) {
+            $('.pop_overs .trusCancle').text(cancleBtn);
+        } else {
+            $('.pop_overs .trusCancle').text(getI18Value("取消"));
+        }
+        $('.pop_overs').show();
+        //绑定事件
+        $('.pop_overs').on('click', '.trusCancle', function () {
+            if (cancle_callback) {
+                cancle_callback();
+            }
+            $('.pop_overs').hide();
+        });
+        $('.pop_overs').on('click', '.confirm', function () {
+            if (callback) {
+                callback();
+            }
+            $('.pop_overs').hide();
+        });
+    }
     // 会议计时
     function meetTiming(meetTime) {
         setInterval(function () {
@@ -372,11 +639,148 @@
             } else {
                 $('#meetTime').html(m + ':' + s);
             }
-            // 失去焦点时默认穿透
-            if (!currentWindow.isFocused()) {
+            // 失去焦点时默认穿透-针对mac
+            /*if (!currentWindow.isFocused()) {
                 currentWindow.setIgnoreMouseEvents(true, {forward: true});
-            }
+            }*/
         }, 1000);
+    }
+
+    // 发送函数到会议页面
+    function sendFunToMeetWindow(fun) {
+        if (typeof fun !== "function") {
+            return;
+        }
+        // 方法回调
+        if (rendererProcessHelper) {
+            let messageTemp = {
+                "cmd": "execfunction",
+                "fun": fun
+            };
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+        }
+    }
+
+    // 更新麦克风状态
+    function changeAudioStatus(status) {
+        if (!status) {
+            return;
+        }
+        if (status == "1") {
+            $(".voice_btn").attr("data-status", "1");
+            $('.voice_btn .function_text').text(getI18Value('静音'));
+            $('.voice_stop').addClass('hide');
+            $('.voice_btn .audioicon').removeClass('hide animate');
+        } else if (status == "0") {
+            $(".voice_btn").attr("data-status", "0");
+            $('.voice_btn .function_text').text(getI18Value('解除静音'));
+            $('.voice_stop').removeClass('hide');
+            $('.voice_btn .audioicon').addClass('hide');
+        }
+    }
+
+    // 更新麦克风说话状态
+    function changeAudioVolumeStatus(status) {
+        let currentStatus = $(".voice_btn").attr("data-status");
+        if (currentStatus == '1') {
+            $('.voice_btn .audioicon').removeClass('hide');
+            if (status == 1) {
+                // 正在说话
+                $('.voice_btn .audioicon').addClass('animate');
+            } else {
+                // 未说话
+                $('.voice_btn .audioicon').removeClass('animate');
+            }
+        }
+    }
+
+    // 更新视频状态
+    function changeVideoStatus(status) {
+        if (!status) {
+            return;
+        }
+        if (status == "1") {
+            $(".video_btn").attr("data-status", "1");
+            $('.video_btn span').text(getI18Value('关闭视频'));
+            $('.video_btn img').attr('src', videoBtnStartImg);
+        } else if (status == "0") {
+            $(".video_btn").attr("data-status", "0");
+            $('.video_btn span').text(getI18Value('开启视频'));
+            $('.video_btn img').attr('src', videoBtnStopImg);
+        }
+    }
+
+    // 更新课堂公开状态
+    function changePublicStatus(status) {
+        if (!status) {
+            return;
+        }
+        if (status == "1") {
+            $(".control_setting_box").attr("data-status", "1");
+            $('.setting_box_item_img_two').addClass('hide');
+            $('.setting_box_item_img_one').removeClass('hide');
+            $('.control_setting_box').addClass('hide');
+        } else if (status == "0") {
+            $(".control_setting_box").attr("data-status", "0");
+            $('.setting_box_item_img_one').addClass('hide');
+            $('.setting_box_item_img_two').removeClass('hide');
+            $('.control_setting_box').addClass('hide');
+        }
+    }
+
+    // 更新录制状态
+    function changeRecordStatus(status) {
+        if (!status) {
+            return;
+        }
+        if (status == "1") {
+            $(".recording_btn").attr("data-status", "1");
+            $('.recording_btn span').text(getI18Value('停止录制'));
+            $('.recording_btn img').attr('src', recordingBtnStartImg);
+            $('.recording_start').removeClass('hide');
+        } else if (status == "0") {
+            $(".recording_btn").attr("data-status", "0");
+            $('.recording_btn span').text(getI18Value('开始录制'));
+            $('.recording_btn img').attr('src', recordingBtnStopImg);
+            $('.recording_start').addClass('hide');
+        }
+    }
+
+    // 更新成员数量
+    function changeMembersNumber(num) {
+        if (num) {
+            num = parseInt(num);
+            if (num > 0) {
+                if (num > 99) {
+                    num = "99+";
+                }
+                $("#memberNumber").text(getI18Value("成员") + "(" + num + ")");
+            } else {
+                $("#memberNumber").text(getI18Value("成员"));
+            }
+        } else {
+            $("#memberNumber").text(getI18Value("成员"));
+        }
+    }
+
+    // 更新消息数量
+    function changeChatNumber(num) {
+        if (num) {
+            num = parseInt(num);
+            if (num > 0) {
+                if (num > 99) {
+                    num = "99+";
+                }
+                $("#chatNumber").text(num);
+                $("#chatNumberDiv").show();
+            } else {
+                $("#chatNumber").text("");
+                $("#chatNumberDiv").hide();
+            }
+        } else {
+            $("#chatNumber").text("");
+            $("#chatNumberDiv").hide();
+        }
     }
 
     // ipc回调事件
@@ -390,92 +794,72 @@
                 return;
             }
             // 说话回调
-            let currentStatus = $(".voice_btn").attr("data-status");
-            if (currentStatus == '1') {
-                $('.voice_btn .audioicon').removeClass('hide');
-                let statusTemp = args.status || 0;
-                if (statusTemp == 1) {
-                    // 正在说话
-                    $('.voice_btn .audioicon').addClass('animate');
-                } else {
-                    // 未说话
-                    $('.voice_btn .audioicon').removeClass('animate');
-                }
-            }
+            let statusTemp = args.status || 0;
+            changeAudioVolumeStatus(statusTemp);
         } else if ("openAudio" == args.cmd) {
             if (!hasAudioDev) {
                 return;
             }
             // 打开麦克风
-            $(".voice_btn").attr("data-status", "1");
-            $('.voice_btn .function_text').text(getI18Value('静音'));
-            $('.voice_stop').addClass('hide');
-            $('.voice_btn .audioicon').removeClass('hide animate');
+            changeAudioStatus("1");
         } else if ("closeAudio" == args.cmd) {
             if (!hasAudioDev) {
                 return;
             }
             // 关闭麦克风
-            $(".voice_btn").attr("data-status", "0");
-            $('.voice_btn .function_text').text(getI18Value('解除静音'));
-            $('.voice_stop').removeClass('hide');
-            $('.voice_btn .audioicon').addClass('hide');
+            changeAudioStatus("0");
         } else if ("openVideo" == args.cmd) {
             if (!hasVideoDev) {
                 return;
             }
             // 打开视频
-            $(".video_btn").attr("data-status", "1");
-            $('.video_btn span').text(getI18Value('关闭视频'));
-            $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
+            changeVideoStatus("1");
         } else if ("closeVideo" == args.cmd) {
             if (!hasVideoDev) {
                 return;
             }
             // 关闭视频
-            $(".video_btn").attr("data-status", "0");
-            $('.video_btn span').text(getI18Value('开启视频'));
-            $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
+            changeVideoStatus("0");
         } else if ("membersNumber" == args.cmd) {
             // 成员数量
             let numTemp = args.num || 0;
-            if (numTemp > 0) {
-                if (numTemp > 99) {
-                    numTemp = "99+";
-                }
-                $("#memberNumber").text(getI18Value("成员") + "(" + numTemp + ")");
-            } else {
-                $("#memberNumber").text(getI18Value("成员"));
-            }
+            changeMembersNumber(numTemp);
         } else if ("chatNumber" == args.cmd) {
             // 互动消息数量
             let numTemp = args.num || 0;
-            if (numTemp > 0) {
-                if (numTemp > 99) {
-                    numTemp = "99+";
-                }
-                $("#chatNumber").text(numTemp);
-                $("#chatNumberDiv").show();
-            } else {
-                $("#chatNumber").text("");
-                $("#chatNumberDiv").hide();
+            changeChatNumber(numTemp);
+        } else if ("recordingStatus" == args.cmd) {
+            // 录制状态
+            let statusTemp = args.status || "";
+            let msgTemp = args.msg || "";
+            if (statusTemp == "1") {
+                changeRecordStatus("1");
+            } else if (statusTemp == "0") {
+                changeRecordStatus("0");
+            }
+            if (msgTemp) {
+                errorTipsBox(getI18Value(msgTemp));
+            }
+        } else if ("execfunction" == args.cmd) {
+            // 执行函数
+            let funTemp = args.fun || "";
+            if (typeof funTemp === "function") {
+                funTemp();
             }
         }
     }
 
     $(document).ready(function () {
         // 窗口透明鼠标穿透事件
-        $("#topMenuTools").mousemove(function () {
+        $("#topMenuTools,#confirmMsgDiv").mousemove(function () {
             currentWindow.setIgnoreMouseEvents(false);
         });
-        $("#topMenuTools").mouseenter(function () {
+        $("#topMenuTools,#confirmMsgDiv").mouseenter(function () {
             currentWindow.setIgnoreMouseEvents(false);
         });
-        $("#topMenuTools").mouseleave(function () {
+        $("#topMenuTools,#confirmMsgDiv").mouseleave(function () {
             currentWindow.setIgnoreMouseEvents(true, {forward: true});
         });
-        // url工具类
-        const urlHelper = require("../common/UrlHelper");
         //语音设备true或false
         let language = urlHelper.getQueryString("language") || "language";
         if (language == "language") {
@@ -501,88 +885,41 @@
         let audioSetStatus = urlHelper.getQueryString("audioSetStatus") || "0";
         if (audioSetStatus == "1") {
             if (hasAudioDev) {
-                $(".voice_btn").attr("data-status", "1");
-                $('.voice_btn .function_text').text(getI18Value('静音'));
-                $('.voice_stop').addClass('hide');
-                $('.voice_btn .audioicon').removeClass('hide animate');
+                changeAudioStatus("1");
             }
         } else {
-            $(".voice_btn").attr("data-status", "0");
-            $('.voice_btn .function_text').text(getI18Value('解除静音'));
-            $('.voice_stop').removeClass('hide');
-            $('.voice_btn .audioicon').addClass('hide');
+            changeAudioStatus("0");
         }
         //视频状态1或0
         let videoSetStatus = urlHelper.getQueryString("videoSetStatus") || "0";
         if (videoSetStatus == "1") {
             if (hasVideoDev) {
-                $(".video_btn").attr("data-status", "1");
-                $('.video_btn span').text(getI18Value('关闭视频'));
-                $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
+                changeVideoStatus("1");
             }
         } else {
-            $(".video_btn").attr("data-status", "0");
-            $('.video_btn span').text(getI18Value('开启视频'));
-            $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
+            changeVideoStatus("0");
         }
         //课堂是否开放1或0
         let isPublic = urlHelper.getQueryString("isPublic") || "0";
         if (isPublic == "1") {
-            $(".control_setting_box").attr("data-status","1");
-            $('.setting_box_item_img_two').addClass('hide');
-            $('.setting_box_item_img_one').removeClass('hide');
+            changePublicStatus("1");
         } else {
-            $(".control_setting_box").attr("data-status","0");
-            $('.setting_box_item_img_one').addClass('hide');
-            $('.setting_box_item_img_two').removeClass('hide');
+            changePublicStatus("0");
         }
         //录制状态1或0
         let recordSetStatus = urlHelper.getQueryString("recordSetStatus") || "0";
         if (recordSetStatus == "1") {
-            $(".recording_btn").attr("data-status", "1");
-            $('.recording_btn span').text(getI18Value('停止录制'));
-            $('.recording_btn img').attr('src', '../static/images/share_screen_recording_start.png');
-            $('.recording_start').removeClass('hide');
+            changeRecordStatus("1");
         } else {
-            $(".recording_btn").attr("data-status", "0");
-            $('.recording_btn span').text(getI18Value('开始录制'));
-            $('.recording_btn img').attr('src', '../static/images/share_screen_recording_stop.png');
-            $('.recording_start').addClass('hide');
+            changeRecordStatus("0");
         }
         $('.recording_start .recording_start_text').text(getI18Value("正在录制…"));
         //成员数量
         let membersNumber = urlHelper.getQueryString("membersNumber") || "0";
-        if (membersNumber) {
-            membersNumber = parseInt(membersNumber);
-            if (membersNumber > 0) {
-                if (membersNumber > 99) {
-                    membersNumber = "99+";
-                }
-                $("#memberNumber").text(getI18Value("成员")+"(" + membersNumber + ")");
-            } else {
-                $("#memberNumber").text(getI18Value("成员"));
-            }
-        } else {
-            $("#memberNumber").text(getI18Value("成员"));
-        }
+        changeMembersNumber(membersNumber);
         //未读消息数
         let chatNumber = urlHelper.getQueryString("chatNumber") || "0";
-        if (chatNumber) {
-            chatNumber = parseInt(chatNumber);
-            if (chatNumber > 0) {
-                if (chatNumber > 99) {
-                    chatNumber = "99+";
-                }
-                $("#chatNumber").text(chatNumber);
-                $("#chatNumberDiv").show();
-            } else {
-                $("#chatNumber").text("");
-                $("#chatNumberDiv").hide();
-            }
-        } else {
-            $("#chatNumber").text("");
-            $("#chatNumberDiv").hide();
-        }
+        changeChatNumber(chatNumber);
         $('.chat_btn .function_text').text(getI18Value("互动"));
         $('.setting_btn .setting_btn_click').text(getI18Value("设置"));
         $('.setting_btn .setting_box_header').text(getI18Value("加课权限"));
@@ -594,34 +931,22 @@
         if (meetTime) {
             meetTime = parseInt(meetTime);
         }
-        // ipc通讯
-        const rendererProcessHelper = require("../process/RendererProcessHelper");
-        // ipc通讯频道-主通讯
-        const meetToolsChannel = "meetTools";
-        // ipc通讯频道-被通讯
-        const meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
         // ipc通讯回调
         rendererProcessHelper.registeCallback(meetToolsMessageFormMainChannel, ipcRendererCallback);
-
         // 麦克风
         $('.voice_btn').on('click', () => {
-            if(!hasAudioDev){
+            if (!hasAudioDev) {
+                errorTipsBox(getI18Value("当前设备不支持"));
                 return;
             }
             const currentStatus = $(".voice_btn").attr("data-status");
             if (currentStatus == '1') {
-                $(".voice_btn").attr("data-status", "0");
-                $('.voice_btn .function_text').text(getI18Value('解除静音'));
-                $('.voice_stop').removeClass('hide');
-                $('.voice_btn .audioicon').addClass('hide');
+                changeAudioStatus("0");
                 // 关闭麦克风
                 let messageTemp = {"cmd": "closeAudio"};
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             } else {
-                $(".voice_btn").attr("data-status", "1");
-                $('.voice_btn .function_text').text(getI18Value('静音'));
-                $('.voice_stop').addClass('hide');
-                $('.voice_btn .audioicon').removeClass('hide animate');
+                changeAudioStatus("1");
                 // 打开麦克风
                 let messageTemp = {"cmd": "openAudio"};
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
@@ -629,42 +954,52 @@
         });
         // 视频
         $('.video_btn').on('click', () => {
-            if(!hasVideoDev){
+            if (!hasVideoDev) {
+                errorTipsBox(getI18Value("当前设备不支持"));
                 return;
             }
             const currentStatus = $(".video_btn").attr("data-status");
             if (currentStatus == '1') {
-                $(".video_btn").attr("data-status", "0");
-                $('.video_btn span').text(getI18Value('开启视频'));
-                $('.video_btn img').attr('src', '../static/images/share_screen_video_stop.png');
+                changeVideoStatus("0");
                 // 关闭视频
                 let messageTemp = {"cmd": "closeCamera"};
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             } else {
-                $(".video_btn").attr("data-status", "1");
-                $('.video_btn span').text(getI18Value('关闭视频'));
-                $('.video_btn img').attr('src', '../static/images/share_screen_video_start.png');
-                // 打开视频
-                let messageTemp = {"cmd": "openCamera"};
-                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+                let titleTemp = getI18Value("开启视频");
+                let textTemp = getI18Value("确认开启视频？");
+                let confirmBtnTemp = getI18Value("开启");
+                let callbackTemp = function () {
+                    changeVideoStatus("1");
+                    // 打开视频
+                    let messageTemp = {"cmd": "openCamera"};
+                    rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+                }
+                let cancleBtnTemp = getI18Value("取消");
+                let cancle_callbackTemp = function () {
+                }
+                cmdConfirm(titleTemp, textTemp, confirmBtnTemp, callbackTemp, cancleBtnTemp, cancle_callbackTemp);
             }
         });
         // 录制
         $('.recording_btn').on('click', () => {
             const currentStatus = $(".recording_btn").attr("data-status");
             if (currentStatus == '1') {
-                $(".recording_btn").attr("data-status", "0");
-                $('.recording_btn span').text(getI18Value('开始录制'));
-                $('.recording_btn img').attr('src', '../static/images/share_screen_recording_stop.png');
-                $('.recording_start').addClass('hide');
-                // 关闭录制
-                let messageTemp = {"cmd": "closeRecord"};
-                rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+                let titleTemp = getI18Value("确认停止录制？");
+                let textTemp = getI18Value("录制视频生成需要一些时间，完成后将以通知形式发送结果");
+                let confirmBtnTemp = getI18Value("停止");
+                let callbackTemp = function () {
+                    changeRecordStatus("0");
+                    // 关闭录制
+                    let messageTemp = {"cmd": "closeRecord"};
+                    rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+                    errorTipsBox(getI18Value("录制已停止"));
+                }
+                let cancleBtnTemp = getI18Value("取消");
+                let cancle_callbackTemp = function () {
+                }
+                cmdConfirm(titleTemp, textTemp, confirmBtnTemp, callbackTemp, cancleBtnTemp, cancle_callbackTemp);
             } else {
-                $(".recording_btn").attr("data-status", "1");
-                $('.recording_btn span').text(getI18Value('停止录制'));
-                $('.recording_btn img').attr('src', '../static/images/share_screen_recording_start.png');
-                $('.recording_start').removeClass('hide');
+                changeRecordStatus("1");
                 // 打开录制
                 let messageTemp = {"cmd": "openRecord"};
                 rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
@@ -692,23 +1027,18 @@
         });
         // 允许所有人加入
         $('.choose_authority_one').on('click', () => {
-            $(".control_setting_box").attr("data-status","1");
-            $('.setting_box_item_img_two').addClass('hide');
-            $('.setting_box_item_img_one').removeClass('hide');
+            changePublicStatus("1");
             // 发送设置公开
-            let messageTemp = {"cmd": "toggleAllowSet","status":1};
+            let messageTemp = {"cmd": "toggleAllowSet", "status": 1};
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
-            $('.control_setting_box').addClass('hide');
+            errorTipsBox(getI18Value("设置成功"));
         });
-        // 允许加入的人员
+        // 允许指定人加入
         $('.choose_authority_two').on('click', () => {
-            $(".control_setting_box").attr("data-status","0");
-            $('.setting_box_item_img_one').addClass('hide');
-            $('.setting_box_item_img_two').removeClass('hide');
+            changePublicStatus("0");
             // 发送设置指定
             let messageTemp = {"cmd": "toggleAllowSet","status":0};
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
-            $('.control_setting_box').addClass('hide');
         })
         // 结束
         $('.endBtn').on('click', () => {

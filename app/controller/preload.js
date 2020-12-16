@@ -1,5 +1,8 @@
 window.AgoraRtcEngine = null;
 window.InjectRtcAudioVideoScreenUtil = null;
+window.minBtnForWindowFunction = null;
+window.maxBtnForWindowFunction = null;
+window.closeBtnForWindowFunction = null;
 if (require('electron').remote) {
     if (!window.location.href.startsWith("https://k.chaoxing.com/pc/meet/meeting") && !window.location.href.startsWith("file://")) {
         window.nodeRequire = require;
@@ -7,6 +10,35 @@ if (require('electron').remote) {
         delete window.exports;
         delete window.module;
     } else {
+        // 工具栏
+        const remote = require("electron").remote;
+        // 最小化
+        window.minBtnForWindowFunction = function () {
+            remote.getCurrentWindow().minimize();
+        }
+        // 最大化/取消最大化
+        window.maxBtnForWindowFunction = function () {
+            if (remote.getCurrentWindow().isMaximized()) {
+                remote.getCurrentWindow().unmaximize();
+            } else {
+                remote.getCurrentWindow().maximize();
+            }
+        }
+        // 关闭
+        window.closeBtnForWindowFunction = function () {
+            remote.getCurrentWindow().close();
+        }
+        // 退出全屏
+        document.addEventListener("keydown", event => {
+            switch (event.key) {
+                case "Escape":
+                    if (remote.getCurrentWindow().isFullScreen()) {
+                        remote.getCurrentWindow().setFullScreen(false);
+                    }
+                    break;
+            }
+        });
+        // 会议相关
         const path = require("path");
         let logger = require("../common/Logger");
         let rendererProcessHelper = require("../process/RendererProcessHelper");
@@ -17,17 +49,5 @@ if (require('electron').remote) {
         window.InjectRtcAudioVideoScreenUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoraAudioVideoScreenSdk.log");
         // ipc通信
         window.InjectRtcAudioVideoScreenUtil.RendererProcessHelper = rendererProcessHelper;
-
-        // 会议退出全屏
-        const remote = require("electron").remote;
-        document.addEventListener("keydown", event => {
-            switch (event.key) {
-                case "Escape":
-                    if (remote.getCurrentWindow().isFullScreen()) {
-                        remote.getCurrentWindow().setFullScreen(false);
-                    }
-                    break;
-            }
-        });
     }
 }

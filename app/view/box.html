@@ -5,6 +5,7 @@
     <title></title>
     <style>
         body {
+            -webkit-user-select: none;
             margin: 0;
         }
 
@@ -497,10 +498,10 @@
         <div class="textwaring_lib msgContext"></div>
     </div>
     <div class="buttonsArr">
-        <a href="javascript:void(0);" class="trusCancle"></a>
-        <a href="javascript:void(0);" class="ok stopOvers confirm"></a>
-        <!--<a href="javascript:void(0);" class="leave stopOvers">End</a>
-        <a href="javascript:void(0);" class="leave stopOvers">Leave</a>-->
+        <a href="javascript:void(0);" class="cancleBtn"></a>
+        <a href="javascript:void(0);" style="display: none;" class="ok confirmBtn"></a>
+        <a href="javascript:void(0);" style="display: none;" class="leave endBtn"></a>
+        <a href="javascript:void(0);" style="display: none;" class="leave leaveBtn">Leave</a>
     </div>
 </div>
 </body>
@@ -563,6 +564,8 @@
 </script>
 <!--国际化结束-->
 <script>
+    let leader = "0";
+    let windowCloseFlag = '1';
     let hasAudioDev = false;
     let hasVideoDev = false;
     const currentWindow = require("electron").remote.getCurrentWindow();
@@ -580,6 +583,58 @@
     const recordingBtnStartImg = "../static/images/share_screen_recording_start.png";
     const recordingBtnStopImg = "../static/images/share_screen_recording_stop.png";
 
+    // 客户端x掉窗口调用事件
+    function beforeWindowClose() {
+        if (windowCloseFlag == '1') {
+            //解绑事件
+            $(".pop_overs").unbind("click");
+            $('.pop_overs .confirmBtn').hide();
+            $('.pop_overs .endBtn').hide();
+            $('.pop_overs .leaveBtn').hide();
+            if (leader == "1") {
+                $('.pop_overs .msgTitle').text(getI18Value("请选择仅自己离开或结束此课堂？"));
+                $('.pop_overs .endBtn').show();
+                $('.pop_overs .leaveBtn').show();
+            } else {
+                $('.pop_overs .msgTitle').text(getI18Value("确认离开？"));
+                $('.pop_overs .leaveBtn').show();
+            }
+            $('.pop_overs .msgContext').text("");
+            $('.pop_overs .cancleBtn').text(getI18Value("取消"));
+            
+            $('.pop_overs .endBtn').text(getI18Value("结束"));
+            $('.pop_overs .leaveBtn').text(getI18Value("离开"));
+            
+            $('.pop_overs').show();
+            //绑定事件
+            $('.pop_overs').on('click', '.cancleBtn', function () {
+                $('.pop_overs').hide();
+            });
+            $('.pop_overs').on('click', '.endBtn', function () {
+                if (rendererProcessHelper) {
+                    let messageTemp = {
+                        "cmd": "endOrleaveMeet",
+                        "status": -1
+                    };
+                    rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+                }
+                windowCloseFlag = '0';
+                $('.pop_overs').hide();
+            });
+            $('.pop_overs').on('click', '.leaveBtn', function () {
+                if (rendererProcessHelper) {
+                    let messageTemp = {
+                        "cmd": "endOrleaveMeet",
+                        "status": 0
+                    };
+                    rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+                }
+                windowCloseFlag = '0';
+                $('.pop_overs').hide();
+            });
+        }
+        return windowCloseFlag;
+    }
     // 消息弹框
     function errorTipsBox(mes) {
         $(".popError").remove();
@@ -592,6 +647,9 @@
         $(".pop_overs").unbind("click");
         $('.pop_overs .msgTitle').text('');
         $('.pop_overs .msgContext').text('');
+        $('.pop_overs .confirmBtn').hide();
+        $('.pop_overs .endBtn').hide();
+        $('.pop_overs .leaveBtn').hide();
         if (title) {
             $('.pop_overs .msgTitle').text(title);
         }
@@ -599,24 +657,25 @@
             $('.pop_overs .msgContext').text(text);
         }
         if (confirmBtn) {
-            $('.pop_overs .confirm').text(confirmBtn);
+            $('.pop_overs .confirmBtn').text(confirmBtn);
         } else {
-            $('.pop_overs .confirm').text(getI18Value("确认"));
+            $('.pop_overs .confirmBtn').text(getI18Value("确认"));
         }
         if (cancleBtn) {
-            $('.pop_overs .trusCancle').text(cancleBtn);
+            $('.pop_overs .cancleBtn').text(cancleBtn);
         } else {
-            $('.pop_overs .trusCancle').text(getI18Value("取消"));
+            $('.pop_overs .cancleBtn').text(getI18Value("取消"));
         }
+        $('.pop_overs .confirmBtn').show();
         $('.pop_overs').show();
         //绑定事件
-        $('.pop_overs').on('click', '.trusCancle', function () {
+        $('.pop_overs').on('click', '.cancleBtn', function () {
             if (cancle_callback) {
                 cancle_callback();
             }
             $('.pop_overs').hide();
         });
-        $('.pop_overs').on('click', '.confirm', function () {
+        $('.pop_overs').on('click', '.confirmBtn', function () {
             if (callback) {
                 callback();
             }
@@ -840,6 +899,9 @@
             if (msgTemp) {
                 errorTipsBox(getI18Value(msgTemp));
             }
+        } else if ("endOrleaveMeet" == args.cmd) {
+            // 当窗口关闭前触发
+            window.close();
         } else if ("execfunction" == args.cmd) {
             // 执行函数
             let funTemp = args.fun || "";
@@ -867,6 +929,8 @@
         } else {
             isEnLanguage = true;
         }
+        //身份1-创建者,0-观众（学生）,2-助教
+        leader = urlHelper.getQueryString("leader") || "0";
         //语音设备true或false
         let hasAudioDevTemp = urlHelper.getQueryString("hasAudioDev") || "false";
         if (hasAudioDevTemp == "true") {
@@ -1042,6 +1106,8 @@
         })
         // 结束
         $('.endBtn').on('click', () => {
+            // 更新结束标记
+            windowCloseFlag = '0';
             // 结束投屏
             let messageTemp = {"cmd": "stopScreen"};
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);

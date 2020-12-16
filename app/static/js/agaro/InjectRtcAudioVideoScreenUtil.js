@@ -110,6 +110,17 @@ InjectRtcAudioVideoScreenUtil.sendFunToToolsWindow = function (fun) {
     }
 }
 
+// 发送关闭对话框-页面调用
+InjectRtcAudioVideoScreenUtil.sendCloseToToolsWindow = function () {
+    // 方法回调
+    if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+        let messageTemp = {
+            "cmd": "endOrleaveMeet"
+        };
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+    }
+}
+
 // ipc回调事件
 InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
     if (!args || !args.cmd) {
@@ -150,6 +161,11 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
         let statusTemp = args.status || 0;
         // 切换课堂开放设置
         Meeting.toggleAllowSet(statusTemp);
+    } else if ("endOrleaveMeet" == args.cmd) {
+        // 离开或结束
+        let statusTemp = args.status || 0;
+        // 离开或结束
+        Meeting.endOrleaveMeet(statusTemp);
     } else if ("execfunction" == args.cmd) {
         // 执行函数
         let funTemp = args.fun || "";
@@ -647,6 +663,7 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
             let messageTemp = {
                 "cmd": "startScreen",//指令
                 "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
+                "leader": Meeting.leader || 0,//1 创建者  0 观众（学生）2助教
                 "language": window.i18.language||"language",//语言language中文,1英文
                 "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
                 "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
@@ -763,6 +780,7 @@ InjectRtcAudioVideoScreenUtil.testScreenTools = function () {
         let messageTemp = {
             "cmd": "startScreen",//指令
             "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
+            "leader": Meeting.leader || 0,//1 创建者  0 观众（学生）2助教
             "language": window.i18.language || "language",//语言language中文,1英文
             "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
             "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false

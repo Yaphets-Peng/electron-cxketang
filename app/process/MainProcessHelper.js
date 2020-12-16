@@ -399,7 +399,6 @@ function all_win_event(win) {
 
             // 会议链接判断
             let isMeeting = false;
-            let isAddMeeting = false;
             let isPreloadJs = false;
             let isTestDemo = false;
             if (url.startsWith(config.getConfigVal("open_meet_url"))) {
@@ -407,10 +406,6 @@ function all_win_event(win) {
                 isMeeting = true;
                 isPreloadJs = true;
                 //isTestDemo = true;
-            } else if (url.startsWith(config.getConfigVal("open_add_url"))) {
-                // 如果是加入会议
-                isAddMeeting = true;
-                isPreloadJs = true;
             }
 
             // 注入js脚本
@@ -418,6 +413,8 @@ function all_win_event(win) {
                 // 开启nodejs
                 webWindowConfig.webPreferences.nodeIntegration = true;
                 webWindowConfig.webPreferences.enableRemoteModule = true;
+                // 开启无框窗口
+                webWindowConfig.frame = false;
                 // 关闭请求跨域限制
                 //webWindowConfig.webPreferences.webSecurity = false;
                 // 如果是测试关闭注入
@@ -448,11 +445,6 @@ function all_win_event(win) {
 
             // 如果是打开会议链接
             if (isMeeting) {
-                if (config.getConfigVal("meet_debug")) {
-                    childWindow.webContents.openDevTools();
-                }
-            }
-            if (isAddMeeting) {
                 if (config.getConfigVal("meet_debug")) {
                     childWindow.webContents.openDevTools();
                 }
@@ -489,7 +481,7 @@ function all_win_event(win) {
                 mainWindow.hide();
             }
             // 如果是会议界面加入关闭判断
-            if (isMeeting || isAddMeeting) {
+            if (isMeeting) {
                 // 当子窗口关闭前触发
                 childWindow.on("close", function (e) {
                     // 先判断是否存在对象
@@ -631,27 +623,6 @@ function all_win_event(win) {
         // 关闭菜单
         if (nowWindow) {
             nowWindow.removeMenu();
-        }
-        //判断是否开启菜单
-        if (url.startsWith(config.getConfigVal("menu_url"))) {
-            //nowWindow.setMenu(;);
-        }
-        // 会议链接判断
-        let isTestDemo = false;
-        if (url.startsWith(config.getConfigVal("open_meet_url"))) {
-            // 如果是会议
-            //isTestDemo = true;
-        }
-        // 如果是打开会议链接
-        if (isTestDemo) {
-            let urlAllParamValues = urlHelper.getUrlAllParamValues(url);
-            if (urlAllParamValues) {
-                urlAllParamValues = "?" + urlAllParamValues + "&isTestDemo=1";
-            } else {
-                urlAllParamValues = "?isTestDemo=1";
-            }
-            nowWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/meeting.html"), {"search": urlAllParamValues});
-            event.preventDefault();
         }
         logger.info("[MainProcessHelper][will-navigate]新视图 " + url + " 已加载");
     });
@@ -935,6 +906,7 @@ function registeCallback(signal, callback) {
  *投屏相关-会议页面打开工具栏
  * cmd 指令
  * useLocalTools 是否使用本地1或0
+ * leader  1 创建者  0 观众（学生）2助教
  * language 语言language中文,1英文
  * hasAudioDev 语音设备true或false
  * hasVideoDev 视频设备true或false
@@ -1023,6 +995,9 @@ ipcMain.on("screenTools", function (sys, message) {
             //语言language中文,1英文
             let language = message.language || "language";
             queryValues += "&language=" + language;
+            //身份1-创建者,0-观众（学生）,2-助教
+            let leader = message.leader || "0";
+            queryValues += "&leader=" + leader;
             //语音设备true或false
             let hasAudioDev = message.hasAudioDev || "false";
             queryValues += "&hasAudioDev=" + hasAudioDev;
@@ -1110,6 +1085,24 @@ ipcMain.on("screenTools", function (sys, message) {
             // 失去焦点处理-针对mac
             screenToolsWindow.on('blur', function () {
                 screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
+            });
+            // 当窗口关闭前触发
+            screenToolsWindow.on("close", function (e) {
+                // 先判断是否存在对象
+                e.sender.webContents.executeJavaScript("typeof beforeWindowClose").then((result) => {
+                    if (result !== "undefined") {
+                        // 存在执行此方法获取返回值
+                        e.sender.webContents.executeJavaScript("beforeWindowClose()").then((result) => {
+                            if (result !== "1") {
+                                e.sender.destroy();
+                            }
+                        });
+                    } else {
+                        // 不存在直接销毁
+                        e.sender.destroy();
+                    }
+                })
+                e.preventDefault();
             });
             // 放入窗口集合中
             global.sharedWindow.windowMap.set(screenToolsWindowUUID, screenToolsWindow);

@@ -501,7 +501,7 @@
         <a href="javascript:void(0);" class="cancleBtn"></a>
         <a href="javascript:void(0);" style="display: none;" class="ok confirmBtn"></a>
         <a href="javascript:void(0);" style="display: none;" class="leave endBtn"></a>
-        <a href="javascript:void(0);" style="display: none;" class="leave leaveBtn">Leave</a>
+        <a href="javascript:void(0);" style="display: none;" class="leave leaveBtn"></a>
     </div>
 </div>
 </body>
@@ -549,6 +549,10 @@
         "确认": "Done",
         "开启录制失败": "Failed to start recording",
         "停止录制失败": "Failed to stop recording",
+        "结束": "End",
+        "离开": "Leave",
+        "请选择仅自己离开或结束此课堂？": "Please selesct to just leave the class or end the class?",
+        "确认离开？": "Be sure to leave?",
     }
     //国际化文本
     const getI18Value = function (key) {
@@ -699,9 +703,9 @@
                 $('#meetTime').html(m + ':' + s);
             }
             // 失去焦点时默认穿透-针对mac
-            /*if (!currentWindow.isFocused()) {
+            if (!currentWindow.isFocused()) {
                 currentWindow.setIgnoreMouseEvents(true, {forward: true});
-            }*/
+            }
         }, 1000);
     }
 

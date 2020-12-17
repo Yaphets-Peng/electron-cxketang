@@ -415,6 +415,7 @@ function all_win_event(win) {
                 webWindowConfig.webPreferences.enableRemoteModule = true;
                 // 开启无框窗口
                 webWindowConfig.frame = false;
+                webWindowConfig.titleBarStyle = "hidden";
                 // 关闭请求跨域限制
                 //webWindowConfig.webPreferences.webSecurity = false;
                 // 如果是测试关闭注入
@@ -977,6 +978,9 @@ ipcMain.on("screenTools", function (sys, message) {
             meetWindowTemp.setMinimumSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setContentSize(meetWinWidthTemp, meetWinHeightTemp);
+            if (process.platform === 'darwin') {
+                meetWindowTemp.setWindowButtonVisibility(false);
+            }
             meetWindowTemp.setResizable(false);
             // 计算窗口位置
             let moveX = winWidthTemp - (winWidthTemp * 0.3);
@@ -1069,7 +1073,7 @@ ipcMain.on("screenTools", function (sys, message) {
                 screenToolsWindow.setFullScreen(true);
             }
 
-            if (config.getConfigVal("debug")) {
+            if (config.getConfigVal("meet_debug")) {
                 // 打开开发者工具
                 screenToolsWindow.webContents.openDevTools();
                 screenToolsWindow.setFullScreen(false);
@@ -1082,10 +1086,10 @@ ipcMain.on("screenTools", function (sys, message) {
             }
             // 需要加上转发不然会失效
             screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
-            // 失去焦点处理-针对mac
-            screenToolsWindow.on('blur', function () {
+            // 失去焦点处理-针对mac 测试后效果不理想
+            /*screenToolsWindow.on('blur', function () {
                 screenToolsWindow.setIgnoreMouseEvents(true, {forward: true});
-            });
+            });*/
             // 当窗口关闭前触发
             screenToolsWindow.on("close", function (e) {
                 // 先判断是否存在对象
@@ -1119,6 +1123,9 @@ ipcMain.on("screenTools", function (sys, message) {
                 meetWindowTemp.setMinimumSize(meetWindowOptionsTemp.minWidth, meetWindowOptionsTemp.minHeight);
                 meetWindowTemp.setSize(meetWindowOptionsTemp.width, meetWindowOptionsTemp.height);
                 meetWindowTemp.setContentSize(meetWindowOptionsTemp.width, meetWindowOptionsTemp.height);
+                if (process.platform === 'darwin') {
+                    meetWindowTemp.setWindowButtonVisibility(true);
+                }
                 meetWindowTemp.setResizable(true);
                 meetWindowTemp.center();
                 meetWindowTemp.show();

@@ -2,6 +2,7 @@ window.AgoraRtcEngine = null;
 window.InjectRtcAudioVideoScreenUtil = null;
 window.minBtnForWindowFunction = null;
 window.maxBtnForWindowFunction = null;
+window.unMaxBtnForWindowFunction = null;
 window.closeBtnForWindowFunction = null;
 if (require('electron').remote) {
     if (!window.location.href.startsWith("https://k.chaoxing.com/pc/meet/meeting") && !window.location.href.startsWith("file://")) {
@@ -16,13 +17,13 @@ if (require('electron').remote) {
         window.minBtnForWindowFunction = function () {
             remote.getCurrentWindow().minimize();
         }
-        // 最大化/取消最大化
+        // 最大化
         window.maxBtnForWindowFunction = function () {
-            if (remote.getCurrentWindow().isMaximized()) {
-                remote.getCurrentWindow().unmaximize();
-            } else {
-                remote.getCurrentWindow().maximize();
-            }
+            remote.getCurrentWindow().maximize();
+        }
+        // 取消最大化
+        window.unMaxBtnForWindowFunction = function () {
+            remote.getCurrentWindow().unmaximize();
         }
         // 关闭
         window.closeBtnForWindowFunction = function () {

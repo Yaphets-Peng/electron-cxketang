@@ -1,10 +1,10 @@
 {
-  "uaVersion": "2.0.2",
+  "uaVersion": "2.0.3",
   "productInfos": {
     "3": {
       "schoolName": "超星集团",
       "name": "cxketang",
-      "version": "2.0.2",
+      "version": "2.0.3",
       "macAppId": "com.ssreader.cxketang",
       "winAppId": "com.ssreader.cxketangwindows",
       "description": "cxketang",

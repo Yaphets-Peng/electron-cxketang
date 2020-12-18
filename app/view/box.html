@@ -463,11 +463,11 @@
         </div>
         <span class="function_text">互动</span>
     </div>
-    <div class="menuItem function recording_btn" data-status="0">
+    <div class="menuItem function recording_btn" data-status="0" style="display: none;">
         <img src="../static/images/share_screen_recording_stop.png">
         <span class="function_text">开始录制</span>
     </div>
-    <div class="menuItem function setting_btn">
+    <div class="menuItem function setting_btn" style="display: none;">
         <img class="setting_btn_click" src="../static/images/share_screen_setting.png">
         <span class="function_text setting_btn_click">设置</span>
         <div class="control_setting_box hide">
@@ -935,6 +935,12 @@
         }
         //身份1-创建者,0-观众（学生）,2-助教
         leader = urlHelper.getQueryString("leader") || "0";
+        if (leader == "1") {
+            $(".recording_btn").show();
+            $(".setting_btn").show();
+        } else if (leader == "2") {
+            $(".setting_btn").show();
+        }
         //语音设备true或false
         let hasAudioDevTemp = urlHelper.getQueryString("hasAudioDev") || "false";
         if (hasAudioDevTemp == "true") {

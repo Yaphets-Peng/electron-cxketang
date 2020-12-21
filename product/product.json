@@ -3,6 +3,7 @@
   "productInfos": {
     "3": {
       "schoolName": "超星集团",
+      "domain": "https://k.chaoxing.com",
       "name": "cxketang",
       "version": "2.0.3",
       "macAppId": "com.ssreader.cxketang",
@@ -15,6 +16,7 @@
     },
     "1000309": {
       "schoolName": "国科大在线",
+      "domain": "https://k.ecourse.ucas.ac.cn",
       "name": "gkonline",
       "version": "1.0.0",
       "macAppId": "com.ssreader.gkdonline",

@@ -74,7 +74,7 @@ function createMainWindow() {
     mainWindow = new BrowserWindow(mainWindowConfig);
 
     // 引入主入口界面
-    mainWindow.loadURL(config.getConfigVal("main_url"));
+    mainWindow.loadURL(config.getUrlPathConfigVal("main_url"));
 
     if (config.getConfigVal("debug")) {
         // 打开开发者工具
@@ -313,7 +313,7 @@ function all_win_event(win) {
         let nowWindowLevel = event.sender.browserWindowOptions.customLevel;
         // 生成窗口唯一uuid值
         let windowUUID = md5(url);
-        if (url.startsWith(config.getConfigVal("open_meet_url"))) {
+        if (url.startsWith(config.getUrlPathConfigVal("open_meet_url"))) {
             // 如果是会议
             windowUUID = meetWindowUUID;
         }
@@ -401,7 +401,7 @@ function all_win_event(win) {
             let isMeeting = false;
             let isPreloadJs = false;
             let isTestDemo = false;
-            if (url.startsWith(config.getConfigVal("open_meet_url"))) {
+            if (url.startsWith(config.getUrlPathConfigVal("open_meet_url"))) {
                 // 如果是会议
                 isMeeting = true;
                 isPreloadJs = true;
@@ -430,7 +430,7 @@ function all_win_event(win) {
             webWindowConfig.customParentUUID = nowWindowUUID;
             webWindowConfig.customParentLevel = nowWindowLevel;
             // 是否需要刷新父页面
-            if (url.startsWith(config.getConfigVal("meet_setting_url"))) {
+            if (url.startsWith(config.getUrlPathConfigVal("meet_setting_url"))) {
                 webWindowConfig.customParentRefresh = true;
             }
             // 创建窗口
@@ -1057,7 +1057,7 @@ ipcMain.on("screenTools", function (sys, message) {
                 screenToolsWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/box.html"), {"search": queryValues});
             } else {
                 // 引用在线便于更新
-                screenToolsWindow.loadURL(config.getConfigVal("menu_box_url") + queryValues);
+                screenToolsWindow.loadURL(config.getUrlPathConfigVal("menu_box_url") + queryValues);
             }
             // win直接全屏,macos直接简单全屏
             if (process.platform === 'darwin') {

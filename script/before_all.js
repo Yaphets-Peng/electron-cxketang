@@ -134,7 +134,8 @@ async function befor_all(productId, productObject, uaVersion) {
             console.log("替换产品对应文件完成,[" + oldProductId + "]->[" + productId + "]");
         }
         // }
-
+        // 更新根域名
+        configJson.domain = productObject.domain;
         // 更新时间
         configJson.buildTime = dateTime;
         // 更新产品id

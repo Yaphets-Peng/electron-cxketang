@@ -7,6 +7,7 @@
   "productInfos": {
     "${productId}": {
       "schoolName": "单位名称",
+      "domain": "域名根地址",
       "name": "项目名称",
       "version": "客户端版本号",
       "macAppId": "mac的包名-app管理配置",
@@ -16,6 +17,7 @@
       "title": "内置窗口默认标题",
       "copyright": "应用版权",
       "filePrefix": "最终打包文件前缀"
+      
     }
   }
 }
@@ -26,6 +28,7 @@
   "productInfos": {
     "3": {
       "schoolName": "超星集团",
+      "domain": "https://k.chaoxing.com",
       "name": "cxketang",
       "version": "2.0.2",
       "macAppId": "com.ssreader.cxketang",

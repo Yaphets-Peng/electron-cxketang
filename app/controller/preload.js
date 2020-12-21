@@ -5,7 +5,8 @@ window.maxBtnForWindowFunction = null;
 window.unMaxBtnForWindowFunction = null;
 window.closeBtnForWindowFunction = null;
 if (require('electron').remote) {
-    if (!window.location.href.startsWith("https://k.chaoxing.com/pc/meet/meeting") && !window.location.href.startsWith("file://")) {
+    const meet_url_temp = require("../common/Config").getUrlPathConfigVal("open_meet_url");
+    if (!window.location.href.startsWith(meet_url_temp) && !window.location.href.startsWith("file://")) {
         window.nodeRequire = require;
         delete window.require;
         delete window.exports;

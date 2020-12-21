@@ -33,7 +33,7 @@ AgaroUserUtil.userId = baseController.getUserInfo().UID;
 if (urlIsTestDemo == "1") {
     $.ajax({
         type: "post",
-        url: config.getConfigVal("meet_info_url"),
+        url: config.getUrlPathConfigVal("meet_info_url"),
         data: {"uuid": MeetInfoUtil.meetUUID},
         async: false,
         success: function (data) {
@@ -46,7 +46,7 @@ if (urlIsTestDemo == "1") {
     });
     $.ajax({
         type: "post",
-        url: config.getConfigVal("meet_tokens_url"),
+        url: config.getUrlPathConfigVal("meet_tokens_url"),
         data: {"channelName": MeetInfoUtil.meetQrcord},
         async: false,
         success: function (data) {

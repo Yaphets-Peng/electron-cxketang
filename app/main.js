@@ -74,12 +74,12 @@ const handleUrlFromWeb = (urlStr) => {
                     let meet_uuid = getProtocolQueryString(host, "meet_uuid");
                     let meet_clazzid = getProtocolQueryString(host, "meet_clazzid");
                     if (meet_uuid) {
-                        let open_meet_url = config.getConfigVal("meet_url").replace("{uuid}", meet_uuid).replace("{classId}", meet_clazzid);
+                        let open_meet_url = config.getUrlPathConfigVal("meet_url").replace("{uuid}", meet_uuid).replace("{classId}", meet_clazzid);
                         let openMeetinScript = "window.open('" + open_meet_url + "')";
                         if (helper.getMainWindow() !== null) {
                             // 判断下是否登录,从webcookie中获取
                             helper.getMainWindow().webContents.session.cookies.get({
-                                "url": config.getConfigVal("cookie_url"),
+                                "url": config.getConfigVal("domain"),
                                 "name": config.getConfigVal("cookie_key").UID
                             }).then((cookies) => {
                                 if (cookies && cookies.length > 0) {

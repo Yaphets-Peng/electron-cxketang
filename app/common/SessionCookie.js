@@ -2,7 +2,7 @@ const {session} = require("electron"); //引入electron的session
 const config = require("./Config"); //引入全局配置组件
 const logger = require("./Logger"); //引入全局日志组件
 
-const cookieUrl = config.getConfigVal("cookie_url");
+const cookieUrl = config.getConfigVal("domain");
 const cookieKey = config.getConfigVal("cookie_key");
 
 // cookie用法参考https://www.electronjs.org/docs/api/cookies

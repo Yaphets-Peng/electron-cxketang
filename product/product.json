@@ -1,29 +1,29 @@
 {
-  "uaVersion": "2.0.3",
+  "uaVersion": "2.0.4",
   "productInfos": {
     "3": {
-      "schoolName": "超星集团",
+      "schoolName": "在线课堂",
       "domain": "https://k.chaoxing.com",
       "name": "cxketang",
-      "version": "2.0.3",
+      "version": "同uaVersion",
       "macAppId": "com.ssreader.cxketang",
       "winAppId": "com.ssreader.cxketangwindows",
       "description": "cxketang",
-      "productName": "超星课堂",
-      "title": "超星课堂",
+      "productName": "在线课堂",
+      "title": "在线课堂",
       "copyright": "ChaogXing",
       "filePrefix": "ketang"
     },
     "1000309": {
-      "schoolName": "国科大在线",
-      "domain": "https://k.ecourse.ucas.ac.cn",
+      "schoolName": "在线课堂",
+      "domain": "http://k.ecourse.ucas.ac.cn",
       "name": "gkonline",
       "version": "1.0.0",
       "macAppId": "com.ssreader.gkdonline",
       "winAppId": "com.ssreader.gkdonlinewindows",
       "description": "gkonline",
-      "productName": "国科大在线",
-      "title": "国科大在线",
+      "productName": "在线课堂",
+      "title": "在线课堂",
       "copyright": "GuoKe",
       "filePrefix": "guoke"
     }

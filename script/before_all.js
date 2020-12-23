@@ -34,6 +34,10 @@ function main() {
                 throw new Error("请检查所输入产品Id[" + response + "]是否存在于文件[" + productFilePath + "]中");
                 return;
             }
+            // 超星版本同主ua显示
+            if (productId == "3") {
+                productObject.version = uaVersion;
+            }
             console.log("当前选择产品ID为", response, productObject, uaVersion);
             befor_all(productId, productObject, uaVersion);
             rl.close();

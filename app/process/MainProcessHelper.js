@@ -974,6 +974,8 @@ ipcMain.on("screenTools", function (sys, message) {
             }
             // 获取窗口原参数
             let meetWindowOptionsTemp = meetWindowTemp.webContents.browserWindowOptions;
+            // 退出全屏
+            meetWindowTemp.setFullScreen(false);
             // 更新会议窗口信息
             meetWindowTemp.setMinimumSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);

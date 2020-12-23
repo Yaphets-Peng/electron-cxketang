@@ -1,6 +1,6 @@
 {
   "name": "cxketang",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "cxketang",
   "main": "app/main.js",
   "scripts": {
@@ -34,7 +34,7 @@
     "afterAllArtifactBuild": "script/after_build.js",
     "appId": "com.ssreader.cxketangwindows",
     "copyright": "ChaogXing",
-    "productName": "超星课堂",
+    "productName": "在线课堂",
     "artifactName": "ketang_${version}.${ext}",
     "compression": "store",
     "directories": {

@@ -31,11 +31,48 @@
             box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
             border-radius: 0px 0px 8px 8px;
             opacity: 0.7;
-            margin: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 30px;
+            position: absolute;
+            margin-left: calc(50% - 317.5px);
+            top: 0;
+            z-index: 2;
+        }
+
+        .trigger {
+            position: absolute;
+            margin-left: calc(50% - 47px);
+            top: 0;
+            width: 94px;
+            height: 20px;
+            background: #25282E;
+            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 0px 0px 4px 4px;
+            opacity: 0.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1px 0 2px 0;
+        }
+
+        .trigger img {
+            width: 12px;
+            height: 11px;
+            margin-right: 4px;
+        }
+
+        .trigger span {
+            font-size: 12px;
+            font-weight: 400;
+            color: #B3B3B3;
+            line-height: 20px;
+        }
+
+        .hide_animation {
+            top: -62px;
+            transition: top 1s;
         }
 
         .menuItem {
@@ -491,6 +528,10 @@
         </div>
     </div>
 </div>
+<div id="topMiniTools" class="trigger hide">
+    <img src="../static/images/share_screen_signal.png">
+    <span>在线课堂</span>
+</div>
 <!--弹窗-->
 <div id="confirmMsgDiv" class="pop_overs" style="display: none;">
     <div class="textwaring">
@@ -553,6 +594,7 @@
         "离开": "Leave",
         "请选择仅自己离开或结束此课堂？": "Please selesct to just leave the class or end the class?",
         "确认离开？": "Be sure to leave?",
+        "在线课堂": "Online Class",
     }
     //国际化文本
     const getI18Value = function (key) {
@@ -686,6 +728,20 @@
             $('.pop_overs').hide();
         });
     }
+    // 最小化工具栏
+    function minMenuTools() {
+        setTimeout(function () {
+            $('.control_setting_box').addClass('hide');
+            $('#topMenuTools').addClass('hide_animation');
+            $('#topMiniTools').removeClass('hide');
+        }, 3000);
+    }
+    // 最大化工具栏
+    function maxMenuTools() {
+        $('#topMenuTools').removeClass('hide_animation');
+        $('#topMiniTools').addClass('hide');
+    }
+    
     // 会议计时
     function meetTiming(meetTime) {
         setInterval(function () {
@@ -917,14 +973,17 @@
 
     $(document).ready(function () {
         // 窗口透明鼠标穿透事件
-        $("#topMenuTools,#confirmMsgDiv").mousemove(function () {
+        $("#topMenuTools,#topMiniTools,#confirmMsgDiv").mousemove(function () {
             currentWindow.setIgnoreMouseEvents(false);
+            maxMenuTools();
         });
-        $("#topMenuTools,#confirmMsgDiv").mouseenter(function () {
+        $("#topMenuTools,#topMiniTools,#confirmMsgDiv").mouseenter(function () {
             currentWindow.setIgnoreMouseEvents(false);
+            maxMenuTools();
         });
         $("#topMenuTools,#confirmMsgDiv").mouseleave(function () {
             currentWindow.setIgnoreMouseEvents(true, {forward: true});
+            minMenuTools();
         });
         //语音设备true或false
         let language = urlHelper.getQueryString("language") || "language";
@@ -1000,6 +1059,7 @@
         $('.setting_btn .choose_authority_one').text(getI18Value("允许任何人加入"));
         $('.setting_btn .choose_authority_two').text(getI18Value("允许加入的人员"));
         $('.endBtn span').text(getI18Value("结束共享"));
+        $('#topMiniTools span').text(getI18Value("在线课堂"));
         //会议开始时间
         let meetTime = urlHelper.getQueryString("meetTime") || new Date().getTime();
         if (meetTime) {
@@ -1126,6 +1186,8 @@
         meetTiming(meetTime);
         // 显示
         $("#topMenuTools").show();
+        // 最小化
+        minMenuTools();
     });
 </script>
 </html>

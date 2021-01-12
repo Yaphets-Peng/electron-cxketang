@@ -4,6 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <style>
+        *{margin:0; padding:0;}
+        ul,ol,li{list-style-type:none;}
         body {
             -webkit-user-select: none;
             margin: 0;
@@ -463,6 +465,189 @@
             line-height: 17px;
             opacity: 0.8;
         }
+
+        /*设置2021.01.06*/
+        .settingPop {
+            width:420px;
+            min-height: 100px;
+            background: #FFFFFF;
+            border-radius: 10px;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            overflow: hidden;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
+            display: none;
+        }
+        .popHead {
+            line-height: 60px;
+            height: 60px;
+            background: #FFFFFF;
+            box-shadow: inset 0 -1px 0 0 rgba(242, 242, 242, 0.8);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 0 30px;
+            box-sizing: border-box;
+            background: #fff;
+        }
+        .popClose { display: inline-block; width: 18px; height: 18px; margin-top: 19px;float: right; }
+        .popClose img {
+            display: block;
+            width: 100%;
+        }
+        .popHead_h {
+            color: #181E33;
+            font-size:18px;
+            float: left;
+        }
+        .het62 {
+            width: 100%;
+            height: 60px;
+        }
+        .settingCon {
+            padding: 23px 30px;
+        }
+
+        .settingCon_item {
+            margin-bottom: 32px;
+        }
+
+        .settingCon_item h2 {
+            font-size: 12px;
+            line-height: 17px;
+            color: #666666;
+        }
+
+        .meeting_setting_ul {
+            margin-top: 4px;
+        }
+
+        .meeting_setting_ul li {
+            line-height: 40px;
+            font-size: 14px;
+            color: #181E33;
+        }
+
+        .mui-switch {
+            width: 34px;
+            height: 20px;
+            position: relative;
+            display: inline-block;
+            background: #E9E9E9;
+            border-radius: 14px;
+            -webkit-appearance: none;
+            user-select: none;
+            outline: none;
+            margin-left: 20px;
+            vertical-align: top;
+            margin-top: 10px;
+        }
+
+        .mui-switch:before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            left: 1px;
+            top: 1px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0px 1px 2px 0px #848484;
+            border: 1px solid #BDBDBD;
+            box-sizing: border-box;
+        }
+
+        .mui-switch:checked {
+            background-color: #3A8BFF;
+        }
+
+        .mui-switch:checked:before {
+            left: 15px;
+            box-shadow: 0px 1px 2px 0px rgba(58, 139, 255, 0.6);
+            border: 1px solid #3A8BFF;
+        }
+
+        .mui-switch.mui-switch-animbg {
+            transition: background-color ease 0.4s;
+        }
+
+        .mui-switch.mui-switch-animbg:before {
+            transition: left 0.3s;
+        }
+
+        .mui-switch.mui-switch-animbg:checked {
+            transition: border-color 0.4s, background-color ease 0.4s;
+        }
+
+        .mui-switch.mui-switch-animbg:checked:before {
+            transition: left 0.3s;
+        }
+
+        .setting_switch_tip {
+            font-size: 12px;
+            line-height: 17px;
+            color: #A8A8B3;
+        }
+
+        .add_setting_ul {
+            margin-top: 5px;
+        }
+
+        .add_setting_ul li {
+            height: 40px;
+            line-height: 40px;
+            position: relative;
+            padding: 0 18px 0 24px;
+        }
+
+        .add_setting_ul li p {
+            font-size: 14px;
+            color: #181E33;
+            text-align: left;
+            line-height: 40px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .add_setting_ul li.cur {
+            background: url(../static/images/icon_setting.png) left center no-repeat;
+            background-size: 14px auto;
+        }
+
+        .add_setting_addPeople {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            margin-left: 6px;
+        }
+
+        .add_setting_addPeople:after {
+            content: "";
+            display: inline-block;
+            vertical-align: middle;
+            width: 12px;
+            height: 12px;
+            background: url(../static/images/icon_arrow.png) center center no-repeat;
+            background-size: 12px auto;
+        }
+
+        .add_setting_update {
+            color: #0084FF;
+            font-size: 14px;
+            display: none;
+            margin-right: 4px;
+        }
+
+        .add_setting_ul .add_setting_some.cur .add_setting_update {
+            display: inline-block;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -507,7 +692,7 @@
     <div class="menuItem function setting_btn" style="display: none;">
         <img class="setting_btn_click" src="../static/images/share_screen_setting.png">
         <span class="function_text setting_btn_click">设置</span>
-        <div class="control_setting_box hide">
+        <!--<div class="control_setting_box hide">
             <div class="setting_box_header">加课权限</div>
             <div class="setting_box_item setting_box_item_one">
                 <span class="setting_box_item_img_one hide"><img src="../static/images/icon_sure.png"></span>
@@ -518,7 +703,7 @@
                 <span class="choose_authority_two">允许加入的人员</span>
                 <span class="setting_box_item_join"><img src="../static/images/icon_join.png"></span>
             </div>
-        </div>
+        </div>-->
     </div>
     <div class="menuItem interval">
     </div>
@@ -543,6 +728,40 @@
         <a href="javascript:void(0);" style="display: none;" class="ok confirmBtn"></a>
         <a href="javascript:void(0);" style="display: none;" class="leave endBtn"></a>
         <a href="javascript:void(0);" style="display: none;" class="leave leaveBtn"></a>
+    </div>
+</div>
+
+<!--设置2021.01.06-->
+<div id="settingModal" class="settingPop">
+    <div class="popHead">
+        <a href="javascript:void(0);" class="popClose settingDele"><img src="../static/images/popClose.png" /></a>
+        <p class="popHead_h">设置</p>
+    </div>
+    <div class="het62"></div>
+    <div class="settingCon">
+        <div class="settingCon_item">
+            <h2>课堂设置</h2>
+            <ul class="meeting_setting_ul">
+                <li><span>允许主动退出课堂</span><input name="setAllowToLeave" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
+                <li><span>全体静音后，允许自我解除静音</span><input name="setAllowUnmuteSelf" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
+                <li><span>锁定课堂</span><input name="setLockMeet" class="mui-switch mui-switch-animbg" type="checkbox" value="0"></li>
+                <div class="setting_switch_tip">开启后，所有人不能再加入课堂</div>
+            </ul>
+        </div>
+        <div class="settingCon_item">
+            <h2>加入课堂权限</h2>
+            <ul class="add_setting_ul">
+                <li class="add_setting_all cur" isPublic="1">
+                    <p>允许任何人加入</p>
+                </li>
+                <li class="add_setting_some" isPublic="0">
+                    <p>允许加入的人员</p>
+                    <div class="add_setting_addPeople">
+                        <a class="add_setting_update" href="javascript:void(0);">管理</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 </body>
@@ -829,21 +1048,20 @@
         }
     }
 
-    // 更新课堂公开状态
-    function changePublicStatus(status) {
-        if (!status) {
+    // 更新课堂设置选中状态
+    function changeMeetSetStatus(type,status) {
+        if (typeof status == 'undefined') {
             return;
         }
-        if (status == "1") {
-            $(".control_setting_box").attr("data-status", "1");
-            $('.setting_box_item_img_two').addClass('hide');
-            $('.setting_box_item_img_one').removeClass('hide');
-            $('.control_setting_box').addClass('hide');
-        } else if (status == "0") {
-            $(".control_setting_box").attr("data-status", "0");
-            $('.setting_box_item_img_one').addClass('hide');
-            $('.setting_box_item_img_two').removeClass('hide');
-            $('.control_setting_box').addClass('hide');
+        if (type == 'isPublic'){
+            $('.add_setting_ul li[isPublic="'+ status +'"]').addClass('cur').siblings().removeClass("cur");
+        }else {
+            if (status == '1'){
+                $('.meeting_setting_ul input[name="'+ type +'"]').prop('checked',true);
+            }else {
+                $('.meeting_setting_ul input[name="'+ type +'"]').prop('checked',false);
+            }
+            $('.meeting_setting_ul input[name="'+ type +'"]').attr("value",status);
         }
     }
 
@@ -973,15 +1191,15 @@
 
     $(document).ready(function () {
         // 窗口透明鼠标穿透事件
-        $("#topMenuTools,#topMiniTools,#confirmMsgDiv").mousemove(function () {
+        $("#topMenuTools,#topMiniTools,#confirmMsgDiv,#settingModal").mousemove(function () {
             currentWindow.setIgnoreMouseEvents(false);
             maxMenuTools();
         });
-        $("#topMenuTools,#topMiniTools,#confirmMsgDiv").mouseenter(function () {
+        $("#topMenuTools,#topMiniTools,#confirmMsgDiv,#settingModal").mouseenter(function () {
             currentWindow.setIgnoreMouseEvents(false);
             maxMenuTools();
         });
-        $("#topMenuTools,#confirmMsgDiv").mouseleave(function () {
+        $("#topMenuTools,#confirmMsgDiv,#settingModal").mouseleave(function () {
             currentWindow.setIgnoreMouseEvents(true, {forward: true});
             minMenuTools();
         });
@@ -1033,12 +1251,22 @@
             changeVideoStatus("0");
         }
         //课堂是否开放1或0
-        let isPublic = urlHelper.getQueryString("isPublic") || "0";
+        let isPublic = urlHelper.getQueryString("isPublic") || "1";
         if (isPublic == "1") {
-            changePublicStatus("1");
+            changeMeetSetStatus('isPublic',"1");
         } else {
-            changePublicStatus("0");
+            changeMeetSetStatus('isPublic',"0");
         }
+        //设置- 允许主动退出课堂
+        let isAllowToLeave = urlHelper.getQueryString("isAllowToLeave") || "1";
+        changeMeetSetStatus('setAllowToLeave',isAllowToLeave);
+        //设置-全体静音后，允许自我解除静音
+        let isAllowUnmuteSelf = urlHelper.getQueryString("isAllowUnmuteSelf") || "1";
+        changeMeetSetStatus('setAllowUnmuteSelf',isAllowUnmuteSelf);
+        //设置-锁定课堂
+        let isLockMeet = urlHelper.getQueryString("isLockMeet") || "0";
+        changeMeetSetStatus('setLockMeet',isLockMeet);
+
         //录制状态1或0
         let recordSetStatus = urlHelper.getQueryString("recordSetStatus") || "0";
         if (recordSetStatus == "1") {
@@ -1153,27 +1381,40 @@
         });
         // 设置
         $('.setting_btn_click').on('click', () => {
-            if ($('.control_setting_box').hasClass('hide')) {
-                $('.control_setting_box').removeClass('hide');
-            } else {
-                $('.control_setting_box').addClass('hide');
-            }
+            $(".settingPop").show();
         });
-        // 允许所有人加入
-        $('.choose_authority_one').on('click', () => {
-            changePublicStatus("1");
+
+        //设置关闭2021.01.06
+        $('.settingDele').on('click', function() {
+            $(".settingPop").hide();
+        });
+        //加入课堂权限选择2021.01.06
+        $(".add_setting_ul li").click(function() {
+            $(this).addClass("cur").siblings().removeClass("cur");
+            var clickValue = $(this).attr('isPublic');
             // 发送设置公开
-            let messageTemp = {"cmd": "toggleAllowSet", "status": 1};
+            let messageTemp = {"cmd": "toggleAllowSet", "status": clickValue};
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
-            errorTipsBox(getI18Value("设置成功"));
-        });
-        // 允许指定人加入
-        $('.choose_authority_two').on('click', () => {
-            changePublicStatus("0");
-            // 发送设置指定
-            let messageTemp = {"cmd": "toggleAllowSet","status":0};
-            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            if (clickValue == '1'){
+                errorTipsBox(getI18Value("设置成功"));
+            }
         })
+        // 点击checkbox 设置
+        $('.meeting_setting_ul').on('click','.mui-switch',function(){
+            var value = $(this).attr("value");
+            var type = $(this).attr('name');
+            if (value == 1){
+                value = 0;
+            }else if (value == 0){
+                value = 1;
+            }
+            // 发送课堂checkBox设置
+            let messageTemp = {"cmd": "meetSet", "status": value,"setType" : type};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            // 改变按钮值（暂时未管成功与否）
+            changeMeetSetStatus(type,value);
+        })
+
         // 结束
         $('.endBtn').on('click', () => {
             // 更新结束标记

@@ -161,6 +161,15 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
         let statusTemp = args.status || 0;
         // 切换课堂开放设置
         Meeting.toggleAllowSet(statusTemp);
+    }else if ("meetSet" == args.cmd) {
+        //设置加入权限
+        let value = args.status;
+        if (typeof value == 'undefined'){
+            return;
+        }
+        let type = args.setType;
+        // 课堂设置
+        Meeting.setMeet(type,value);
     } else if ("endOrleaveMeet" == args.cmd) {
         // 离开或结束
         let statusTemp = args.status || 0;
@@ -670,7 +679,10 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
                 "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0
                 "videoSetStatus": InjectRtcAudioVideoScreenUtil.videoStatus || 0,//视频状态1或0
                 "recordSetStatus": Meeting.recordStatus || 0,//录制状态1或0
-                "isPublic": Meeting.isPublic || 0,//课堂是否开放1或0
+                "isPublic": Meeting.isPublic,//课堂是否开放1或0,
+                "isAllowToLeave" : Meeting.meetSetConfig.isAllowToLeave,       // 设置- 允许主动退出课堂
+                "isAllowUnmuteSelf" : Meeting.meetSetConfig.isAllowUnmuteSelf, // 设置-全体静音后，允许自我解除静音
+                "isLockMeet" : Meeting.meetSetConfig.isLockMeet || 0,               // 设置-锁定课堂
                 "meetTime": Meeting.meetTime || new Date().getTime,//会议开始时间
                 "membersNumber": Meeting.onlineMemberCount || 0,//成员数量
                 "chatNumber": Meeting.unreadMsgCount || 0,//未读消息数

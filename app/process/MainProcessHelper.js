@@ -1020,8 +1020,17 @@ ipcMain.on("screenTools", function (sys, message) {
             let recordSetStatus = message.recordSetStatus || "0";
             queryValues += "&recordSetStatus=" + recordSetStatus;
             //课堂是否开放1或0
-            let isPublic = message.isPublic || "0";
+            let isPublic = message.isPublic;
             queryValues += "&isPublic=" + isPublic;
+            // 设置- 允许主动退出课堂
+            let isAllowToLeave = message.isAllowToLeave;
+            queryValues += "&isAllowToLeave=" + isAllowToLeave;
+            // 设置-全体静音后，允许自我解除静音
+            let isAllowUnmuteSelf = message.isAllowUnmuteSelf;
+            queryValues += "&isAllowUnmuteSelf=" + isAllowUnmuteSelf;
+            // 设置-锁定课堂
+            let isLockMeet = message.isLockMeet || "0";
+            queryValues += "&isLockMeet=" + isLockMeet;
             //会议开始时间
             let meetTime = message.meetTime || new Date().getTime();
             queryValues += "&meetTime=" + meetTime;

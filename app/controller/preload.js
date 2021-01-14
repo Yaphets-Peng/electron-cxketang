@@ -3,6 +3,8 @@ window.InjectRtcAudioVideoScreenUtil = null;
 window.minBtnForWindowFunction = null;
 window.maxBtnForWindowFunction = null;
 window.unMaxBtnForWindowFunction = null;
+window.fullScreenBtnForWindowFunction = null;
+window.unFullScreenBtnForWindowFunction = null;
 window.closeBtnForWindowFunction = null;
 if (require('electron').remote) {
     const meet_url_temp = require("../common/Config").getUrlPathConfigVal("open_meet_url");
@@ -25,6 +27,14 @@ if (require('electron').remote) {
         // 取消最大化
         window.unMaxBtnForWindowFunction = function () {
             remote.getCurrentWindow().unmaximize();
+        }
+        // 全屏
+        window.fullScreenBtnForWindowFunction = function () {
+            remote.getCurrentWindow().setFullScreen(true);
+        }
+        // 取消全屏
+        window.unFullScreenBtnForWindowFunction = function () {
+            remote.getCurrentWindow().setFullScreen(false);
         }
         // 关闭
         window.closeBtnForWindowFunction = function () {

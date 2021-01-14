@@ -34,7 +34,7 @@
     "afterAllArtifactBuild": "script/after_build.js",
     "appId": "com.ssreader.cxketangwindows",
     "copyright": "ChaogXing",
-    "productName": "在线课堂",
+    "productName": "超星课堂",
     "artifactName": "ketang_${version}.${ext}",
     "compression": "store",
     "directories": {

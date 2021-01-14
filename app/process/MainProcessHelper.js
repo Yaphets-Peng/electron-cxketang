@@ -415,7 +415,7 @@ function all_win_event(win) {
                 webWindowConfig.webPreferences.enableRemoteModule = true;
                 // 开启无框窗口
                 webWindowConfig.frame = false;
-                webWindowConfig.titleBarStyle = "hidden";
+                //webWindowConfig.titleBarStyle = "hidden";
                 // 关闭请求跨域限制
                 //webWindowConfig.webPreferences.webSecurity = false;
                 // 如果是测试关闭注入
@@ -981,7 +981,8 @@ ipcMain.on("screenTools", function (sys, message) {
             meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setContentSize(meetWinWidthTemp, meetWinHeightTemp);
             if (process.platform === 'darwin') {
-                meetWindowTemp.setWindowButtonVisibility(false);
+                // 不显示红绿灯
+                //meetWindowTemp.setWindowButtonVisibility(false);
             }
             meetWindowTemp.setResizable(false);
             // 计算窗口位置
@@ -1020,13 +1021,13 @@ ipcMain.on("screenTools", function (sys, message) {
             let recordSetStatus = message.recordSetStatus || "0";
             queryValues += "&recordSetStatus=" + recordSetStatus;
             //课堂是否开放1或0
-            let isPublic = message.isPublic;
+            let isPublic = message.isPublic || "1";
             queryValues += "&isPublic=" + isPublic;
             // 设置- 允许主动退出课堂
-            let isAllowToLeave = message.isAllowToLeave;
+            let isAllowToLeave = message.isAllowToLeave || "1";
             queryValues += "&isAllowToLeave=" + isAllowToLeave;
             // 设置-全体静音后，允许自我解除静音
-            let isAllowUnmuteSelf = message.isAllowUnmuteSelf;
+            let isAllowUnmuteSelf = message.isAllowUnmuteSelf || "1";
             queryValues += "&isAllowUnmuteSelf=" + isAllowUnmuteSelf;
             // 设置-锁定课堂
             let isLockMeet = message.isLockMeet || "0";
@@ -1135,7 +1136,8 @@ ipcMain.on("screenTools", function (sys, message) {
                 meetWindowTemp.setSize(meetWindowOptionsTemp.width, meetWindowOptionsTemp.height);
                 meetWindowTemp.setContentSize(meetWindowOptionsTemp.width, meetWindowOptionsTemp.height);
                 if (process.platform === 'darwin') {
-                    meetWindowTemp.setWindowButtonVisibility(true);
+                    // 不显示红绿灯
+                    //meetWindowTemp.setWindowButtonVisibility(false);
                 }
                 meetWindowTemp.setResizable(true);
                 meetWindowTemp.center();

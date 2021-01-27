@@ -1,5 +1,5 @@
 {
-  "uaVersion": "2.0.5",
+  "uaVersion": "2.0.6",
   "productInfos": {
     "3": {
       "schoolName": "超星课堂",
@@ -14,7 +14,7 @@
       "copyright": "ChaogXing",
       "filePrefix": "ketang"
     },
-    "1000309": {
+    "1000311": {
       "schoolName": "国科大在线",
       "domain": "http://k.ecourse.ucas.ac.cn",
       "name": "gkonline",

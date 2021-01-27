@@ -1,6 +1,6 @@
 {
   "name": "cxketang",
-  "version": "2.0.4",
+  "version": "2.0.6",
   "description": "cxketang",
   "main": "app/main.js",
   "scripts": {

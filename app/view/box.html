@@ -4,650 +4,699 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <style>
-        *{margin:0; padding:0;}
-        ul,ol,li{list-style-type:none;}
         body {
             -webkit-user-select: none;
             margin: 0;
         }
-
-        .popBox {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to left, #0084FF, #0084FF) left top no-repeat,
-            linear-gradient(to bottom, #0084FF, #0084FF) left top no-repeat,
-            linear-gradient(to left, #0084FF, #0084FF) right top no-repeat,
-            linear-gradient(to bottom, #0084FF, #0084FF) right top no-repeat,
-            linear-gradient(to left, #0084FF, #0084FF) left bottom no-repeat,
-            linear-gradient(to bottom, #0084FF, #0084FF) left bottom no-repeat,
-            linear-gradient(to left, #0084FF, #0084FF) right bottom no-repeat,
-            linear-gradient(to left, #0084FF, #0084FF) right bottom no-repeat;
-            background-size: 4px 120px, 120px 4px, 4px 120px, 120px 4px;
-        }
-
-        .topMenu {
-            width: 575px;
-            height: 58px;
-            background: #25282E;
-            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
-            border-radius: 0px 0px 8px 8px;
-            opacity: 0.7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            position: absolute;
-            margin-left: calc(50% - 317.5px);
-            top: 0;
-            z-index: 2;
-        }
-
-        .trigger {
-            position: absolute;
-            margin-left: calc(50% - 47px);
-            top: 0;
-            width: 94px;
-            height: 20px;
-            background: #25282E;
-            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
-            border-radius: 0px 0px 4px 4px;
-            opacity: 0.5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1px 0 2px 0;
-        }
-
-        .trigger img {
-            width: 12px;
-            height: 11px;
-            margin-right: 4px;
-        }
-
-        .trigger span {
-            font-size: 12px;
-            font-weight: 400;
-            color: #B3B3B3;
-            line-height: 20px;
-        }
-
-        .hide_animation {
-            top: -62px;
-            transition: top 1s;
-        }
-
-        .menuItem {
-            cursor: pointer;
-        }
-
-        .function {
-            display: grid;
-            place-items: center;
-        }
-
-        .function > img {
-            width: 26px;
-            height: 26px;
-        }
-
-        .function_text {
-            font-size: 12px;
-            color: #CFD1D3;
-        }
-
-        .signal > span {
-            font-size: 14px;
-            color: #CFD1D3;
-        }
-
-        .endBtn {
-            padding: 0 13px;
-            height: 26px;
-            border-radius: 4px;
-            border: 1px solid #FF4A40;
-            text-align: center;
-        }
-
-        .endBtn > span {
-            font-size: 12px;
-            color: #FF4A40;
-            line-height: 26px;
-        }
-
-        .interval {
-            width: 1px;
-            height: 34px;
-            background: #31353F;
-            border-radius: 32px 23px 54px 46px;
-        }
-
-        .information {
-            position: relative;
-        }
-
-        .information_number {
-            width: 27px;
-            height: 15px;
-            background: #FF4D55;
-            border-radius: 8px;
-            position: absolute;
-            left: 16px;
-            top: 0;
-            text-align: center;
-        }
-
-        .information_number > span {
-            font-size: 10px;
-            color: #F8F9FA;
-            line-height: 15px;
-        }
-
-        .recording_start {
-            width: 74px;
-            height: 34px;
-            background: #343B45;
-            border-radius: 4px;
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 10px;
-        }
-
-        .recording_start_state {
-            width: 8px;
-            height: 8px;
-            background: #FF3131;
-            border-radius: 50%
-        }
-
-        .recording_start_text {
-            font-size: 12px;
-            color: #EAEAEC;
-            line-height: 17px;
-
-        }
-
-        .hide {
-            display: none !important;
-        }
-
-        .setting_btn {
-            position: relative;
-        }
-
-        .control_setting_box {
-            width: 177px;
-            height: 90px;
-            padding: 10px 10px 5px 16px;
-            background: rgba(37, 40, 46, 0.9);
-            box-sizing: border-box;
-            position: absolute;
-            text-align: left;
-            top: 64px;
-            border-radius: 8px;
-            z-index: 999;
-            left: -20px;
-        }
-
-        .control_setting_box:after {
-            content: "";
-            position: absolute;
-            left: 26px;
-            top: -5px;
-            width: 0;
-            height: 0;
-            border-right: 7px solid transparent;
-            border-left: 7px solid transparent;
-            border-bottom: 5px solid rgba(37, 40, 46, 0.9);
-        }
-
-        .setting_box_header {
-            font-size: 12px;
-            color: #9E9EA1;
-        }
-
-        .setting_box_item {
-            font-size: 12px;
-            color: #EAEAEC;;
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-            height: 14px;
-        }
-
-        .setting_box_item_one > img {
-            margin-right: 3px;
-        }
-
-        .setting_box_item_img_one {
-            margin-right: 5px;
-        }
-
-        .setting_box_item_img_two {
-            margin-right: 5px;
-        }
-
-        .setting_box_item_join {
-            margin-left: 40px;
-        }
-
-        .choose_authority_one {
-            position: absolute;
-            left: 36px;
-        }
-
-        .choose_authority_two {
-            position: absolute;
-            left: 36px;
-        }
-
-        .setting_box_item_join {
-            position: absolute;
-            right: 16px;
-        }
-
-        .audioicon {
-            width: 26px;
-            height: 26px;
-            display: inline-block;
-            vertical-align: middle;
-            background-image: url(../static/images/talking.png);
-            background-repeat: no-repeat;
-            background-size: auto 26px;
-            background-position: 0 0;
-        }
-
-        .audioicon.animate {
-            -webkit-animation: ani 9s steps(18, end) infinite;
-            animation: ani 4s steps(18, end) infinite;
-        }
-
-        @-webkit-keyframes ani {
-            0% {
-                background-position: 0 0;
-            }
-            100% {
-                background-position: -468px 0;
-            }
-        }
-
-        @keyframes ani {
-            0% {
-                background-position: 0 0;
-            }
-            100% {
-                background-position: -468px 0;
-            }
-        }
-
-        .pop_overs {
-            width: 378px;
-            background: rgba(47, 50, 58, 1);
-            box-shadow: 0px 3px 10px 0px rgba(32, 35, 60, 0.23);
-            border-radius: 6px;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            padding: 30px 24px 20px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .pop_overs .textwaring {
-            min-height: 72px;
-            line-height: 20px;
-            color: #ffffff;
-            font-size: 14px;
-            position: relative;
-            padding-left: 28px;
-        }
-
-        .pop_overs .textwaring::before {
-            content: "";
-            width: 18px;
-            height: 18px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            background: url(../static/images/warnicon.png) no-repeat;
-            background-size: 18px auto;
-            display: block;
-        }
-
-        .textwaring p {
-            margin: 0;
-        }
-
-        .pop_overs .textwaring_lib {
-            margin-top: 12px;
-            margin-bottom: 29px;
-        }
-
-        .buttonsArr {
-            width: 100%;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-justify-content: flex-end;
-            justify-content: flex-end;
-        }
-
-        .buttonsArr a {
-            width: 70px;
-            height: 32px;
-            display: block;
-            margin-left: 24px;
-            text-align: center;
-            line-height: 32px;
-            color: #F8F9FA;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 1;
-            text-decoration: none;
-            font-size: 12px;
-        }
-
-        .buttonsArr a:before {
-            content: "";
-            position: absolute;
-            z-index: -1;
-            top: 0;
-            left: 0;
-            width: 140px;
-            height: 64px;
-            border: 1px solid #595D68;
-            border-radius: 8px;
-            -webkit-transform: scale(.5, .5);
-            -moz-transform: scale(.5, .5);
-            -ms-transform: scale(.5, .5);
-            -o-transform: scale(.5, .5);
-            transform: scale(.5, .5);
-            -webkit-transform-origin: 0 0;
-            -moz-transform-origin: 0 0;
-            -o-transform-origin: 0 0;
-            -ms-transform-origin: 0 0;
-            transform-origin: 0 0;
-        }
-
-        .buttonsArr a:hover:before {
-            border-color: rgba(133, 138, 152, 1);
-            background-color: rgba(80, 84, 93, 1);
-        }
-
-        .buttonsArr a:active {
-            color: rgba(248, 249, 250, .6);
-        }
-
-        .buttonsArr a:active:before {
-            background-color: rgba(72, 77, 87, 1);
-            border-color: rgba(133, 138, 152, 1);
-        }
-
-        .buttonsArr .ok, .buttonsArr .remove {
-            background: #0084FF;
-            color: #FFF;
-            border-radius: 4px;
-        }
-
-        .buttonsArr a.leave, .buttonsArr a.trus {
-            color: #FFF;
-        }
-
-        .buttonsArr a.leave:before, .buttonsArr a.trus:before {
-            background-color: #FF4938;
-            border-color: #FF4938;
-        }
-
-        .buttonsArr a.leave:hover:before, .buttonsArr a.trus:hover:before {
-            background-color: #FF8277;
-            border-color: #FF8277;
-        }
-
-        .buttonsArr a.leave:active, .buttonsArr a.trus:active {
-            color: rgba(255, 255, 255, .6);
-        }
-
-        .buttonsArr a.leave:active:before, .buttonsArr a.trus:active:before {
-            background-color: #BD5046;
-            border-color: #BD5046;
-        }
-
-        .buttonsArr .ok, .buttonsArr .remove {
-            background: #0084FF;
-            color: #FFF;
-            border-radius: 4px;
-        }
-
-        .buttonsArr .ok:before, .buttonsArr .remove:before {
-            display: none;
-        }
-
-        .buttonsArr .ok:hover, .buttonsArr .remove:hover {
-            background: #2E9AFF;
-        }
-
-        .buttonsArr .ok:active, .buttonsArr .remove:active {
-            background: #1077D7;
-            color: rgba(255, 255, 255, .6);
-        }
-
-        .popError {
-            padding: 9px 14px;
-            border-radius: 4px;
-            top: 80px;
-            height: auto;
-            min-width: 100px;
-            min-height: 40px;
-            max-width: 200px;
-            text-align: center;
-            background-color: rgba(36, 39, 44, 1);
-            position: absolute;
-            left: 50%;
-            -webkit-transform: translateX(-50%);
-            -webkit-transition: all 0.2s linear;
-            transition: all 0.2s linear;
-            color: rgba(236, 237, 240, 1);
-            display: -webkit-flex;
-            display: flex;
-            -webkit-justify-content: center;
-            justify-content: center;
-            -webkit-align-items: center;
-            align-items: center;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            z-index: 800;
-            font-size: 12px;
-            line-height: 17px;
-            opacity: 0.8;
-        }
-
-        /*设置2021.01.06*/
-        .settingPop {
-            width:420px;
-            min-height: 100px;
-            background: #FFFFFF;
-            border-radius: 10px;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            overflow: hidden;
-            transform: translate(-50%, -50%);
-            -ms-transform: translate(-50%, -50%);
-            -moz-transform: translate(-50%, -50%);
-            -webkit-transform: translate(-50%, -50%);
-            -o-transform: translate(-50%, -50%);
-            display: none;
-        }
-        .popHead {
-            line-height: 60px;
-            height: 60px;
-            background: #FFFFFF;
-            box-shadow: inset 0 -1px 0 0 rgba(242, 242, 242, 0.8);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 0 30px;
-            box-sizing: border-box;
-            background: #fff;
-        }
-        .popClose { display: inline-block; width: 18px; height: 18px; margin-top: 19px;float: right; }
-        .popClose img {
-            display: block;
-            width: 100%;
-        }
-        .popHead_h {
-            color: #181E33;
-            font-size:18px;
-            float: left;
-        }
-        .het62 {
-            width: 100%;
-            height: 60px;
-        }
-        .settingCon {
-            padding: 23px 30px;
-        }
-
-        .settingCon_item {
-            margin-bottom: 32px;
-        }
-
-        .settingCon_item h2 {
-            font-size: 12px;
-            line-height: 17px;
-            color: #666666;
-        }
-
-        .meeting_setting_ul {
-            margin-top: 4px;
-        }
-
-        .meeting_setting_ul li {
-            line-height: 40px;
-            font-size: 14px;
-            color: #181E33;
-        }
-
-        .mui-switch {
-            width: 34px;
-            height: 20px;
-            position: relative;
-            display: inline-block;
-            background: #E9E9E9;
-            border-radius: 14px;
-            -webkit-appearance: none;
-            user-select: none;
-            outline: none;
-            margin-left: 20px;
-            vertical-align: top;
-            margin-top: 10px;
-        }
-
-        .mui-switch:before {
-            content: '';
-            width: 18px;
-            height: 18px;
-            position: absolute;
-            left: 1px;
-            top: 1px;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0px 1px 2px 0px #848484;
-            border: 1px solid #BDBDBD;
-            box-sizing: border-box;
-        }
-
-        .mui-switch:checked {
-            background-color: #3A8BFF;
-        }
-
-        .mui-switch:checked:before {
-            left: 15px;
-            box-shadow: 0px 1px 2px 0px rgba(58, 139, 255, 0.6);
-            border: 1px solid #3A8BFF;
-        }
-
-        .mui-switch.mui-switch-animbg {
-            transition: background-color ease 0.4s;
-        }
-
-        .mui-switch.mui-switch-animbg:before {
-            transition: left 0.3s;
-        }
-
-        .mui-switch.mui-switch-animbg:checked {
-            transition: border-color 0.4s, background-color ease 0.4s;
-        }
-
-        .mui-switch.mui-switch-animbg:checked:before {
-            transition: left 0.3s;
-        }
-
-        .setting_switch_tip {
-            font-size: 12px;
-            line-height: 17px;
-            color: #A8A8B3;
-        }
-
-        .add_setting_ul {
-            margin-top: 5px;
-        }
-
-        .add_setting_ul li {
-            height: 40px;
-            line-height: 40px;
-            position: relative;
-            padding: 0 18px 0 24px;
-        }
-
-        .add_setting_ul li p {
-            font-size: 14px;
-            color: #181E33;
-            text-align: left;
-            line-height: 40px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .add_setting_ul li.cur {
-            background: url(../static/images/icon_setting.png) left center no-repeat;
-            background-size: 14px auto;
-        }
-
-        .add_setting_addPeople {
-            display: inline-block;
-            vertical-align: middle;
-            position: relative;
-            margin-left: 6px;
-        }
-
-        .add_setting_addPeople:after {
-            content: "";
-            display: inline-block;
-            vertical-align: middle;
-            width: 12px;
-            height: 12px;
-            background: url(../static/images/icon_arrow.png) center center no-repeat;
-            background-size: 12px auto;
-        }
-
-        .add_setting_update {
-            color: #0084FF;
-            font-size: 14px;
-            display: none;
-            margin-right: 4px;
-        }
-
-        .add_setting_ul .add_setting_some.cur .add_setting_update {
-            display: inline-block;
-            vertical-align: middle;
-        }
+    </style>
+    <style>
+      *{margin:0; padding:0;}
+      ul,ol,li{list-style-type:none;}
+      .popBox {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to left, #0084FF, #0084FF) left top no-repeat, linear-gradient(to bottom, #0084FF, #0084FF) left top no-repeat, linear-gradient(to left, #0084FF, #0084FF) right top no-repeat, linear-gradient(to bottom, #0084FF, #0084FF) right top no-repeat, linear-gradient(to left, #0084FF, #0084FF) left bottom no-repeat, linear-gradient(to bottom, #0084FF, #0084FF) left bottom no-repeat, linear-gradient(to left, #0084FF, #0084FF) right bottom no-repeat, linear-gradient(to left, #0084FF, #0084FF) right bottom no-repeat;
+        background-size: 4px 120px, 120px 4px, 4px 120px, 120px 4px;
+      }
+      
+      .topMenu {
+        width: 575px;
+        height: 58px;
+        background: #25282E;
+        box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 0px 0px 8px 8px;
+        opacity: 0.7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 30px;
+        position: absolute;
+        margin-left: calc(50% - 317.5px);
+        top: 0;
+        z-index: 2;
+      }
+      
+      .trigger {
+        position: absolute;
+        margin-left: calc(50% - 47px);
+        top: 0;
+        width: 94px;
+        height: 20px;
+        background: #25282E;
+        box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 0px 0px 4px 4px;
+        opacity: 0.5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1px 0 2px 0;
+      }
+      
+      .trigger img {
+        width: 12px;
+        height: 11px;
+        margin-right: 4px;
+      }
+      
+      .trigger span {
+        font-size: 12px;
+        font-weight: 400;
+        color: #B3B3B3;
+        line-height: 20px;
+      }
+      
+      .hide_animation {
+        top: -62px;
+        transition: top 1s;
+      }
+      
+      .menuItem {
+        cursor: pointer;
+      }
+      
+      .function {
+        display: grid;
+        place-items: center;
+      }
+      
+      .function>img {
+        width: 26px;
+        height: 26px;
+      }
+      
+      .function_text {
+        font-size: 12px;
+        color: #CFD1D3;
+      }
+      
+      .signal>span {
+        font-size: 14px;
+        color: #CFD1D3;
+      }
+      
+      .endBtn {
+        padding: 0 13px;
+        height: 26px;
+        border-radius: 4px;
+        border: 1px solid #FF4A40;
+        text-align: center;
+      }
+      
+      .endBtn>span {
+        font-size: 12px;
+        color: #FF4A40;
+        line-height: 26px;
+      }
+      
+      .interval {
+        width: 1px;
+        height: 34px;
+        background: #31353F;
+        border-radius: 32px 23px 54px 46px;
+      }
+      
+      .information {
+        position: relative;
+      }
+      
+      .information_number {
+        width: 27px;
+        height: 15px;
+        background: #FF4D55;
+        border-radius: 8px;
+        position: absolute;
+        left: 16px;
+        top: 0;
+        text-align: center;
+      }
+      
+      .information_number>span {
+        font-size: 10px;
+        color: #F8F9FA;
+        line-height: 15px;
+      }
+      
+      .recording_start {
+        width: 74px;
+        height: 34px;
+        background: #343B45;
+        border-radius: 4px;
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+      }
+      
+      .recording_start_state {
+        width: 8px;
+        height: 8px;
+        background: #FF3131;
+        border-radius: 50%
+      }
+      
+      .recording_start_text {
+        font-size: 12px;
+        color: #EAEAEC;
+        line-height: 17px;
+      }
+      
+      .hide {
+        display: none !important;
+      }
+      
+      .setting_btn {
+        position: relative;
+      }
+      
+      .control_setting_box {
+        width: 177px;
+        height: 90px;
+        padding: 10px 10px 5px 16px;
+        background: rgba(37, 40, 46, 0.9);
+        box-sizing: border-box;
+        position: absolute;
+        text-align: left;
+        top: 64px;
+        border-radius: 8px;
+        z-index: 999;
+        left: -20px;
+      }
+      
+      .control_setting_box:after {
+        content: "";
+        position: absolute;
+        left: 26px;
+        top: -5px;
+        width: 0;
+        height: 0;
+        border-right: 7px solid transparent;
+        border-left: 7px solid transparent;
+        border-bottom: 5px solid rgba(37, 40, 46, 0.9);
+      }
+      
+      .setting_box_header {
+        font-size: 12px;
+        color: #9E9EA1;
+      }
+      
+      .setting_box_item {
+        font-size: 12px;
+        color: #EAEAEC;
+        ;
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+        height: 14px;
+      }
+      
+      .setting_box_item_one>img {
+        margin-right: 3px;
+      }
+      
+      .setting_box_item_img_one {
+        margin-right: 5px;
+      }
+      
+      .setting_box_item_img_two {
+        margin-right: 5px;
+      }
+      
+      .setting_box_item_join {
+        margin-left: 40px;
+      }
+      
+      .choose_authority_one {
+        position: absolute;
+        left: 36px;
+      }
+      
+      .choose_authority_two {
+        position: absolute;
+        left: 36px;
+      }
+      
+      .setting_box_item_join {
+        position: absolute;
+        right: 16px;
+      }
+      
+      .audioicon {
+        width: 26px;
+        height: 26px;
+        display: inline-block;
+        vertical-align: middle;
+        background-image: url(../static/images/talking.png);
+        background-repeat: no-repeat;
+        background-size: auto 26px;
+        background-position: 0 0;
+      }
+      
+      .audioicon.animate {
+        -webkit-animation: ani 9s steps(18, end) infinite;
+        animation: ani 4s steps(18, end) infinite;
+      }
+      
+      @-webkit-keyframes ani {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: -468px 0;
+        }
+      }
+      
+      @keyframes ani {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: -468px 0;
+        }
+      }
+      
+      .pop_overs {
+        width: 378px;
+        background: rgba(47, 50, 58, 1);
+        box-shadow: 0px 3px 10px 0px rgba(32, 35, 60, 0.23);
+        border-radius: 6px;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        padding: 30px 24px 20px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      
+      .pop_overs .textwaring {
+        min-height: 72px;
+        line-height: 20px;
+        color: #ffffff;
+        font-size: 14px;
+        position: relative;
+        padding-left: 28px;
+      }
+      
+      .pop_overs .textwaring::before {
+        content: "";
+        width: 18px;
+        height: 18px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: url(../static/images/warnicon.png) no-repeat;
+        background-size: 18px auto;
+        display: block;
+      }
+      
+      .textwaring p {
+        margin: 0;
+      }
+      
+      .pop_overs .textwaring_lib {
+        margin-top: 12px;
+        margin-bottom: 29px;
+      }
+      
+      .buttonsArr {
+        width: 100%;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-justify-content: flex-end;
+        justify-content: flex-end;
+      }
+      
+      .buttonsArr a {
+        width: 70px;
+        height: 32px;
+        display: block;
+        margin-left: 24px;
+        text-align: center;
+        line-height: 32px;
+        color: #F8F9FA;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 1;
+        text-decoration: none;
+        font-size: 12px;
+      }
+      
+      .buttonsArr a:before {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+        width: 140px;
+        height: 64px;
+        border: 1px solid #595D68;
+        border-radius: 8px;
+        -webkit-transform: scale(.5, .5);
+        -moz-transform: scale(.5, .5);
+        -ms-transform: scale(.5, .5);
+        -o-transform: scale(.5, .5);
+        transform: scale(.5, .5);
+        -webkit-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        transform-origin: 0 0;
+      }
+      
+      .buttonsArr a:hover:before {
+        border-color: rgba(133, 138, 152, 1);
+        background-color: rgba(80, 84, 93, 1);
+      }
+      
+      .buttonsArr a:active {
+        color: rgba(248, 249, 250, .6);
+      }
+      
+      .buttonsArr a:active:before {
+        background-color: rgba(72, 77, 87, 1);
+        border-color: rgba(133, 138, 152, 1);
+      }
+      
+      .buttonsArr .ok,
+      .buttonsArr .remove {
+        background: #0084FF;
+        color: #FFF;
+        border-radius: 4px;
+      }
+      
+      .buttonsArr a.leave,
+      .buttonsArr a.trus {
+        color: #FFF;
+      }
+      
+      .buttonsArr a.leave:before,
+      .buttonsArr a.trus:before {
+        background-color: #FF4938;
+        border-color: #FF4938;
+      }
+      
+      .buttonsArr a.leave:hover:before,
+      .buttonsArr a.trus:hover:before {
+        background-color: #FF8277;
+        border-color: #FF8277;
+      }
+      
+      .buttonsArr a.leave:active,
+      .buttonsArr a.trus:active {
+        color: rgba(255, 255, 255, .6);
+      }
+      
+      .buttonsArr a.leave:active:before,
+      .buttonsArr a.trus:active:before {
+        background-color: #BD5046;
+        border-color: #BD5046;
+      }
+      
+      .buttonsArr .ok,
+      .buttonsArr .remove {
+        background: #0084FF;
+        color: #FFF;
+        border-radius: 4px;
+      }
+      
+      .buttonsArr .ok:before,
+      .buttonsArr .remove:before {
+        display: none;
+      }
+      
+      .buttonsArr .ok:hover,
+      .buttonsArr .remove:hover {
+        background: #2E9AFF;
+      }
+      
+      .buttonsArr .ok:active,
+      .buttonsArr .remove:active {
+        background: #1077D7;
+        color: rgba(255, 255, 255, .6);
+      }
+      
+      .popError {
+        padding: 9px 14px;
+        border-radius: 4px;
+        top: 80px;
+        height: auto;
+        min-width: 100px;
+        min-height: 40px;
+        max-width: 200px;
+        text-align: center;
+        background-color: rgba(36, 39, 44, 1);
+        position: absolute;
+        left: 50%;
+        -webkit-transform: translateX(-50%);
+        -webkit-transition: all 0.2s linear;
+        transition: all 0.2s linear;
+        color: rgba(236, 237, 240, 1);
+        display: -webkit-flex;
+        display: flex;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 800;
+        font-size: 12px;
+        line-height: 17px;
+        opacity: 0.8;
+      }
+      /*设置2021.01.06*/
+      
+      .settingPop {
+        width:420px;
+        min-height: 100px;
+        background: #FFFFFF;
+        border-radius: 10px;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        overflow: hidden;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        -o-transform: translate(-50%, -50%);
+        display: none;
+      }
+      .popHead {
+          line-height: 60px;
+          height: 60px;
+          background: #FFFFFF;
+          box-shadow: inset 0 -1px 0 0 rgba(242, 242, 242, 0.8);
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          padding: 0 30px;
+          box-sizing: border-box;
+          background: #fff;
+      }
+      .popClose { display: inline-block; width: 18px; height: 18px; margin-top: 19px;float: right; }
+      .popClose img {
+          display: block;
+          width: 100%;
+      }
+      .popHead_h {
+          color: #181E33;
+          font-size:18px;
+          float: left;
+      }
+      .het62 {
+          width: 100%;
+          height: 60px;
+      }
+      .settingCon {
+        padding: 23px 30px;
+      }
+      
+      .settingCon_item {
+        margin-bottom: 32px;
+      }
+      
+      .settingCon_item h2 {
+        font-size: 12px;
+        line-height: 17px;
+        color: #666666;
+      }
+      
+      .meeting_setting_ul {
+        margin-top: 4px;
+      }
+      
+      .meeting_setting_ul li {
+        line-height: 40px;
+        font-size: 14px;
+        color: #181E33;
+      }
+      
+      .mui-switch {
+        width: 34px;
+        height: 20px;
+        position: relative;
+        display: inline-block;
+        background: #E9E9E9;
+        border-radius: 14px;
+        -webkit-appearance: none;
+        user-select: none;
+        outline: none;
+        margin-left: 20px;
+        vertical-align: top;
+        margin-top: 10px;
+      }
+      
+      .mui-switch:before {
+        content: '';
+        width: 18px;
+        height: 18px;
+        position: absolute;
+        left: 1px;
+        top: 1px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0px 1px 2px 0px #848484;
+        border: 1px solid #BDBDBD;
+        box-sizing: border-box;
+      }
+      
+      .mui-switch:checked {
+        background-color: #3A8BFF;
+      }
+      
+      .mui-switch:checked:before {
+        left: 15px;
+        box-shadow: 0px 1px 2px 0px rgba(58, 139, 255, 0.6);
+        border: 1px solid #3A8BFF;
+      }
+      
+      .mui-switch.mui-switch-animbg {
+        transition: background-color ease 0.4s;
+      }
+      
+      .mui-switch.mui-switch-animbg:before {
+        transition: left 0.3s;
+      }
+      
+      .mui-switch.mui-switch-animbg:checked {
+        transition: border-color 0.4s, background-color ease 0.4s;
+      }
+      
+      .mui-switch.mui-switch-animbg:checked:before {
+        transition: left 0.3s;
+      }
+      
+      .setting_switch_tip {
+        font-size: 12px;
+        line-height: 17px;
+        color: #A8A8B3;
+      }
+      
+      .add_setting_ul {
+        margin-top: 5px;
+      }
+      
+      .add_setting_ul li {
+        height: 40px;
+        line-height: 40px;
+        position: relative;
+        padding: 0 18px 0 24px;
+      }
+      
+      .add_setting_ul li p {
+        font-size: 14px;
+        color: #181E33;
+        text-align: left;
+        line-height: 40px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      
+      .add_setting_ul li.cur {
+        background: url(../static/images/icon_setting.png) left center no-repeat;
+        background-size: 14px auto;
+      }
+      
+      .add_setting_addPeople {
+        display: inline-block;
+        vertical-align: middle;
+        position: relative;
+        margin-left: 6px;
+      }
+      
+      .add_setting_addPeople:after {
+        content: "";
+        display: inline-block;
+        vertical-align: middle;
+        width: 12px;
+        height: 12px;
+        background: url(../static/images/icon_arrow.png) center center no-repeat;
+        background-size: 12px auto;
+      }
+      
+      .add_setting_update {
+        color: #0084FF;
+        font-size: 14px;
+        display: none;
+        margin-right: 4px;
+      }
+      
+      .add_setting_ul .add_setting_some.cur .add_setting_update {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      /*共享屏幕画质*/
+      .screen_setting_con{
+        margin-top:22px;
+      }
+      .screen_setting_name{
+        font-size:14px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+      }
+      .screen_setting_option{
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+        cursor: pointer;
+      }
+      .screen_setting_option span{
+        display: inline-block;
+        vertical-align: middle;
+        color: #474C59;
+        font-size:14px;
+      }
+      .screen_setting_option i{
+        width:18px;
+        height: 18px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right:10px;
+        background: url(../static/images/icon_radio.png) no-repeat;
+        background-size: 18px auto;
+        margin-top:1px;
+      }
+      .screen_setting_option.cur i{
+        background: url(../static/images/icon_radio_cur.png) no-repeat;
+        background-size: 18px auto;
+      }
+      .screen_setting_option .gray{
+        color: #8A8B99;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+      .screen_setting_option:last-child{
+        margin-right:0;
+      }
     </style>
 </head>
 <body>
@@ -692,18 +741,6 @@
     <div class="menuItem function setting_btn" style="display: none;">
         <img class="setting_btn_click" src="../static/images/share_screen_setting.png">
         <span class="function_text setting_btn_click">设置</span>
-        <!--<div class="control_setting_box hide">
-            <div class="setting_box_header">加课权限</div>
-            <div class="setting_box_item setting_box_item_one">
-                <span class="setting_box_item_img_one hide"><img src="../static/images/icon_sure.png"></span>
-                <span class="choose_authority_one">允许任何人加入</span>
-            </div>
-            <div class="setting_box_item setting_box_item_two">
-                <span class="setting_box_item_img_two hide"><img src="../static/images/icon_sure.png"></span>
-                <span class="choose_authority_two">允许加入的人员</span>
-                <span class="setting_box_item_join"><img src="../static/images/icon_join.png"></span>
-            </div>
-        </div>-->
     </div>
     <div class="menuItem interval">
     </div>
@@ -739,16 +776,21 @@
     </div>
     <div class="het62"></div>
     <div class="settingCon">
-        <div class="settingCon_item">
+        <div class="settingCon_item courseSetting">
             <h2>课堂设置</h2>
             <ul class="meeting_setting_ul">
-                <li><span>允许主动退出课堂</span><input name="setAllowToLeave" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
-                <li><span>全体静音后，允许自我解除静音</span><input name="setAllowUnmuteSelf" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
-                <li><span>锁定课堂</span><input name="setLockMeet" class="mui-switch mui-switch-animbg" type="checkbox" value="0"></li>
+                <li><span class="setAllowToLeave">允许主动退出课堂</span><input name="setAllowToLeave" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
+                <li><span class="setAllowUnmuteSelf">全体静音后，允许自我解除静音</span><input name="setAllowUnmuteSelf" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
+                <li><span class="setLockMeet">锁定课堂</span><input name="setLockMeet" class="mui-switch mui-switch-animbg" type="checkbox" value="0"></li>
                 <div class="setting_switch_tip">开启后，所有人不能再加入课堂</div>
+                <li class="screen_setting_con" data-resolution="p720">
+                    <span class="screen_setting_name">共享屏幕画质</span>
+                    <span class="screen_setting_option p720 cur"><i></i><span class="txt">超清</span><span class="gray">(推荐)</span></span>
+                    <span class="screen_setting_option p1080"><i></i><span class="txt">蓝光</span></span>
+                </li>
             </ul>
         </div>
-        <div class="settingCon_item">
+        <div class="settingCon_item courseRole">
             <h2>加入课堂权限</h2>
             <ul class="add_setting_ul">
                 <li class="add_setting_all cur" isPublic="1">
@@ -814,6 +856,17 @@
         "请选择仅自己离开或结束此课堂？": "Please selesct to just leave the class or end the class?",
         "确认离开？": "Be sure to leave?",
         "在线课堂": "Online Class",
+        "课堂设置": "Class Settings",
+        "允许主动退出课堂": "Dropping the class is allowed",
+        "全体静音后，允许自我解除静音": "After muting, self-unmute is allowed",
+        "锁定课堂": "Lock class",
+        "开启后，所有人不能再加入课堂": "Once turned on, no one can join the class",
+        "加入课堂权限": "Permission",
+        "管理": "Management",
+        "共享屏幕画质": "Share screen quality",
+        "超清": "HD",
+        "(推荐)": "(suggest)",
+        "蓝光": "Blu-ray",
     }
     //国际化文本
     const getI18Value = function (key) {
@@ -1203,12 +1256,23 @@
             currentWindow.setIgnoreMouseEvents(true, {forward: true});
             minMenuTools();
         });
-        //语音设备true或false
+        //语言
         let language = urlHelper.getQueryString("language") || "language";
         if (language == "language") {
             isEnLanguage = false;
         } else {
             isEnLanguage = true;
+        }
+        //当前屏幕共享分辨率720p_1,1080p_1
+        let curScreenValue = urlHelper.getQueryString("curScreenValue") || "720p_1";
+        if (curScreenValue == "1080p_1") {
+            $('.settingPop .courseSetting .screen_setting_con .screen_setting_option').removeClass("cur");
+            $('.settingPop .courseSetting .screen_setting_con').attr("data-resolution","1080p_1");
+            $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p1080').addClass("cur");
+        } else {
+            $('.settingPop .courseSetting .screen_setting_con .screen_setting_option').removeClass("cur");
+            $('.settingPop .courseSetting .screen_setting_con').attr("data-resolution","720p_1");
+            $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p720').addClass("cur");
         }
         //身份1-创建者,0-观众（学生）,2-助教
         leader = urlHelper.getQueryString("leader") || "0";
@@ -1283,10 +1347,25 @@
         changeChatNumber(chatNumber);
         $('.chat_btn .function_text').text(getI18Value("互动"));
         $('.setting_btn .setting_btn_click').text(getI18Value("设置"));
-        $('.setting_btn .setting_box_header').text(getI18Value("加课权限"));
+        $('.settingPop .popHead_h').text(getI18Value("设置"));
+        $('.settingPop .courseSetting h2').text(getI18Value("课堂设置"));
+        $('.settingPop .courseSetting .setAllowToLeave').text(getI18Value("允许主动退出课堂"));
+        $('.settingPop .courseSetting .setAllowUnmuteSelf').text(getI18Value("全体静音后，允许自我解除静音"));
+        $('.settingPop .courseSetting .setLockMeet').text(getI18Value("锁定课堂"));
+        $('.settingPop .courseSetting .setting_switch_tip').text(getI18Value("开启后，所有人不能再加入课堂"));
+        $('.settingPop .courseSetting .screen_setting_con .screen_setting_name').text(getI18Value("共享屏幕画质"));
+        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p720 .txt').text(getI18Value("超清"));
+        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p720 .gray').text(getI18Value("(推荐)"));
+        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p1080 .txt').text(getI18Value("蓝光"));
+        $('.settingPop .courseRole h2').text(getI18Value("加入课堂权限"));
+        $('.settingPop .courseRole .add_setting_all p').text(getI18Value("允许任何人加入"));
+        $('.settingPop .courseRole .add_setting_some p').text(getI18Value("允许加入的人员"));
+        $('.settingPop .courseRole .add_setting_some .add_setting_update').text(getI18Value("管理"));
+        /*$('.setting_btn .setting_box_header').text(getI18Value("加课权限"));
         $('.setting_btn .choose_authority_one').text(getI18Value("允许任何人加入"));
-        $('.setting_btn .choose_authority_two').text(getI18Value("允许加入的人员"));
+        $('.setting_btn .choose_authority_two').text(getI18Value("允许加入的人员"));*/
         $('.endBtn span').text(getI18Value("结束共享"));
+        $('.screen_setting_con')
         $('#topMiniTools span').text(getI18Value("在线课堂"));
         //会议开始时间
         let meetTime = urlHelper.getQueryString("meetTime") || new Date().getTime();
@@ -1413,8 +1492,21 @@
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             // 改变按钮值（暂时未管成功与否）
             changeMeetSetStatus(type,value);
-        })
-
+        });
+        //共享屏幕画质
+        $(".screen_setting_option").click(function(e){
+            $('.settingPop .courseSetting .screen_setting_con .screen_setting_option').removeClass("cur");
+            if ($(this).hasClass("p1080")) {
+                $('.settingPop .courseSetting .screen_setting_con').attr("data-resolution", "1080p_1");
+            } else {
+                $('.settingPop .courseSetting .screen_setting_con').attr("data-resolution", "720p_1");
+            }
+            let dataResolution = $('.settingPop .courseSetting .screen_setting_con').attr("data-resolution");
+            // 发送课堂分辨率设置
+            let messageTemp = {"cmd": "resolutionSet", "value": dataResolution};
+            rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
+            $(this).addClass("cur");
+        });
         // 结束
         $('.endBtn').on('click', () => {
             // 更新结束标记

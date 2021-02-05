@@ -174,15 +174,28 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
         let statusTemp = args.status || 0;
         // 切换课堂开放设置
         Meeting.toggleAllowSet(statusTemp);
-    }else if ("meetSet" == args.cmd) {
+    } else if ("meetSet" == args.cmd) {
         //设置加入权限
         let value = args.status;
-        if (typeof value == 'undefined'){
+        if (typeof value == 'undefined') {
             return;
         }
         let type = args.setType;
         // 课堂设置
-        Meeting.setMeet(type,value);
+        Meeting.setMeet(type, value);
+    } else if ("resolutionSet" == args.cmd) {
+        //设置分辨率
+        let value = args.value;
+        if (typeof value == 'undefined') {
+            return;
+        }
+        // 更新web端分辨率配置
+        RtcScreenUtil.changeShareConfig(value);
+        if (Meeting.screenConfig) {
+            InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
+            //更新投屏参数
+            InjectRtcAudioVideoScreenUtil.updateScreenParams(InjectRtcAudioVideoScreenUtil.screenConfig);
+        }
     } else if ("endOrleaveMeet" == args.cmd) {
         // 离开或结束
         let statusTemp = args.status || 0;
@@ -539,6 +552,11 @@ InjectRtcAudioVideoScreenUtil.stopLoopbackRecording = function () {
 
 // 开摄像头
 InjectRtcAudioVideoScreenUtil.startVideo = function () {
+    // 主动获取一次分辨率
+    if (Meeting.videoConfig) {
+        InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
+    }
+    console.log("videoConfig=", InjectRtcAudioVideoScreenUtil.videoConfig);
     //获取音频录音设备
     let devices = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getVideoDevices()
     if (devices.length === 0) {
@@ -639,8 +657,13 @@ InjectRtcAudioVideoScreenUtil.renewAudioVideoToken = function (token) {
 
 // 开始投屏
 InjectRtcAudioVideoScreenUtil.startScreen = function () {
+    // 主动获取一次分辨率
+    if (Meeting.screenConfig) {
+        InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
+    }
+    console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
     //获取屏幕信息
-    let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo()
+    let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo();
     if (displays.length === 0) {
         console.log('no display found');
         return;
@@ -671,7 +694,7 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
     // 初始化成功开启
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('videosourcejoinedsuccess', () => {
         // 选择当前第一个屏幕
-        let displayScreen = displays[0];
+        let displayScreen = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo()[0];
         // start screenshare
         InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetVideoProfile(49, false);
         let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByScreen(displayScreen.displayId, {
@@ -687,6 +710,7 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
                 "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
                 "leader": Meeting.leader || 0,//1 创建者  0 观众（学生）2助教
                 "language": window.i18.language||"language",//语言language中文,1英文
+                "curScreenValue": Meeting.screenConfig.webProfile||"720p_1",//当前屏幕共享分辨率720p_1,1080p_1
                 "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
                 "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
                 "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0
@@ -763,6 +787,27 @@ InjectRtcAudioVideoScreenUtil.createScreenDom = function (uid) {
     console.log("AudioVideoScreenRTC设置远端投屏渲染位置", domRemoteVideoCode);
 }
 
+//更新投屏参数
+InjectRtcAudioVideoScreenUtil.updateScreenParams = function (params) {
+    if (!params || JSON.stringify(params) === "{}") {
+        console.log("更新投屏参数不正确", params);
+        return;
+    }
+    // 必须开主播身份
+    if (InjectRtcAudioVideoScreenUtil.clientRole != 1) {
+        console.log("更新投屏参数失败,非主播身份", params);
+        return;
+    }
+    // 状态
+    if (InjectRtcAudioVideoScreenUtil.screenStatus != 1) {
+        console.log("更新投屏参数失败,未投屏", params);
+        return;
+    }
+    InjectRtcAudioVideoScreenUtil.screenConfig = params;
+    let updateScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceUpdateScreenCaptureParameters(InjectRtcAudioVideoScreenUtil.screenConfig);
+    console.log("更新投屏参数", updateScreenCode);
+}
+
 //更新投屏token
 InjectRtcAudioVideoScreenUtil.renewScreenToken = function (token) {
     let renewScreenTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRenewToken(token)
@@ -807,6 +852,7 @@ InjectRtcAudioVideoScreenUtil.testScreenTools = function () {
             "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
             "leader": Meeting.leader || 0,//1 创建者  0 观众（学生）2助教
             "language": window.i18.language || "language",//语言language中文,1英文
+            "curScreenValue": Meeting.screenConfig.webProfile||"720p_1",//当前屏幕共享分辨率
             "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
             "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
             "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0

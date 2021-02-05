@@ -909,6 +909,7 @@ function registeCallback(signal, callback) {
  * useLocalTools 是否使用本地1或0
  * leader  1 创建者  0 观众（学生）2助教
  * language 语言language中文,1英文
+ * curScreenValue 当前屏幕共享分辨率720p_1,1080p_1
  * hasAudioDev 语音设备true或false
  * hasVideoDev 视频设备true或false
  * audioSetStatus 语音状态1或0
@@ -1002,6 +1003,9 @@ ipcMain.on("screenTools", function (sys, message) {
             //语言language中文,1英文
             let language = message.language || "language";
             queryValues += "&language=" + language;
+            //当前屏幕共享分辨率720p_1,1080p_1
+            let curScreenValue = message.curScreenValue || "720p_1";
+            queryValues += "&curScreenValue=" + curScreenValue;
             //身份1-创建者,0-观众（学生）,2-助教
             let leader = message.leader || "0";
             queryValues += "&leader=" + leader;

@@ -779,10 +779,10 @@
         <div class="settingCon_item courseSetting">
             <h2>课堂设置</h2>
             <ul class="meeting_setting_ul">
-                <li><span class="setAllowToLeave">允许主动退出课堂</span><input name="setAllowToLeave" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
-                <li><span class="setAllowUnmuteSelf">全体静音后，允许自我解除静音</span><input name="setAllowUnmuteSelf" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
-                <li><span class="setLockMeet">锁定课堂</span><input name="setLockMeet" class="mui-switch mui-switch-animbg" type="checkbox" value="0"></li>
-                <div class="setting_switch_tip">开启后，所有人不能再加入课堂</div>
+                <li style="display: none;"><span class="setAllowToLeave">允许主动退出课堂</span><input name="setAllowToLeave" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
+                <li style="display: none;"><span class="setAllowUnmuteSelf">全体静音后，允许自我解除静音</span><input name="setAllowUnmuteSelf" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
+                <li style="display: none;"><span class="setLockMeet">锁定课堂</span><input name="setLockMeet" class="mui-switch mui-switch-animbg" type="checkbox" value="0"></li>
+                <div class="setting_switch_tip" style="display: none;">开启后，所有人不能再加入课堂</div>
                 <li class="screen_setting_con" data-resolution="p720">
                     <span class="screen_setting_name">共享屏幕画质</span>
                     <span class="screen_setting_option p720 cur"><i></i><span class="txt">超清</span><span class="gray">(推荐)</span></span>
@@ -790,7 +790,7 @@
                 </li>
             </ul>
         </div>
-        <div class="settingCon_item courseRole">
+        <div class="settingCon_item courseRole" style="display: none;">
             <h2>加入课堂权限</h2>
             <ul class="add_setting_ul">
                 <li class="add_setting_all cur" isPublic="1">
@@ -1279,7 +1279,13 @@
         if (leader == "1") {
             $(".recording_btn").show();
             $(".setting_btn").show();
+            $(".settingPop .courseSetting .meeting_setting_ul li,.settingPop .courseSetting .meeting_setting_ul .setting_switch_tip").show();
+            $(".settingPop .courseRole").show();
         } else if (leader == "2") {
+            $(".setting_btn").show();
+            $(".settingPop .courseSetting .meeting_setting_ul li,.settingPop .courseSetting .meeting_setting_ul .setting_switch_tip").show();
+            $(".settingPop .courseRole").show();
+        } else {
             $(".setting_btn").show();
         }
         //语音设备true或false

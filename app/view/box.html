@@ -785,8 +785,10 @@
                 <div class="setting_switch_tip" style="display: none;">开启后，所有人不能再加入课堂</div>
                 <li class="screen_setting_con" data-resolution="p720">
                     <span class="screen_setting_name">共享屏幕画质</span>
-                    <span class="screen_setting_option p720 cur"><i></i><span class="txt">超清</span><span class="gray">(推荐)</span></span>
-                    <span class="screen_setting_option p1080"><i></i><span class="txt">蓝光</span></span>
+                    <p>
+                        <span class="screen_setting_option p720 cur"><i></i><span class="txt">高清</span><span class="gray">(720p)</span></span>
+                        <span class="screen_setting_option p1080"><i></i><span class="txt">超高清</span><span class="gray">(1080p)</span></span>
+                    </p>
                 </li>
             </ul>
         </div>
@@ -864,9 +866,8 @@
         "加入课堂权限": "Permission",
         "管理": "Management",
         "共享屏幕画质": "Share screen quality",
-        "超清": "HD",
-        "(推荐)": "(suggest)",
-        "蓝光": "Blu-ray",
+        "高清": "HD",
+        "超高清": "FHD",
     }
     //国际化文本
     const getI18Value = function (key) {
@@ -1360,9 +1361,8 @@
         $('.settingPop .courseSetting .setLockMeet').text(getI18Value("锁定课堂"));
         $('.settingPop .courseSetting .setting_switch_tip').text(getI18Value("开启后，所有人不能再加入课堂"));
         $('.settingPop .courseSetting .screen_setting_con .screen_setting_name').text(getI18Value("共享屏幕画质"));
-        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p720 .txt').text(getI18Value("超清"));
-        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p720 .gray').text(getI18Value("(推荐)"));
-        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p1080 .txt').text(getI18Value("蓝光"));
+        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p720 .txt').text(getI18Value("高清"));
+        $('.settingPop .courseSetting .screen_setting_con .screen_setting_option.p1080 .txt').text(getI18Value("超高清"));
         $('.settingPop .courseRole h2').text(getI18Value("加入课堂权限"));
         $('.settingPop .courseRole .add_setting_all p').text(getI18Value("允许任何人加入"));
         $('.settingPop .courseRole .add_setting_some p').text(getI18Value("允许加入的人员"));
@@ -1512,6 +1512,7 @@
             let messageTemp = {"cmd": "resolutionSet", "value": dataResolution};
             rendererProcessHelper.sendToMainProcess(meetToolsChannel, messageTemp);
             $(this).addClass("cur");
+            errorTipsBox(getI18Value("设置成功"));
         });
         // 结束
         $('.endBtn').on('click', () => {

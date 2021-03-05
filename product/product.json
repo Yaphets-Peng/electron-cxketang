@@ -1,5 +1,5 @@
 {
-  "uaVersion": "2.0.7",
+  "uaVersion": "2.0.8",
   "productInfos": {
 	"3": {
 	  "schoolName": "超星课堂",
@@ -22,7 +22,7 @@
 	  "macAppId": "com.ssreader.gkdonline",
 	  "winAppId": "com.ssreader.gkdonlinewindows",
 	  "description": "gkonline",
-	  "productName": "国科大在线",
+	  "productName": "国科大在线直播插件",
 	  "title": "在线课堂",
 	  "copyright": "GuoKe",
 	  "filePrefix": "guoke"

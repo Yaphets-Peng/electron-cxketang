@@ -1,6 +1,6 @@
 {
   "name": "cxketang",
-  "version": "2.0.7",
+  "version": "2.0.9",
   "description": "cxketang",
   "main": "app/main.js",
   "scripts": {
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "agora-electron-sdk": "2.9.0-rc.106-build.804",
-    "agora-rtm-sdk": "^1.4.0-1",
+    "agora-rtm-sdk": "^1.4.1-201",
     "axios": "^0.21.0",
     "electron-log": "^4.3.0",
     "md5": "^2.3.0",
@@ -57,7 +57,15 @@
             "ia32"
           ]
         }
-      ]
+      ],
+      "verifyUpdateCodeSignature": false,
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "signDlls": true,
+      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
+      "certificateFile": "script/selfsigncert.pfx",
+      "certificatePassword": "123456"
     },
     "nsis": {
       "oneClick": false,

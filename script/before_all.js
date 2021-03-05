@@ -148,7 +148,9 @@ async function befor_all(productId, productObject, uaVersion) {
         configJson.title = productObject.title;
         // 更新ua
         configJson.userAgent = `Mozilla/5.0 (${osName};${osArch};${osVersion}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.121 Safari/537.36 KeTangVersion/${version} ${appId}/${protocol}_${uaVersion}_${productId}_${cusotmOsName}_${dateTime}`;
-
+        // 移除所有debug设置
+        configJson.debug = false;
+        configJson.meet_debug = false;
         let configDataStr = JSON.stringify(configJson, null, 2);
         fs.writeFileSync(configFilePath, configDataStr, "utf-8");
         console.log("appconfig.json更新时间戳完成buildTime=" + dateTime);

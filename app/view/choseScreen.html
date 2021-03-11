@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no" />
+	    <title></title>
+	    <style>
+	    	/*选择共享屏幕*/
+	    	*{margin:0;padding:0;}
+	    	h1,h2,h3,h4,h5,h6{font-weight: normal;}
+			ul,menu,dir,li{list-style:none}
+			b,i,strong,em{font-weight:normal; font-style:normal;}
+			body{font-size:12px;overflow: hidden;}
+			a{text-decoration:none}
+			a,img,div,span,nav,li{-webkit-tap-highlight-color:transparent}
+			.clearfix{zoom:1;}
+			.clearfix:after{content:"";clear:both;height:0;font-size:0;line-height:0;overflow:hidden;display: block;}
+			html,body{height: 100%;}
+			.choseShareScreen_box{
+				width:100%;
+				height: 100%;
+				background: #25282E;
+				box-shadow: 0px 0px 14px -4px rgba(0, 0, 0, 0.2);
+				border-radius: 8px;
+			}
+			.choseShareScreen_tit{
+				height: 62px;
+				background: #25282E;
+				position: absolute;
+				top:0;
+				left: 0;
+				right:0;
+				font-size:16px;
+				line-height: 22px;
+				color:#FFF;
+				padding:30px 30px 0;
+				box-sizing: border-box;
+			}
+			.choseShareScreen_bot{
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right:0;
+				height: 52px;
+				background: #1F2126;
+				padding:10px 30px 0;
+				text-align: right;
+				box-sizing: border-box;
+			}
+			.choseShareScreen_bot .btn{
+				width: 72px;
+				height: 32px;
+				line-height: 32px;
+				border-radius: 4px;
+				text-align: center;
+				color: #F8F9FA;
+				font-size:12px;
+				display: inline-block;
+				vertical-align: top;
+				margin-left:24px;
+				position: relative;
+				box-sizing: border-box;
+			}
+			.choseShareScreen_bot .btn:before{
+				content: "";
+			    width: 200%;
+			    height: 200%;
+			    border-radius: 8px;
+			    border: 1px solid #595D68;
+			    position: absolute;
+			    top: 0;
+			    left: 0;
+			    -webkit-transform: scale(.5, .5);
+			    -moz-transform: scale(.5, .5);
+			    -ms-transform: scale(.5, .5);
+			    -o-transform: scale(.5, .5);
+			    transform: scale(.5, .5);
+			    -webkit-transform-origin: 0 0;
+			    -moz-transform-origin: 0 0;
+			    -o-transform-origin: 0 0;
+			    -ms-transform-origin: 0 0;
+			    transform-origin: 0 0;
+			    box-sizing: border-box;
+			}
+			.choseShareScreen_bot .btn:hover{
+				background: #50545D;
+			}
+			.choseShareScreen_bot .btn:hover:before{
+				border-color: #858A98;
+			}
+			.choseShareScreen_bot .btn:active{
+				background: #484D57;
+				color: rgba(248, 249, 250, .6);
+			}
+			.choseShareScreen_bot .btn:active:before{
+				border-color: #858A98;
+			}
+			.choseShareScreen_bot .buttonChose_ok{
+				background: #0084FF;
+			}
+			.choseShareScreen_bot .buttonChose_ok:before{
+				border-color:transparent;
+			}
+			.choseShareScreen_bot .buttonChose_ok:hover{
+				background: #2E9AFF;
+			}
+			.choseShareScreen_bot .buttonChose_ok:active{
+				background: #1077D7;
+				color: rgba(248, 249, 250, .6);
+			}
+			.choseShareScreen_con{
+				position: absolute;
+				top:62px;
+				right:0;
+				left: 0;
+				bottom: 52px;
+				overflow-y: auto;
+				padding: 10px 20px 0;
+				box-sizing: border-box;
+			}
+			.choseShareScreen_item{
+				width:180px;
+				margin:0 10px 20px;
+				float: left;
+				position: relative;
+			}
+			.choseShareScreen_item .icon{
+				display: block;
+				position: absolute;
+				width:22px;
+				height: 22px;
+				top:-6px;
+				left: -6px;
+			}
+		    .choseShareScreen_item p {
+			    white-space: nowrap;
+			    overflow: hidden;
+			    text-overflow: ellipsis;
+		    }
+			.choseShareScreen_img{
+				width: 100%;
+				height: 100px;
+				border-radius: 4px;
+				border: 1px solid #3F444E;
+				overflow: hidden;
+				box-sizing: border-box;
+			}
+			.choseShareScreen_img img{
+				width:100%;
+				height: 100%;
+				display: block;
+			}
+			.choseShareScreen_item p{
+				font-size:12px;
+				line-height: 17px;
+				color:#FFF;
+				margin-top:6px;
+				text-align: center;
+			}
+			.choseShareScreen_item:hover .choseShareScreen_img{
+				border: 1px solid #0084FF;
+			}
+			.choseShareScreen_item.cur .choseShareScreen_img{
+				border: 3px solid #0084FF;
+			}
+			.choseShareScreen_item.cur p{
+				color:#0084FF;
+			}
+
+	    </style>
+	</head>
+	<body class="cloudWrap">
+		<!--共享屏幕2021.03.02-->
+		<div class="choseShareScreen_box">
+			<div class="choseShareScreen_tit">选择共享内容</div>
+			<div class="choseShareScreen_con clearfix">
+				<div id="desk"></div>
+				<div id="window"></div>
+			</div>
+			<div class="choseShareScreen_bot">
+				<a href="javascript:void(0);" class="btn buttonChose_cancal">取消</a>
+                <a href="javascript:void(0);" class="btn buttonChose_ok">开始共享</a>
+			</div>
+		</div>
+	</body>
+<script>
+    if (typeof module === "object") {
+        window.module = module;
+        module = undefined;
+    }
+</script>
+<script src="../static/js/jquery-3.5.1.min.js"></script>
+<script>
+	if (window.module) module = window.module;
+</script>
+<script type="text/javascript" src="../static/js/jquery.nicescroll.min.js"></script>
+<script type="text/javascript" src="../static/js/template-web.js"></script>
+<!--国际化开始-->
+<script>
+    let isEnLanguage = false;
+    window.i18 = {
+        "桌面": "Desktop",
+        "取消": "Cancel",
+        "开始共享": "Start sharing",
+        "选择共享内容": "Choose what to share",
+    }
+    //国际化文本
+    const getI18Value = function (key) {
+        if (isEnLanguage && window.i18) {
+            let value = window.i18[key];
+            if (value) {
+                return value;
+            }
+            console.log("no value,key=" + key)
+        }
+        return key;
+    }
+</script>
+<!--国际化结束-->
+<script>
+	// 注册数组转图片
+	function Uint8ArrayToImageFun(uint8Array) {
+		if (!uint8Array) {
+			return "";
+		}
+		let blob = new Blob([uint8Array], {type: "png"});
+		return (window.URL || window.webkitURL).createObjectURL(blob);
+	}
+	// 注册数组转图片
+	template.defaults.imports.Uint8ArrayToImage = function (uint8Array) {
+		if (!uint8Array) {
+			return "";
+		}
+		let blob = new Blob([uint8Array], {type: "png"});
+		return (window.URL || window.webkitURL).createObjectURL(blob);
+	}
+	// 注册国际化
+	template.defaults.imports.getI18Values = function (key) {
+		return getI18Value(key);
+	}
+	//注册字符编码转换
+	template.defaults.imports.getEncodeURI = function (obj) {
+		if (!obj) {
+			return "";
+		}
+		obj.image="";
+		return encodeURIComponent(JSON.stringify(obj));
+	}
+</script>
+<script id="screenDisplaysData" type="text/html" remark="桌面">
+{{each $data val}}
+<div class="choseShareScreen_item" id="desk{{val.displayId}}">
+	<div class="choseShareScreen_img">
+		<img src="{{Uint8ArrayToImage(val.image)}}"/>
+	</div>
+	<p data-info="{{getEncodeURI(val)}}" data-type="1">{{getI18Values("桌面")+($index+1)}}</p>
+</div>
+{{/each}}
+</script>
+<script id="screenWinplaysData" type="text/html" remark="窗口">
+{{each $data val}}
+<div class="choseShareScreen_item" id="window{{val.windowId}}">
+	<div class="choseShareScreen_img">
+		<img src="{{Uint8ArrayToImage(val.image)}}"/>
+	</div>
+	<p data-info="{{getEncodeURI(val)}}" data-type="2" title="{{val.name}}">{{val.name}}</p>
+</div>
+{{/each}}
+</script>
+<script>
+	const currentWindow = require("electron").remote.getCurrentWindow();
+	// url工具类
+    const urlHelper = require("../common/UrlHelper");
+    // ipc通讯
+    const rendererProcessHelper = require("../process/RendererProcessHelper");
+    // ipc通讯频道-主通讯
+    const meetChosesChannel = "meetChoses";
+    // ipc通讯频道-被通讯
+    const meetChosesMessageFormMainChannel = "meetChosesMessageFormMain";
+    
+    // ipc回调事件
+    let ipcRendererCallback = function (args, sys) {
+        if (!args || !args.cmd) {
+            return;
+        }
+        if (args.debug) {
+            console.log("[choseScreen.html][_meetChosesMessageFormMain_]收到投屏指令信号 指令 " + JSON.stringify(args));
+        }
+	    if ("choseData" == args.cmd) {
+	    	// 首次打开窗口数据
+		    let displaysTemp = args.displays;
+		    if (displaysTemp && displaysTemp.length > 0) {
+			    $("#desk").append(template("screenDisplaysData", displaysTemp));
+		    }
+		    let winplaysTemp = args.winplays;
+		    if (winplaysTemp && winplaysTemp.length > 0) {
+			    $("#window").append(template("screenWinplaysData", winplaysTemp));
+		    }
+	    } else if ("choseScreenData" == args.cmd) {
+		    // 重新获取窗口数据
+		    $("#desk").empty();
+		    let displaysTemp = args.displays;
+		    if (displaysTemp && displaysTemp.length > 0) {
+			    $("#desk").append(template("screenDisplaysData", displaysTemp));
+		    }
+		    $("#window").empty();
+		    let winplaysTemp = args.winplays;
+		    if (winplaysTemp && winplaysTemp.length > 0) {
+			    $("#window").append(template("screenWinplaysData", winplaysTemp));
+		    }
+	    }
+    }
+    
+    $(document).ready(function () {
+	    // ipc通讯回调
+	    rendererProcessHelper.registeCallback(meetChosesMessageFormMainChannel, ipcRendererCallback);
+	    // 滚动条
+	    $(".choseShareScreen_con").niceScroll({cursorborder:"",cursorwidth:6,cursorcolor:"#909DB6",boxzoom:false,autohidemode:true});
+	    //语言
+        let language = urlHelper.getQueryString("language") || "language";
+        if (language == "language") {
+            isEnLanguage = false;
+        } else {
+            isEnLanguage = true;
+        }
+        $(".choseShareScreen_tit").text(getI18Value("选择共享内容"));
+        $(".buttonChose_cancal").text(getI18Value("取消"));
+        $(".buttonChose_ok").text(getI18Value("开始共享"));
+    });
+    // 选中
+	$(".choseShareScreen_con").on("click", ".choseShareScreen_item", function () {
+		$(".choseShareScreen_con .choseShareScreen_item").removeClass("cur");
+		$(this).addClass("cur");
+	});
+	// 确定
+	$(".buttonChose_ok").on("click", function () {
+		let dataInfo = $(".choseShareScreen_con .choseShareScreen_item.cur p").attr("data-info");
+		let dataType = $(".choseShareScreen_con .choseShareScreen_item.cur p").attr("data-type");
+		if (dataInfo) {
+			dataInfo = decodeURIComponent(dataInfo);
+			dataInfo = JSON.parse(dataInfo);
+			let messageTemp = {
+				"cmd": "startScreenByChose",
+				"type": dataType,
+				"info": dataInfo
+			};
+			rendererProcessHelper.sendToMainProcess(meetChosesChannel, messageTemp);
+		}
+	});
+	// 取消
+	$(".buttonChose_cancal").on("click", function () {
+		window.close();
+	});
+</script>
+</html>

@@ -90,6 +90,24 @@ const handleUrlFromWeb = (urlStr) => {
                             });
                         }
                     }
+                } else if (open_type === "url") {
+                    let openurl = getProtocolQueryString(host, "openurl");
+                    if (openurl) {
+                        let openUrlScript = "window.open('" + openurl + "')";
+                        if (helper.getMainWindow() !== null) {
+                            // 判断下是否登录,从webcookie中获取
+                            helper.getMainWindow().webContents.session.cookies.get({
+                                "url": config.getConfigVal("domain"),
+                                "name": config.getConfigVal("cookie_key").UID
+                            }).then((cookies) => {
+                                if (cookies && cookies.length > 0) {
+                                    helper.getMainWindow().webContents.executeJavaScript(openUrlScript);
+                                }
+                            }).catch((error) => {
+                                logger.info(error);
+                            });
+                        }
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 const logger = require("../common/Logger"); //日志模块
 
+const config = require("../common/Config"); //引入全局配置组件
 const ipcRenderer = require("electron").ipcRenderer;
 
 /**
@@ -9,7 +10,9 @@ const ipcRenderer = require("electron").ipcRenderer;
  * @param {any} sendargs 发送给主进程的数据
  */
 function sendToMainProcess(signal, sendargs) {
-  logger.debug("[RendererProcessHelper][sendToMainProcess]给主进程发送信号 " + signal + " 参数 " + JSON.stringify(sendargs));
+  if (config.getConfigVal("debug")) {
+    logger.debug("[RendererProcessHelper][sendToMainProcess]给主进程发送信号 " + signal + " 参数 " + JSON.stringify(sendargs));
+  }
   ipcRenderer.send(signal, sendargs); //使用ipcRenderer方法给主进程发送消息
 }
 
@@ -20,16 +23,16 @@ function sendToMainProcess(signal, sendargs) {
  * @param {function} callback 收到信号量要执行的回调函数
  */
 function registeCallback(signal, callback) {
-  logger.debug("[RendererProcessHelper][registeCallback]注册信号量 " + signal + " 的回调函数");
+  if (config.getConfigVal("debug")) {
+    logger.debug("[RendererProcessHelper][registeCallback]注册信号量 " + JSON.stringify(signal) + " 的回调函数");
+  }
   if (typeof callback === "function") {
     ipcRenderer.on(signal, (sys, args) => {
       callback(args, sys);
     });
     return true;
   } else {
-    logger.warn(
-      "[RendererProcessHelper][registeCallback]不是函数类型" + callback
-    );
+    logger.warn("[RendererProcessHelper][registeCallback]不是函数类型" + callback);
     return false;
   }
 }

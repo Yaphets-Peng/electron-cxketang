@@ -1,6 +1,7 @@
 //注入js
 var InjectRtcAudioVideoScreenUtil = {
-    isTest: false,//是否测试
+    debug: false,//是否测试
+    meet_debug: false,//是否测试
     AudioVideoScreenRTC: null,//rtc实例
     RendererProcessHelper: null,//ipc通信实例
     ipcRendererCallback : null,//ipc回调方法,主线程与本窗口通信
@@ -26,6 +27,8 @@ var InjectRtcAudioVideoScreenUtil = {
     },//投屏配置
     screenToolsChannel:"screenTools",//投屏ipc通信频道,控制打开顶部工具栏-和主线程通讯
     meetToolsFormMainChannel:"meetToolsFormMain",//会议ipc通信频道,接收顶部工具栏开关按钮-主线程通讯自己
+    screenType:"",//投屏所选择类型
+    screenInfo:"",//投屏所选择窗口
 }
 
 /*InjectRtcAudioVideoScreenUtil.init = function () {
@@ -134,13 +137,40 @@ InjectRtcAudioVideoScreenUtil.sendCloseToToolsWindow = function () {
     }
 }
 
+// 发送网络回调-自己调用
+InjectRtcAudioVideoScreenUtil.sendNetWork = function (data) {
+    // 网络回调
+    if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
+        let messageTemp = {
+            "cmd": "netWork",
+            "data": data
+        };
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+    }
+}
+
 // ipc回调事件
 InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
     if (!args || !args.cmd) {
         return;
     }
-    console.log("[InjectRtcAudioVideoScreenUtil][_meetToolsFormMain_]收到投屏指令信号 指令 " + JSON.stringify(args));
-    if ("stopScreen" == args.cmd) {
+    if (InjectRtcAudioVideoScreenUtil.debug) {
+        console.log("[InjectRtcAudioVideoScreenUtil][_meetToolsFormMain_]收到投屏指令信号 指令 " + JSON.stringify(args));
+    }
+    if ("startScreenByChose" == args.cmd) {
+        // 开始投屏
+        let infoTemp = args.info;
+        if (infoTemp) {
+            if ("1" == args.type) {
+                InjectRtcAudioVideoScreenUtil.startScreenByChose("1",infoTemp);
+            } else if ("2" == args.type) {
+                InjectRtcAudioVideoScreenUtil.startScreenByChose("2", infoTemp);
+            }
+        }
+    } else if ("getChoseScreenData" == args.cmd) {
+        // 获取可共享区域
+        InjectRtcAudioVideoScreenUtil.getChoseScreenData();
+    } else if ("stopScreen" == args.cmd) {
         // 停止投屏
         RtcScreenUtil.stopShareScreen();
     } else if ("openMember" == args.cmd) {
@@ -183,8 +213,21 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
         let type = args.setType;
         // 课堂设置
         Meeting.setMeet(type, value);
-    } else if ("resolutionSet" == args.cmd) {
-        //设置分辨率
+    } else if ("videoResolutionSet" == args.cmd) {
+        //设置视屏分辨率
+        let value = args.value;
+        if (typeof value == 'undefined') {
+            return;
+        }
+        // 更新web端分辨率配置
+        RtcScreenUtil.changeVideoConfig(value);
+        if (Meeting.videoConfig) {
+            InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
+            //更新投屏参数
+            InjectRtcAudioVideoScreenUtil.updateVideoParams(InjectRtcAudioVideoScreenUtil.videoConfig);
+        }
+    } else if ("screenResolutionSet" == args.cmd) {
+        //设置屏幕分辨率
         let value = args.value;
         if (typeof value == 'undefined') {
             return;
@@ -201,6 +244,9 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
         let statusTemp = args.status || 0;
         // 离开或结束
         Meeting.endOrleaveMeet(statusTemp);
+    } else if ("screenBreakoff" == args.cmd) {
+        // 窗口关闭中断共享
+        RtcScreenUtil.screenBreakOffByElectron();
     } else if ("execfunction" == args.cmd) {
         // 执行函数
         let funTemp = args.fun || "";
@@ -347,18 +393,102 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     });
     // 通话中每个用户的网络上下行
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('networkQuality', (uid, txquality, rxquality) => {
-        console.log(`AudioVideoScreenRTC通话中每个用户的网络上下行: ${uid} - ${txquality} - ${rxquality}`);
         // 自己
         if (uid == 0 || Meeting.isScreenId(uid)) {
+            if (InjectRtcAudioVideoScreenUtil.debug) {
+                console.log(`AudioVideoScreenRTC通话中每个用户的网络上下行: ${uid} - ${txquality} - ${rxquality}`);
+            }
             if (txquality == 6 || rxquality == 6) {
                 NetShooting.netWorkTips(2);
+                InjectRtcAudioVideoScreenUtil.sendNetWork({
+                    "type": "1",
+                    "status": 2
+                });
             } else if (rxquality == 4 || rxquality == 5) {
                 NetShooting.netWorkTips(1);
+                InjectRtcAudioVideoScreenUtil.sendNetWork({
+                    "type": "1",
+                    "status": 1
+                });
             }
         } else {
 
         }
     });
+    // 网络状态发生改变回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('connectionStateChanged', (state, reason) => {
+        console.log(`AudioVideoScreenRTC网络状态发生改变回调: ${state} - ${reason}`);
+        if (state == 3) {
+            NetShooting.netWorkTips(0);
+            InjectRtcAudioVideoScreenUtil.sendNetWork({
+                "type": "1",
+                "status": 0,
+                "state": state,
+                "reason": reason,
+            });
+        } else if (state == 4) {
+            NetShooting.netWorkTips(2);
+            InjectRtcAudioVideoScreenUtil.sendNetWork({
+                "type": "1",
+                "status": 2,
+                "state": state,
+                "reason": reason,
+            });
+        } else if (state == 5) {
+            NetShooting.netWorkTips(2);
+            InjectRtcAudioVideoScreenUtil.sendNetWork({
+                "type": "1",
+                "status": 2,
+                "state": state,
+                "reason": reason,
+            });
+        }
+    });
+    // 网络连接中断
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('connectionLost', () => {
+        console.log(`AudioVideoScreenRTC网络连接中断`);
+        NetShooting.netWorkTips(2);
+        InjectRtcAudioVideoScreenUtil.sendNetWork({
+            "type": "1",
+            "status": 2
+        });
+    });
+    // 通话相关统计信息
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('rtcStats', (stats) => {
+        if (InjectRtcAudioVideoScreenUtil.debug) {
+            console.log(`AudioVideoScreenRTC通话相关统计信息: ${stats.lastmileDelay}ms-${stats.gatewayRtt}ms-${stats.txPacketLossRate}%-${stats.rxPacketLossRate}%`);
+        }
+        let dataStats = {
+            "type": "2",
+            "lastmileDelay": stats.lastmileDelay,
+            "gatewayRtt": stats.gatewayRtt,
+            "txPacketLossRate": stats.txPacketLossRate,
+            "rxPacketLossRate": stats.rxPacketLossRate
+        };
+        // 调用js脚本
+        try {
+            RtcScreenUtil.netWorkChange(dataStats);
+        } catch (e) {
+        }
+        // 发送到投屏窗口
+        InjectRtcAudioVideoScreenUtil.sendNetWork(dataStats);
+    });
+    /*// 通话中本地音频流的统计信息回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('localAudioStats', (stats) => {
+        console.log(`AudioVideoScreenRTC通话中本地音频流的统计信息回调: ${stats}`);
+    });
+    // 通话中远端音频流的统计信息回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('remoteAudioStats', (stats) => {
+        console.log(`AudioVideoScreenRTC通话中远端音频流的统计信息回调: ${stats}`);
+    });
+    // 通话中本地视频流的统计信息回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('localVideoStats', (stats) => {
+        console.log(`AudioVideoScreenRTC通话中本地视频流的统计信息回调: ${stats}`);
+    });
+    // 通话中远端视频流的统计信息回调
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('remoteVideoStats', (stats) => {
+        console.log(`AudioVideoScreenRTC通话中远端视频流的统计信息回调: ${stats}`);
+    });*/
     // 音视频token过期
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('tokenPrivilegeWillExpire', (token) => {
         console.log(`AudioVideoScreenRTC音视频token过期: ${token}`);
@@ -445,8 +575,19 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     InjectRtcAudioVideoScreenUtil.testScreenTools();
 }
 
+InjectRtcAudioVideoScreenUtil.startChannel = function () {
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.createChannel();
+}
+
 // 开麦克风
 InjectRtcAudioVideoScreenUtil.startAudio = function () {
+    // 麦克风设备判断
+    let audioDev = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getCurrentAudioRecordingDevice();
+    if (audioDev) {
+        Meeting.hasAudioDev = true;
+    } else {
+        Meeting.hasAudioDev = false;
+    }
     //获取音频录音设备
     let devices = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getAudioRecordingDevices()
     if (devices.length === 0) {
@@ -552,11 +693,13 @@ InjectRtcAudioVideoScreenUtil.stopLoopbackRecording = function () {
 
 // 开摄像头
 InjectRtcAudioVideoScreenUtil.startVideo = function () {
-    // 主动获取一次分辨率
-    if (Meeting.videoConfig) {
-        InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
+    // 摄像头设备判断
+    let videoDev = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getCurrentVideoDevice();
+    if (videoDev) {
+        Meeting.hasVideoDev = true;
+    } else {
+        Meeting.hasVideoDev = false;
     }
-    console.log("videoConfig=", InjectRtcAudioVideoScreenUtil.videoConfig);
     //获取音频录音设备
     let devices = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getVideoDevices()
     if (devices.length === 0) {
@@ -564,6 +707,14 @@ InjectRtcAudioVideoScreenUtil.startVideo = function () {
         return;
     }
     console.log(devices);
+    // 主动获取一次分辨率
+    if (Meeting.videoConfig) {
+        InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
+    }
+    console.log("videoConfig=", InjectRtcAudioVideoScreenUtil.videoConfig);
+    // 设置视频编码
+    let videoConfigCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setVideoEncoderConfiguration(InjectRtcAudioVideoScreenUtil.videoConfig);
+    console.log("AudioVideoScreenRTC设置videoConfig", videoConfigCode);
     // 必须开主播身份
     if (InjectRtcAudioVideoScreenUtil.clientRole == 2) {
         InjectRtcAudioVideoScreenUtil.clientRole = 1;
@@ -649,6 +800,28 @@ InjectRtcAudioVideoScreenUtil.stopVideo = function () {
     })
 }
 
+//更新视屏参数
+InjectRtcAudioVideoScreenUtil.updateVideoParams = function (params) {
+    if (!params || JSON.stringify(params) === "{}") {
+        console.log("更新视屏参数不正确", params);
+        return;
+    }
+    // 必须开主播身份
+    if (InjectRtcAudioVideoScreenUtil.clientRole != 1) {
+        console.log("更新视屏参数失败,非主播身份", params);
+        return;
+    }
+    // 状态
+    if (InjectRtcAudioVideoScreenUtil.videoStatus != 1) {
+        console.log("更新视屏参数失败,未视屏", params);
+        return;
+    }
+    // 更新参数
+    InjectRtcAudioVideoScreenUtil.videoConfig = params;
+    let videoConfigCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setVideoEncoderConfiguration(InjectRtcAudioVideoScreenUtil.videoConfig);
+    console.log("更新视屏参数", videoConfigCode);
+}
+
 //更新音视频token
 InjectRtcAudioVideoScreenUtil.renewAudioVideoToken = function (token) {
     let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.renewToken(token)
@@ -657,11 +830,6 @@ InjectRtcAudioVideoScreenUtil.renewAudioVideoToken = function (token) {
 
 // 开始投屏
 InjectRtcAudioVideoScreenUtil.startScreen = function () {
-    // 主动获取一次分辨率
-    if (Meeting.screenConfig) {
-        InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
-    }
-    console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
     //获取屏幕信息
     let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo();
     if (displays.length === 0) {
@@ -669,7 +837,119 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
         return;
     }
     console.log(displays);
+    InjectRtcAudioVideoScreenUtil.startScreenByChose("1", displays[0]);
+}
 
+// 开始投屏-选择窗口
+InjectRtcAudioVideoScreenUtil.startChoseScreen = function () {
+    //获取屏幕信息
+    let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo();
+    if (displays.length === 0) {
+        console.log('no display found');
+    }
+    console.log(displays);
+    //获取窗口信息
+    let winplays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenWindowsInfo();
+    if (winplays.length === 0) {
+        console.log('no winplays found');
+    }
+    console.log(winplays);
+    // 弹出选择信息
+    let messageTemp = {
+        "cmd": "choseScreen",
+        "language": window.i18.language || "language",//语言language中文,1英文
+        "displays": displays,
+        "winplays": winplays,
+    };
+    InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+}
+
+// 获取投屏可选择窗口
+InjectRtcAudioVideoScreenUtil.getChoseScreenData = function () {
+    //获取屏幕信息
+    let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo();
+    if (displays.length === 0) {
+        console.log('no display found');
+    }
+    console.log(displays);
+    //获取窗口信息
+    let winplays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenWindowsInfo();
+    if (winplays.length === 0) {
+        console.log('no winplays found');
+    }
+    console.log(winplays);
+    // 弹出选择信息
+    let messageTemp = {
+        "cmd": "choseScreenData",
+        "displays": displays,
+        "winplays": winplays,
+    };
+    InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+}
+
+// 开始投屏-通过选择
+InjectRtcAudioVideoScreenUtil.startScreenByChose = function (type, info) {
+    if (typeof (type) == "undefined" || typeof (info) == "undefined") {
+        console.log("startScreenByChose失败，请检查参数是否正确");
+        return;
+    }
+    // 清空一次
+    InjectRtcAudioVideoScreenUtil.screenType = "";
+    InjectRtcAudioVideoScreenUtil.screenInfo = "";
+    // 校验下
+    if (type == "1") {
+        let infoKeyTemp = info.displayId.x + "_" + info.displayId.y + "_" + info.displayId.width + "_" + info.displayId.height;
+        //获取屏幕信息
+        let displays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo();
+        if (displays.length === 0) {
+            console.log('no display found');
+            InjectRtcAudioVideoScreenUtil.getChoseScreenData();
+            return;
+        }
+        let checkTemp = false;
+        for (let i = 0; i < displays.length; i++) {
+            let displayKeyTemp = displays[i].displayId.x + "_" + displays[i].displayId.y + "_" + displays[i].displayId.width + "_" + displays[i].displayId.height;
+            if (displayKeyTemp == infoKeyTemp) {
+                checkTemp = true;
+                break;
+            }
+        }
+        if (!checkTemp) {
+            InjectRtcAudioVideoScreenUtil.getChoseScreenData();
+            return;
+        }
+    } else if (type == "2") {
+        //获取窗口信息
+        let winplays = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenWindowsInfo();
+        if (winplays.length === 0) {
+            console.log('no winplays found');
+            InjectRtcAudioVideoScreenUtil.getChoseScreenData();
+            return;
+        }
+        let checkTemp = false;
+        for (let i = 0; i < winplays.length; i++) {
+            if (winplays[i].windowId == info.windowId) {
+                checkTemp = true;
+                break;
+            }
+        }
+        if (!checkTemp) {
+            InjectRtcAudioVideoScreenUtil.getChoseScreenData();
+            return;
+        }
+    }
+    try {
+        RtcScreenUtil.startShareScreenForChoseByElectron();
+    } catch (e) {
+    }
+    // 重新赋值
+    InjectRtcAudioVideoScreenUtil.screenType = type;
+    InjectRtcAudioVideoScreenUtil.screenInfo = info;
+    // 主动获取一次分辨率
+    if (Meeting.screenConfig) {
+        InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
+    }
+    console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
     // 必须开主播身份
     if (InjectRtcAudioVideoScreenUtil.clientRole == 2) {
         InjectRtcAudioVideoScreenUtil.clientRole = 1;
@@ -693,32 +973,47 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
 
     // 初始化成功开启
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('videosourcejoinedsuccess', () => {
-        // 选择当前第一个屏幕
-        let displayScreen = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.getScreenDisplaysInfo()[0];
+        if (InjectRtcAudioVideoScreenUtil.screenType == "1") {
+            // 屏幕
+            let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByScreen(InjectRtcAudioVideoScreenUtil.screenInfo.displayId, {
+                x: 0, y: 0, width: 0, height: 0
+            }, InjectRtcAudioVideoScreenUtil.screenConfig);
+            console.log("开始共享屏幕", screenCode);
+        } else if (InjectRtcAudioVideoScreenUtil.screenType == "2") {
+            // 窗口
+            let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByWindow(InjectRtcAudioVideoScreenUtil.screenInfo.windowId, {
+                x: 0, y: 0, width: 0, height: 0
+            }, InjectRtcAudioVideoScreenUtil.screenConfig);
+            console.log("开始共享窗口", screenCode);
+        }
         // start screenshare
-        InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetVideoProfile(49, false);
-        let screenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceStartScreenCaptureByScreen(displayScreen.displayId, {
-            x: 0, y: 0, width: 0, height: 0
-        }, InjectRtcAudioVideoScreenUtil.screenConfig);
-        console.log("开始共享屏幕", screenCode);
+        //InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetVideoProfile(49, false);
         // 打开屏幕框
         if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
-            let winHeightTemp = displayScreen.height;
-            let winWidthTemp = displayScreen.width;
+            let winHeightTemp = InjectRtcAudioVideoScreenUtil.screenInfo.height;
+            let winWidthTemp = InjectRtcAudioVideoScreenUtil.screenInfo.width;
             let messageTemp = {
                 "cmd": "startScreen",//指令
+                "type": InjectRtcAudioVideoScreenUtil.screenType,//投屏类型1-屏幕，2-窗口
+                "info": InjectRtcAudioVideoScreenUtil.screenInfo,//投屏对象
                 "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
                 "leader": Meeting.leader || 0,//1 创建者  0 观众（学生）2助教
-                "language": window.i18.language||"language",//语言language中文,1英文
-                "curScreenValue": Meeting.screenConfig.webProfile||"720p_1",//当前屏幕共享分辨率720p_1,1080p_1
+                "language": window.i18.language || "language",//语言language中文,1英文
+                "qrcode": Meeting.meet_qrcode || "",//邀请码
+                "qrcodeUrl": Meeting.meet_qrcode_url || "",//邀请码二维码
+                "qrcodeTips": Meeting.meet_qrcode_tips || "",//邀请码二维码提示语句
+                "videoValueChange": Meeting.videoConfigChange || "",//当前视屏分辨率是否可切换
+                "curVideoValue": Meeting.videoConfig.webProfile || "180p_1",//当前视屏共享分辨率180p_1,720p_1
+                "screenValueChange": Meeting.screenConfigChange || "",//当前屏幕分辨率是否可切换
+                "curScreenValue": Meeting.screenConfig.webProfile || "720p_1",//当前屏幕共享分辨率720p_1,1080p_1
                 "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
                 "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
                 "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0
                 "videoSetStatus": InjectRtcAudioVideoScreenUtil.videoStatus || 0,//视频状态1或0
                 "recordSetStatus": Meeting.recordStatus || 0,//录制状态1或0
-                "isPublic": InjectRtcAudioVideoScreenUtil.formatWebValue(Meeting.isPublic,"1"),//课堂是否开放1或0,
-                "isAllowToLeave": InjectRtcAudioVideoScreenUtil.formatWebValue(Meeting.meetSetConfig.isAllowToLeave,"1") ,// 设置- 允许主动退出课堂
-                "isAllowUnmuteSelf": InjectRtcAudioVideoScreenUtil.formatWebValue(Meeting.meetSetConfig.isAllowUnmuteSelf,"1"),// 设置-全体静音后，允许自我解除静音
+                "isPublic": InjectRtcAudioVideoScreenUtil.formatWebValue(Meeting.isPublic, "1"),//课堂是否开放1或0,
+                "isAllowToLeave": InjectRtcAudioVideoScreenUtil.formatWebValue(Meeting.meetSetConfig.isAllowToLeave, "1"),// 设置- 允许主动退出课堂
+                "isAllowUnmuteSelf": InjectRtcAudioVideoScreenUtil.formatWebValue(Meeting.meetSetConfig.isAllowUnmuteSelf, "1"),// 设置-全体静音后，允许自我解除静音
                 "isLockMeet": Meeting.meetSetConfig.isLockMeet || '0',// 设置-锁定课堂
                 "meetTime": Meeting.meetTime || new Date().getTime,//会议开始时间
                 "membersNumber": Meeting.onlineMemberCount || 0,//成员数量
@@ -726,9 +1021,9 @@ InjectRtcAudioVideoScreenUtil.startScreen = function () {
                 "shareWindowWidth": RtcScreenUtil.shareWindowWidth || 300,//会议屏幕共享后宽
                 "shareWindowHeight": RtcScreenUtil.shareWindowHeight || 640,//会议屏幕共享后高
                 "width": winWidthTemp,//会议屏幕共享后工具栏宽-即屏幕宽
-                "height": winHeightTemp//会议屏幕共享后工具栏高-即屏幕高
+                "height": winHeightTemp,//会议屏幕共享后工具栏高-即屏幕高
             };
-            InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel,messageTemp);
+            InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
         }
         // 页面交互-开页面缩小
         RtcScreenUtil.changeWindowShareStyle(1);
@@ -803,6 +1098,7 @@ InjectRtcAudioVideoScreenUtil.updateScreenParams = function (params) {
         console.log("更新投屏参数失败,未投屏", params);
         return;
     }
+    // 更新参数
     InjectRtcAudioVideoScreenUtil.screenConfig = params;
     let updateScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceUpdateScreenCaptureParameters(InjectRtcAudioVideoScreenUtil.screenConfig);
     console.log("更新投屏参数", updateScreenCode);
@@ -827,7 +1123,7 @@ InjectRtcAudioVideoScreenUtil.closeAll = function () {
 
 // 测试方法
 InjectRtcAudioVideoScreenUtil.testScreenTools = function () {
-    if (!InjectRtcAudioVideoScreenUtil.isTest) {
+    if (!InjectRtcAudioVideoScreenUtil.meet_debug) {
         return;
     }
     // 关闭所有
@@ -849,10 +1145,18 @@ InjectRtcAudioVideoScreenUtil.testScreenTools = function () {
         let winWidthTemp = displayScreen.width;
         let messageTemp = {
             "cmd": "startScreen",//指令
+            "type": "1",//投屏类型1-屏幕，2-窗口
+            "info": displayScreen,//投屏对象
             "useLocalTools": Meeting.useLocalTools || 1,//是否使用本地1或0
             "leader": Meeting.leader || 0,//1 创建者  0 观众（学生）2助教
             "language": window.i18.language || "language",//语言language中文,1英文
-            "curScreenValue": Meeting.screenConfig.webProfile||"720p_1",//当前屏幕共享分辨率
+            "qrcode": Meeting.meet_qrcode || "",//邀请码
+            "qrcodeUrl": Meeting.meet_qrcode_url || "",//邀请码二维码
+            "qrcodeTips": Meeting.meet_qrcode_tips || "",//邀请码二维码提示语句
+            "videoValueChange": Meeting.videoConfigChange || "",//当前视屏分辨率是否可切换
+            "curVideoValue": Meeting.videoConfig.webProfile || "180p_1",//当前视屏共享分辨率180p_1,720p_1
+            "screenValueChange": Meeting.screenConfigChange || "",//当前屏幕分辨率是否可切换
+            "curScreenValue": Meeting.screenConfig.webProfile || "720p_1",//当前屏幕共享分辨率720p_1,1080p_1
             "hasAudioDev": Meeting.hasAudioDev || false,//语音设备true或false
             "hasVideoDev": Meeting.hasVideoDev || false,//视频设备true或false
             "audioSetStatus": InjectRtcAudioVideoScreenUtil.audioStatus || 0,//语音状态1或0
@@ -871,6 +1175,9 @@ InjectRtcAudioVideoScreenUtil.testScreenTools = function () {
             "height": winHeightTemp//会议屏幕共享后工具栏高-即屏幕高
         };
         InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+
+        // 打开选择窗口
+        InjectRtcAudioVideoScreenUtil.startChoseScreen();
     }
 }
 

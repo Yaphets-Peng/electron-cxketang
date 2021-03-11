@@ -1,5 +1,6 @@
 //用于创建原生浏览器窗口的组件对象
-const {app, shell, BrowserWindow, Tray, Menu} = require("electron"); //引入electron
+const electron = require("electron");
+const {app, shell, BrowserWindow, dialog, powerSaveBlocker, Tray, Menu} = electron; //引入electron
 const path = require("path"); //原生库path模块
 
 const {v4: uuidv4} = require('uuid');// 引入uuid工具类
@@ -8,6 +9,7 @@ const logger = require("../common/Logger"); //引入全局日志组件
 const config = require("../common/Config"); //引入全局配置组件
 const sessionCookie = require("../common/SessionCookie"); //引入全局sessionCookie组件
 const urlHelper = require("../common/UrlHelper");
+const activeWinHelper = require("../ext/win-info"); //活动窗口组件
 
 // 为了保证一个对全局windows对象的引用，就必须在方法体外声明变量
 // 否则当方法执行完成时就会被JavaScript的垃圾回收机制清理
@@ -20,6 +22,19 @@ const mainWindowLevel = 1;
 const meetWindowUUID = "meetWindow";
 // 投屏工具栏窗口uuid
 const screenToolsWindowUUID = "screenTools";
+// 选择投屏窗口uuid
+const choseScreenWindowUUID = "choseScreen";
+
+// 消息发送相关
+// 主-InjectRtcAudioVideoScreenUtil.js
+let meetToolsFormMainChannel = "meetToolsFormMain";
+// 主-box.html
+let meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
+// 主-choseScreen.html
+let meetChosesMessageFormMainChannel = "meetChosesMessageFormMain";
+
+// 防止休眠设置
+let blockerId = null;
 
 /* ↓全局变量配置区开始↓ */
 
@@ -84,6 +99,9 @@ function createMainWindow() {
     // 删除菜单
     mainWindow.removeMenu();
 
+    // 防止休眠设置
+    blockerId = powerSaveBlocker.start("prevent-display-sleep");
+
     // 放入窗口集合中
     global.sharedWindow.windowMap.set(windowUUID, mainWindow);
 
@@ -93,6 +111,8 @@ function createMainWindow() {
     // 当窗口关闭时触发
     mainWindow.on("closed", function () {
         logger.info("[MainProcessHelper][_mainWindow_.on._closed_]渲染窗口关闭");
+        // 关闭休眠
+        powerSaveBlocker.stop(blockerId);
         //将全局mainWindow置为null
         global.sharedWindow.windowMap.delete(windowUUID);
         mainWindow = null;
@@ -481,27 +501,66 @@ function all_win_event(win) {
                 //隐藏父窗口
                 mainWindow.hide();
             }
-            // 如果是会议界面加入关闭判断
-            if (isMeeting) {
-                // 当子窗口关闭前触发
-                childWindow.on("close", function (e) {
-                    // 先判断是否存在对象
-                    e.sender.webContents.executeJavaScript("typeof beforeWindowClose").then((result) => {
-                        if (result !== "undefined") {
-                            // 存在执行此方法获取返回值
-                            e.sender.webContents.executeJavaScript("beforeWindowClose()").then((result) => {
-                                if (result !== "1") {
-                                    e.sender.destroy();
-                                }
-                            });
+            // 当子窗口关闭前触发
+            childWindow.on("close", function (e) {
+                // 是否可关闭
+                let isColseTemp = true;
+                // 显示当前窗口
+                e.sender.show();
+                // 先判断是否存在对象
+                let isHasBeforeWindowClose = false;
+                let isHasBeforeunload = false;
+                e.sender.webContents.executeJavaScript("typeof beforeWindowClose").then((result) => {
+                    if (result === "function") {
+                        isHasBeforeWindowClose = true;
+                        // 存在执行此方法获取返回值
+                        return e.sender.webContents.executeJavaScript("beforeWindowClose()");
+                    }
+                }).then((result) => {
+                    if (isHasBeforeWindowClose) {
+                        if (result === "1") {
+                            isColseTemp = false;
                         } else {
-                            // 不存在直接销毁
-                            e.sender.destroy();
+                            isColseTemp = true;
                         }
-                    })
-                    e.preventDefault();
-                });
-            }
+                    } else {
+                        // 判断是否有其它事件
+                        return e.sender.webContents.executeJavaScript("typeof onbeforeunload");
+                    }
+                }).then((result) => {
+                    if (result === "function") {
+                        isHasBeforeunload = true;
+                        // 判断是否有其它事件
+                        return e.sender.webContents.executeJavaScript("onbeforeunload()");
+                    }
+                }).then((result) => {
+                    if (isHasBeforeunload) {
+                        if (result !== "undefined") {
+                            isColseTemp = false;
+                            // 关闭对话框
+                            return dialog.showMessageBox(e.sender, {
+                                type: 'none',
+                                buttons: ['Cancel', 'Ok'],
+                                title: " ",
+                                detail: result,
+                                noLink: true
+                            });
+                        }
+                    }
+                }).then((result) => {
+                    if (isHasBeforeunload) {
+                        if (result === 1) {
+                            isColseTemp = true;
+                        }
+                    }
+                }).then(() => {
+                    if (isColseTemp) {
+                        // 销毁
+                        e.sender.destroy();
+                    }
+                })
+                e.preventDefault();
+            });
             // 当子窗口关闭时触发
             childWindow.on("closed", function () {
                 logger.info("[MainProcessHelper][_childWindow_.on._closed_]渲染窗口关闭url=" + url);
@@ -929,8 +988,19 @@ ipcMain.on("screenTools", function (sys, message) {
     if (!message || !message.cmd) {
         return;
     }
-    logger.debug("[MainProcessHelper][_screenTools_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    if (config.getConfigVal("debug")) {
+        logger.debug("[MainProcessHelper][_screenTools_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    }
+    message.debug = config.getConfigVal("debug");
+    message.meet_debug = config.getConfigVal("meet_debug");
     if ("startScreen" == message.cmd) {
+        // 打开选择窗口
+        let choseWindowTemp = global.sharedWindow.windowMap.get(choseScreenWindowUUID);
+        if (choseWindowTemp) {
+            //将screenToolsWindow置为null
+            global.sharedWindow.windowMap.delete(choseScreenWindowUUID);
+            choseWindowTemp.close();
+        }
         let screenToolsWindow = global.sharedWindow.windowMap.get(screenToolsWindowUUID);
         if (!screenToolsWindow) {
             // 获取窗口集合中
@@ -987,12 +1057,15 @@ ipcMain.on("screenTools", function (sys, message) {
             }
             meetWindowTemp.setResizable(false);
             // 计算窗口位置
-            let moveX = winWidthTemp - (winWidthTemp * 0.3);
-            let moveY = winHeightTemp * 0.1;
+            let {width: screenWidth, height: screenHeight} = electron.screen.getPrimaryDisplay().workAreaSize;
+            let moveX = screenWidth - (screenWidth * 0.3);
+            let moveY = screenHeight * 0.1;
+            // let moveX = winWidthTemp - (winWidthTemp * 0.3);
+            // let moveY = winHeightTemp * 0.1;
             // 必须转int否则mac报错
-            moveX=parseInt(moveX);
-            moveY=parseInt(moveY);
-            meetWindowTemp.setPosition(moveX, moveY,false);
+            moveX = parseInt(moveX);
+            moveY = parseInt(moveY);
+            meetWindowTemp.setPosition(moveX, moveY, false);
             // 再次更新窗口大小临时修复页面问题
             /*meetWindowTemp.setMinimumSize(meetWinWidthTemp, meetWinHeightTemp);
             meetWindowTemp.setSize(meetWinWidthTemp, meetWinHeightTemp);
@@ -1003,6 +1076,21 @@ ipcMain.on("screenTools", function (sys, message) {
             //语言language中文,1英文
             let language = message.language || "language";
             queryValues += "&language=" + language;
+            // 当前邀请码
+            let qrcode = message.qrcode || "";
+            // 当前邀请码二维码
+            let qrcodeUrl = message.qrcodeUrl || "";
+            // 当前邀请码二维码提示语句
+            let qrcodeTips = message.qrcodeTips || "";
+            //当前视屏分辨率是否可切换
+            let videoValueChange = message.videoValueChange || "";
+            queryValues += "&videoValueChange=" + videoValueChange;
+            //当前视屏共享分辨率180p_1,720p_1
+            let curVideoValue = message.curVideoValue || "180p_1";
+            queryValues += "&curVideoValue=" + curVideoValue;
+            //当前屏幕分辨率是否可切换
+            let screenValueChange = message.screenValueChange || "";
+            queryValues += "&screenValueChange=" + screenValueChange;
             //当前屏幕共享分辨率720p_1,1080p_1
             let curScreenValue = message.curScreenValue || "720p_1";
             queryValues += "&curScreenValue=" + curScreenValue;
@@ -1046,12 +1134,43 @@ ipcMain.on("screenTools", function (sys, message) {
             let chatNumber = message.chatNumber || "0";
             queryValues += "&chatNumber=" + chatNumber;
             
+            // 投屏相关参数
+            let screenType = message.type || "1";
+            let screenInfo = message.info || "";
+            
+            // 窗口工具的坐标
+            let screenToolsX = 0;
+            let screenToolsY = 0;
+            if (screenType == "1") {
+                if (screenInfo && screenInfo.displayId) {
+                    screenToolsX = screenInfo.displayId.x;
+                    screenToolsY = screenInfo.displayId.y;
+                }
+            } else if (screenType == "2") {
+                if (screenInfo && screenInfo.windowId) {
+                    try {
+                        let windowInfoTemp = "";
+                        // 是否是mac
+                        if (process.platform === 'darwin') {
+                            windowInfoTemp = activeWinHelper.getByPidSync(screenInfo.windowId);
+                        } else {
+                            windowInfoTemp = activeWinHelper.getByHidSync(screenInfo.windowId);
+                        }
+                        if (windowInfoTemp && windowInfoTemp.screens && windowInfoTemp.screens.length > 0) {
+                            screenToolsX = windowInfoTemp.screens[0].x;
+                            screenToolsY = windowInfoTemp.screens[0].y;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            }
             // 创建窗口
             screenToolsWindow = new BrowserWindow({
                 "width": winWidthTemp,
                 "height": winHeightTemp,
-                "x": 0,
-                "y": 0,
+                "x": screenToolsX,
+                "y": screenToolsY,
                 "webPreferences": {
                     "nodeIntegration": true,
                     "enableRemoteModule": true
@@ -1088,8 +1207,7 @@ ipcMain.on("screenTools", function (sys, message) {
                 //screenToolsWindow.setContentSize(winWidthTemp, winHeightTemp);
                 screenToolsWindow.setFullScreen(true);
             }
-
-            if (config.getConfigVal("meet_debug")) {
+            if (config.getConfigVal("meet_debug") || config.getConfigVal("debug")) {
                 // 打开开发者工具
                 screenToolsWindow.webContents.openDevTools();
                 screenToolsWindow.setFullScreen(false);
@@ -1114,15 +1232,32 @@ ipcMain.on("screenTools", function (sys, message) {
                         // 存在执行此方法获取返回值
                         e.sender.webContents.executeJavaScript("beforeWindowClose()").then((result) => {
                             if (result !== "1") {
+                                //将screenToolsWindow置为null
+		                        global.sharedWindow.windowMap.delete(screenToolsWindowUUID);
                                 e.sender.destroy();
                             }
                         });
                     } else {
                         // 不存在直接销毁
+                        //将screenToolsWindow置为null
+                        global.sharedWindow.windowMap.delete(screenToolsWindowUUID);
                         e.sender.destroy();
                     }
                 })
                 e.preventDefault();
+            });
+            // 组装发送参数
+            let finishLoadSendValue = {
+                "cmd": "dataInfo",
+                "qrcode": qrcode,
+                "qrcodeUrl": qrcodeUrl,
+                "qrcodeTips": qrcodeTips,
+                "screenType": screenType,
+                "screenInfo": screenInfo,
+            };
+            // 当窗口加载完毕后-发送邀请码信息
+            screenToolsWindow.webContents.on("did-stop-loading", () => {
+                screenToolsWindow.webContents.send(meetToolsMessageFormMainChannel, finishLoadSendValue);
             });
             // 放入窗口集合中
             global.sharedWindow.windowMap.set(screenToolsWindowUUID, screenToolsWindow);
@@ -1133,6 +1268,8 @@ ipcMain.on("screenTools", function (sys, message) {
             // 获取窗口集合中
             let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
             if (meetWindowTemp) {
+                // 改变大小前先居中，避免多屏幕位置跑偏
+                meetWindowTemp.center();
                 // 获取窗口原参数
                 let meetWindowOptionsTemp = meetWindowTemp.webContents.browserWindowOptions;
                 // 更新会议窗口信息
@@ -1168,6 +1305,79 @@ ipcMain.on("screenTools", function (sys, message) {
             meetWindowTemp.setResizable(false);
             meetWindowTemp.show();
         }
+    } else if ("choseScreen" == message.cmd) {
+        // 当前桌面
+        let displays = message.displays || "";
+        // 当前窗口
+        let winplays = message.winplays || "";
+        // 传递参数
+        let queryValues = "?_t=0";
+        //语言language中文,1英文
+        let language = message.language || "language";
+        queryValues += "&language=" + language;
+        // 打开选择窗口
+        let choseWindowTemp = global.sharedWindow.windowMap.get(choseScreenWindowUUID);
+        if (!choseWindowTemp) {
+            let windowOptionsTemp = {
+                "width": 1100,
+                "height": 750,
+                "frame": true,
+                "webPreferences": {
+                    "nodeIntegration": true,
+                    "enableRemoteModule": true
+                },
+                "frame": false,
+                "center": true,
+                "autoHideMenuBar": true,
+                "maximizable": false,
+                "minimizable": false,
+                "resizable": false,
+                "fullscreenable": false,
+            };
+            // 父子窗口
+            let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+            if (meetWindowTemp) {
+                windowOptionsTemp.parent = meetWindowTemp;
+            }
+            // 创建窗口
+            choseWindowTemp = new BrowserWindow(windowOptionsTemp);
+            // 引用本地比较快
+            choseWindowTemp.loadFile(path.join(path.resolve(__dirname, ".."), "/view/choseScreen.html"), {"search": queryValues});
+
+            if (config.getConfigVal("debug")) {
+                // 打开开发者工具
+                choseWindowTemp.webContents.openDevTools();
+            }
+            if (config.getConfigVal("meet_debug")) {
+                // 打开开发者工具
+                choseWindowTemp.webContents.openDevTools();
+            }
+            // 组装发送参数
+            let finishLoadSendValue = {
+                "cmd": "choseData",
+                "language": language,
+                "displays": displays,
+                "winplays": winplays
+            };
+            // 当窗口加载完毕后-发送邀请码信息
+            choseWindowTemp.webContents.on("did-stop-loading", () => {
+                choseWindowTemp.webContents.send(meetChosesMessageFormMainChannel, finishLoadSendValue);
+            });
+	        // 当窗口关闭前触发
+	        choseWindowTemp.on("close", function (e) {
+		        //将choseScreenWindow置为null
+		        global.sharedWindow.windowMap.delete(choseScreenWindowUUID);
+		        e.sender.destroy();
+	        });
+            // 放入窗口集合中
+            global.sharedWindow.windowMap.set(choseScreenWindowUUID, choseWindowTemp);
+        }
+    } else if ("choseScreenData" == message.cmd) {
+        // 发送可选择窗口数据
+        let choseWindowTemp = global.sharedWindow.windowMap.get(choseScreenWindowUUID);
+        if (choseWindowTemp) {
+            choseWindowTemp.webContents.send(meetChosesMessageFormMainChannel, message);
+        }
     } else {
         // 直接转发到工具栏页面,由页面处理
         // 获取窗口集合中
@@ -1175,7 +1385,6 @@ ipcMain.on("screenTools", function (sys, message) {
         if (!screenToolsWindowTemp) {
             return;
         }
-        let meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
         // 直接转发,由页面处理
         try {
             screenToolsWindowTemp.webContents.send(meetToolsMessageFormMainChannel, message);
@@ -1198,8 +1407,33 @@ ipcMain.on("meetTools", function (sys, message) {
     if (!meetWindowTemp) {
         return;
     }
-    logger.debug("[MainProcessHelper][_meetTools_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
-    let meetToolsFormMainChannel = "meetToolsFormMain";
+    if (config.getConfigVal("debug")) {
+        logger.debug("[MainProcessHelper][_meetTools_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    }
+    message.debug = config.getConfigVal("debug");
+    message.meet_debug = config.getConfigVal("meet_debug");
+    // 直接转发,由页面处理
+    meetWindowTemp.webContents.send(meetToolsFormMainChannel, message);
+});
+
+/**
+ *选择投屏窗口相关-选择投屏窗口发送消息到会议
+ */
+//ipcMain收到meetChoses信号
+ipcMain.on("meetChoses", function (sys, message) {
+    if (!message || !message.cmd) {
+        return;
+    }
+    // 获取窗口集合中
+    let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+    if (!meetWindowTemp) {
+        return;
+    }
+    if (config.getConfigVal("debug")) {
+        logger.debug("[MainProcessHelper][_meetChoses_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    }
+    message.debug = config.getConfigVal("debug");
+    message.meet_debug = config.getConfigVal("meet_debug");
     // 直接转发,由页面处理
     meetWindowTemp.webContents.send(meetToolsFormMainChannel, message);
 });

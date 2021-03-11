@@ -7,7 +7,8 @@ window.fullScreenBtnForWindowFunction = null;
 window.unFullScreenBtnForWindowFunction = null;
 window.closeBtnForWindowFunction = null;
 if (require('electron').remote) {
-    const meet_url_temp = require("../common/Config").getUrlPathConfigVal("open_meet_url");
+    const configFile = require("../common/Config");
+    const meet_url_temp = configFile.getUrlPathConfigVal("open_meet_url");
     if (!window.location.href.startsWith(meet_url_temp) && !window.location.href.startsWith("file://")) {
         window.nodeRequire = require;
         delete window.require;
@@ -61,5 +62,8 @@ if (require('electron').remote) {
         window.InjectRtcAudioVideoScreenUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoraAudioVideoScreenSdk.log");
         // ipc通信
         window.InjectRtcAudioVideoScreenUtil.RendererProcessHelper = rendererProcessHelper;
+        // 调试
+        window.InjectRtcAudioVideoScreenUtil.debug = configFile.getUrlPathConfigVal("debug");
+        window.InjectRtcAudioVideoScreenUtil.meet_debug = configFile.getUrlPathConfigVal("meet_debug");
     }
 }

@@ -1156,9 +1156,19 @@ ipcMain.on("screenTools", function (sys, message) {
                         } else {
                             windowInfoTemp = activeWinHelper.getByHidSync(screenInfo.windowId);
                         }
-                        if (windowInfoTemp && windowInfoTemp.screens && windowInfoTemp.screens.length > 0) {
-                            screenToolsX = windowInfoTemp.screens[0].x;
-                            screenToolsY = windowInfoTemp.screens[0].y;
+                        if (windowInfoTemp) {
+                            let windowXTemp = windowInfoTemp.bounds.x || 0;
+                            let windowYTemp = windowInfoTemp.bounds.y || 0;
+                            if (windowInfoTemp.screens && windowInfoTemp.screens.length > 0) {
+                                // 处理多屏幕
+                                for (let i = 0; i < windowInfoTemp.screens.length; i++) {
+                                    let screensInfoTemp = windowInfoTemp.screens[i];
+                                    if (windowXTemp >= screensInfoTemp.x && windowXTemp < (screensInfoTemp.x + screensInfoTemp.width)) {
+                                        screenToolsX = screensInfoTemp.x;
+                                        screenToolsY = screensInfoTemp.y;
+                                    }
+                                }
+                            }
                         }
                     } catch (e) {
                         console.error(e);
@@ -1254,6 +1264,8 @@ ipcMain.on("screenTools", function (sys, message) {
                 "qrcodeTips": qrcodeTips,
                 "screenType": screenType,
                 "screenInfo": screenInfo,
+                "screenToolsX": screenToolsX,
+                "screenToolsY": screenToolsY
             };
             // 当窗口加载完毕后-发送邀请码信息
             screenToolsWindow.webContents.on("did-stop-loading", () => {

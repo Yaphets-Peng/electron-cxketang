@@ -7,13 +7,17 @@ const child_process = require("child_process");
 const path = require("path");
 const execFile = util.promisify(child_process.execFile);
 function parseJSON(text) {
-    try {
-        return JSON.parse(text);
-    }
-    catch (error) {
-        console.error(`${error.message}: \n${text}`);
-        throw new Error('Error parsing data');
-    }
+	try {
+		return JSON.parse(text);
+	} catch (e1) {
+		console.error(`${e1.message}`);
+		try {
+			return eval("(" + text + ")");
+		} catch (e2) {
+			console.error(`${e2.message}: \n${text}`);
+		}
+		throw new Error('Error parsing data');
+	}
 }
 const EXEC_MAP = {
     win32: 'win-info-win32.exe',

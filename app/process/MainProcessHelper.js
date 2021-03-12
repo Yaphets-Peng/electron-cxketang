@@ -1149,16 +1149,9 @@ ipcMain.on("screenTools", function (sys, message) {
             } else if (screenType == "2") {
                 if (screenInfo && screenInfo.windowId) {
                     try {
-                        let windowInfoTemp = "";
-                        // 是否是mac
-                        if (process.platform === 'darwin') {
-                            windowInfoTemp = activeWinHelper.getByPidSync(screenInfo.windowId);
-                        } else {
-                            windowInfoTemp = activeWinHelper.getByHidSync(screenInfo.windowId);
-                        }
+                        let windowInfoTemp = activeWinHelper.getByHidSync(screenInfo.windowId);
                         if (windowInfoTemp) {
                             let windowXTemp = windowInfoTemp.bounds.x || 0;
-                            let windowYTemp = windowInfoTemp.bounds.y || 0;
                             if (windowInfoTemp.screens && windowInfoTemp.screens.length > 0) {
                                 // 处理多屏幕
                                 for (let i = 0; i < windowInfoTemp.screens.length; i++) {
@@ -1166,6 +1159,8 @@ ipcMain.on("screenTools", function (sys, message) {
                                     if (windowXTemp >= screensInfoTemp.x && windowXTemp < (screensInfoTemp.x + screensInfoTemp.width)) {
                                         screenToolsX = screensInfoTemp.x;
                                         screenToolsY = screensInfoTemp.y;
+                                        winWidthTemp = screensInfoTemp.width;
+                                        winHeightTemp = screensInfoTemp.height;
                                     }
                                 }
                             }

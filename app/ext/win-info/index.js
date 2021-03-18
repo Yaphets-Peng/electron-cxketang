@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-exports.getActiveSync = exports.getActive = exports.getByPidSync = exports.getByPid = exports.getByHidSync = exports.getByHid = void 0;
+exports.getActiveSync = exports.getActive = exports.getByPidSync = exports.getByPid = exports.getByHidSync = exports.getByHid=exports.getScreenByIdSync=exports.getScreenById = void 0;
 const util = require("util");
 const child_process = require("child_process");
 const path = require("path");
@@ -63,6 +63,27 @@ function getCmdWithArgsForWin(arg1, arg2) {
     }
 	return {cmd, args};
 }
+function getCmdWithArgsForMac(arg1, arg2) {
+	if(process.platform !="darwin"){
+		throw new Error('macOS platforms only');
+	}
+	let cmd = EXEC_MAP["darwin"];
+	cmd = path.resolve(__dirname, 'bin', cmd);
+	let args= [];
+	if (cmd.endsWith('.js')) { // Node script
+		[cmd, args] = [process.argv[0], [cmd]];
+	}
+	if (arg1) {
+		args.push(`${arg1}`);
+	}
+	if (arg2) {
+		args.push(`${arg2}`);
+	}
+    if (args.length != 2) {
+        throw new Error('Must have two parameters');
+    }
+	return {cmd, args};
+}
 class WinInfo {
     static async getByHid(hid) {
         const {cmd, args} = getCmdWithArgsForWin('findHandle', hid);
@@ -70,6 +91,10 @@ class WinInfo {
     }
     static async getByPid(pid, platform) {
         const {cmd, args} = getCmdWithArgs(pid, platform);
+        return parseJSON((await execFile(cmd, args, {encoding: 'utf8'})).stdout);
+    }
+    static async getScreenById(id) {
+        const {cmd, args} = getCmdWithArgsForMac('findScreen', id);
         return parseJSON((await execFile(cmd, args, {encoding: 'utf8'})).stdout);
     }
     static async getActive(platform) {
@@ -84,6 +109,10 @@ class WinInfo {
         const {cmd, args} = getCmdWithArgs(pid, platform);
         return parseJSON((child_process.execFileSync(cmd, args, {encoding: 'utf8'})));
     }
+    static getScreenByIdSync(id) {
+        const {cmd, args} = getCmdWithArgsForMac('findScreen', id);
+        return parseJSON((child_process.execFileSync(cmd, args, {encoding: 'utf8'})));
+    }
     static getActiveSync(platform) {
         const {cmd, args} = getCmdWithArgs('active', platform);
         return parseJSON((child_process.execFileSync(cmd, args, {encoding: 'utf8'})));
@@ -93,5 +122,7 @@ exports.getByHid = WinInfo.getByHid;
 exports.getByHidSync = WinInfo.getByHidSync;
 exports.getByPid = WinInfo.getByPid;
 exports.getByPidSync = WinInfo.getByPidSync;
+exports.getScreenById = WinInfo.getScreenById;
+exports.getScreenByIdSync = WinInfo.getScreenByIdSync;
 exports.getActive = WinInfo.getActive;
 exports.getActiveSync = WinInfo.getActiveSync;

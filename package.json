@@ -25,6 +25,7 @@
     "agora-electron-sdk": "3.2.1-rc.71-build.1123",
     "agora-rtm-sdk": "^1.4.1-201",
     "axios": "^0.21.0",
+    "canvas-to-buffer": "^1.1.1",
     "electron-log": "^4.3.0",
     "is-running": "^2.1.0",
     "md5": "^2.3.0",

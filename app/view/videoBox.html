@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no"/>
+	<title></title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		body {
+			font-size: 12px;
+			overflow: hidden;
+		}
+		html, body {
+			height: 100%;
+		}
+		.video_box {
+			width: 100%;
+			height: 100%;
+			background: #25282E;
+			box-shadow: 0px 0px 14px -4px rgba(0, 0, 0, 0.2);
+			border-radius: 8px;
+		}
+		.video_box img {
+			width: 100%;
+			height: 100%;
+		}
+		.video_box img.on {
+			-webkit-transform: rotateY(180deg);
+			-moz-transform: rotateY(180deg);
+			-ms-transform: rotateY(180deg);
+			-o-transform: rotateY(180deg);
+			transform: rotateY(180deg);
+		}
+		.clearfix{zoom:1;}
+		.clearfix:after{content:"";clear:both;height:0;font-size:0;line-height:0;overflow:hidden;display: block;}
+		.video_box_head{
+			display: -webkit-flex;
+            display: flex;
+		}
+		.header_pos{
+			-webkit-flex: 1;        
+		    -ms-flex: 1; 
+		    flex: 1;
+		}
+	    .header_tools_mac {
+		    background: #15191D;
+		    text-align: left;
+		    height: 30px;
+		    float: left;
+		    padding:0 7px;
+		}
+		.header_tool_mac_item {
+		    width: 22px;
+		    height: 30px;
+		    position: relative;
+		    display: inline-block;
+		}
+		.header_tool_mac_item i{
+		    width: 12px;
+		    height: 12px;
+		    position: absolute;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%,-50%);
+		}
+		.close_mac_btn i{
+			background: url(../static/images/icon_close_mac_default.png) center center/12px auto no-repeat;
+		}
+		.close_mac_btn:hover i{
+			background: url(../static/images/icon_close_mac_hover.png) center center/12px auto no-repeat;
+		}
+		.close_mac_btn:active i{
+			background: url(../static/images/icon_close_mac_down.png) center center/12px auto no-repeat;
+		}
+		.minimize_mac_btn i{
+			background: url(../static/images/icon_minimize_mac_default.png) center center/12px auto no-repeat;
+		}
+		.minimize_mac_btn:hover i{
+			background: url(../static/images/icon_minimize_mac_hover.png) center center/12px auto no-repeat;
+		}
+		.minimize_mac_btn:active i{
+			background: url(../static/images/icon_minimize_mac_down.png) center center/12px auto no-repeat;
+		}
+		.maximize_mac_btn i{
+			background: url(../static/images/icon_maximize_mac_default.png) center center/12px auto no-repeat;
+		}
+		.maximize_mac_btn:hover i{
+			background: url(../static/images/icon_maximize_1_mac_hover.png) center center/12px auto no-repeat;
+		}
+		.maximize_mac_btn:active i{
+			background: url(../static/images/icon_maximize_1_mac_down.png) center center/12px auto no-repeat;
+		}
+		.header_tools_windows {
+		    background: #15191D;
+		    text-align: right;
+		    height: 30px;
+		    float: right;
+		}
+		.header_tool_windows_item {
+		    width: 38px;
+		    height: 30px;
+		    position: relative;
+		    display: inline-block;
+		}
+		.header_tool_windows_item i{
+		    width: 20px;
+		    height: 20px;
+		    position: absolute;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%,-50%);
+		}
+		.minimize_windows_btn i{
+			background: url(../static/images/icon_minimize_windows_default.png) center center/20px auto no-repeat;
+		}
+		.minimize_windows_btn:hover i{
+			background: url(../static/images/icon_minimize_windows_hover.png) center center/20px auto no-repeat;
+		}
+		.minimize_windows_btn:active i{
+			background: url(../static/images/icon_minimize_windows_down.png) center center/20px auto no-repeat;
+		}
+		.maximize_windows_btn i{
+			background: url(../static/images/icon_maximize_1_windows_default.png) center center/20px auto no-repeat;
+		}
+		.maximize_windows_btn:hover i{
+			background: url(../static/images/icon_maximize_1_windows_hover.png) center center/20px auto no-repeat;
+		}
+		.maximize_windows_btn:active i{
+			background: url(../static/images/icon_maximize_1_windows_down.png) center center/20px auto no-repeat;
+		}
+		.close_windows_btn:hover{
+			background: #FF3131;
+		}
+		.close_windows_btn i{
+			background: url(../static/images/icon_close_windows_default.png) center center/20px auto no-repeat;
+		}
+		.close_windows_btn:hover i{
+			background: url(../static/images/icon_close_windows_hover.png) center center/20px auto no-repeat;
+		}
+		.close_windows_btn:active{
+			background: #D24546;
+		}
+		.close_windows_btn:active i{
+			background: url(../static/images/icon_close_windows_down.png) center center/20px auto no-repeat;
+		}
+	</style>
+</head>
+<body>
+<div class="video_box">
+	<div class="video_box_head clearfix">
+		<div class="header_tools_mac" style="-webkit-user-select: none;display: none;">
+            <span class="header_tool_mac_item close_mac_btn">
+                <i></i>
+            </span>
+			<!--<span class="header_tool_mac_item minimize_mac_btn">
+				<i></i>
+			</span>
+			<span class="header_tool_mac_item maximize_mac_btn">
+				<i></i>
+			</span>-->
+		</div>
+		<div class="header_pos" style="-webkit-app-region: drag;-webkit-user-select: none;"></div>
+		<div class="header_tools_windows" style="-webkit-user-select: none;display: none;">
+			<!--<span class="header_tool_windows_item minimize_windows_btn">
+				<i></i>
+			</span>
+			<span class="header_tool_windows_item maximize_windows_btn">
+				<i></i>
+			</span>-->
+			<span class="header_tool_windows_item close_windows_btn">
+				<i></i>
+			</span>
+		</div>
+	</div>
+</div>
+</body>
+<script>
+	if (typeof module === "object") {
+		window.module = module;
+		module = undefined;
+	}
+</script>
+<script src="../static/js/jquery-3.5.1.min.js"></script>
+<script>
+	if (window.module) module = window.module;
+</script>
+<script>
+	// 工具栏
+	const remote = require("electron").remote;
+	// 最小化
+	window.minBtnForWindowFunction = function () {
+		remote.getCurrentWindow().minimize();
+	}
+	// 最大化
+	window.maxBtnForWindowFunction = function () {
+		remote.getCurrentWindow().maximize();
+	}
+	// 取消最大化
+	window.unMaxBtnForWindowFunction = function () {
+		remote.getCurrentWindow().unmaximize();
+	}
+	// 全屏
+	window.fullScreenBtnForWindowFunction = function () {
+		remote.getCurrentWindow().setFullScreen(true);
+	}
+	// 取消全屏
+	window.unFullScreenBtnForWindowFunction = function () {
+		remote.getCurrentWindow().setFullScreen(false);
+	}
+	// 关闭
+	window.closeBtnForWindowFunction = function () {
+		remote.getCurrentWindow().close();
+	}
+	// 退出全屏
+	document.addEventListener("keydown", event => {
+		switch (event.key) {
+			case "Escape":
+				if (remote.getCurrentWindow().isFullScreen()) {
+					remote.getCurrentWindow().setFullScreen(false);
+				}
+				break;
+		}
+	});
+	$(".video_box_head").on("click",".close_mac_btn,.close_windows_btn", function (e) {
+		closeBtnForWindowFunction();
+	});
+	// ipc通讯
+	const rendererProcessHelper = require("../process/RendererProcessHelper");
+	// ipc通讯频道-主通讯
+	const meetChosesChannel = "meetVideo";
+	// ipc通讯频道-被通讯
+	const meetVideoMessageFormMainChannel = "meetVideoMessageFormMain";
+	let currentUID = "";
+
+	// 数组转图片
+	function Uint8ArrayToImageFun(uint8Array, dataType) {
+		if (!uint8Array) {
+			return "";
+		}
+		let blob = new Blob([uint8Array], {type: dataType || "png"});
+		return (window.URL || window.webkitURL).createObjectURL(blob);
+	}
+
+	// ipc回调事件
+	let ipcRendererCallback = function (args, sys) {
+		if (!args || !args.cmd) {
+			return;
+		}
+		if (args.debug) {
+			console.log("[video.html][_meetVideoMessageFormMain_]收到投屏指令信号 指令 " + JSON.stringify(args));
+		}
+		if ("videoData" == args.cmd) {
+			if (currentUID == args.uid && args.close) {
+				window.close();
+				return;
+			}
+			// 初始化才更新值
+			if (args.init) {
+				currentUID = args.uid;
+			}
+			let srcTemp = Uint8ArrayToImageFun(args.data, args.dataType);
+			if (srcTemp) {
+				if ($(".video_box img").length == 0) {
+					$(".video_box").append("<img src=\"" + srcTemp + "\"/>");
+					if (args.transform) {
+						$(".video_box img").addClass("on");
+					} else {
+						$(".video_box img").removeClass("on");
+					}
+				} else {
+					$(".video_box img").attr("src", srcTemp);
+					if (args.transform) {
+						$(".video_box img").addClass("on");
+					} else {
+						$(".video_box img").removeClass("on");
+					}
+				}
+			}
+		}
+	}
+
+	$(document).ready(function () {
+		let ua = navigator.userAgent.toLowerCase();
+		if (ua.indexOf("chaoxingclassroompc_") > -1) {
+			if (ua.indexOf('windows') > -1) {
+				$(".header_tools_windows").show();
+			} else {
+				$(".header_tools_mac").show();
+			}
+		}
+		// ipc通讯回调
+		rendererProcessHelper.registeCallback(meetVideoMessageFormMainChannel, ipcRendererCallback);
+		// 定时任务
+		setInterval(function () {
+			if (currentUID) {
+				let messageTemp = {
+					"cmd": "getVideoData",
+					"uid": currentUID,
+				};
+				rendererProcessHelper.sendToMainProcess(meetChosesChannel, messageTemp);
+			}
+		}, 500);
+	});
+</script>
+</html>

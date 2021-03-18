@@ -24,6 +24,8 @@ const meetWindowUUID = "meetWindow";
 const screenToolsWindowUUID = "screenTools";
 // 选择投屏窗口uuid
 const choseScreenWindowUUID = "choseScreen";
+// 视屏窗口uuid
+const openVideoBoxWindowUUID = "openVideoBox";
 
 // 消息发送相关
 // 主-InjectRtcAudioVideoScreenUtil.js
@@ -32,6 +34,8 @@ let meetToolsFormMainChannel = "meetToolsFormMain";
 let meetToolsMessageFormMainChannel = "meetToolsMessageFormMain";
 // 主-choseScreen.html
 let meetChosesMessageFormMainChannel = "meetChosesMessageFormMain";
+// 主-videoBox.html
+let meetVideoMessageFormMainChannel = "meetVideoMessageFormMain";
 
 // 防止休眠设置
 let blockerId = null;
@@ -1143,19 +1147,22 @@ ipcMain.on("screenTools", function (sys, message) {
             let screenToolsY = 0;
             if (screenType == "1") {
                 if (screenInfo && screenInfo.displayId) {
-                    screenToolsX = screenInfo.displayId.x;
-                    screenToolsY = screenInfo.displayId.y;
+                    // 是否是mac
+                    if (process.platform === 'darwin') {
+                        let screenInfoTemp = activeWinHelper.getScreenById(screenInfo.displayId);
+                        if (screenInfoTemp) {
+                            screenToolsX = screenInfoTemp.x;
+                            screenToolsY = screenInfoTemp.y;
+                        }
+                    } else {
+                        screenToolsX = screenInfo.displayId.x;
+                        screenToolsY = screenInfo.displayId.y;
+                    }
                 }
             } else if (screenType == "2") {
                 if (screenInfo && screenInfo.windowId) {
                     try {
-                        let windowInfoTemp = "";
-                        // 是否是mac
-                        if (process.platform === 'darwin') {
-                            windowInfoTemp = activeWinHelper.getByPidSync(screenInfo.windowId);
-                        } else {
-                            windowInfoTemp = activeWinHelper.getByHidSync(screenInfo.windowId);
-                        }
+                        let windowInfoTemp = activeWinHelper.getByHidSync(screenInfo.windowId);
                         if (windowInfoTemp) {
                             let windowXTemp = windowInfoTemp.bounds.x || 0;
                             let windowYTemp = windowInfoTemp.bounds.y || 0;
@@ -1333,7 +1340,6 @@ ipcMain.on("screenTools", function (sys, message) {
             let windowOptionsTemp = {
                 "width": 1100,
                 "height": 750,
-                "frame": true,
                 "webPreferences": {
                     "nodeIntegration": true,
                     "enableRemoteModule": true
@@ -1364,12 +1370,25 @@ ipcMain.on("screenTools", function (sys, message) {
                 // 打开开发者工具
                 choseWindowTemp.webContents.openDevTools();
             }
+            // 所有窗口句柄
+            let windowIds = new Array();
+            // 当前窗口
+            let hwndTemp = choseWindowTemp.getNativeWindowHandle();
+            windowIds.push(hwndTemp.readUInt32LE(0));
+            if (global.sharedWindow.windowMap.size > 0) {
+                // 循环判断窗口
+                global.sharedWindow.windowMap.forEach(function (value, key) {
+                    hwndTemp = value.getNativeWindowHandle();
+                    windowIds.push(hwndTemp.readUInt32LE(0));
+                });
+            }
             // 组装发送参数
             let finishLoadSendValue = {
                 "cmd": "choseData",
                 "language": language,
                 "displays": displays,
-                "winplays": winplays
+                "winplays": winplays,
+                "windowIds": windowIds,
             };
             // 当窗口加载完毕后-发送邀请码信息
             choseWindowTemp.webContents.on("did-stop-loading", () => {
@@ -1388,7 +1407,96 @@ ipcMain.on("screenTools", function (sys, message) {
         // 发送可选择窗口数据
         let choseWindowTemp = global.sharedWindow.windowMap.get(choseScreenWindowUUID);
         if (choseWindowTemp) {
+            if (global.sharedWindow.windowMap.size > 0) {
+                // 所有窗口句柄
+                let windowIds = new Array();
+                // 循环判断窗口
+                global.sharedWindow.windowMap.forEach(function (value, key) {
+                    let hwndTemp = value.getNativeWindowHandle();
+                    windowIds.push(hwndTemp.readUInt32LE(0));
+                });
+                message.windowIds = windowIds;
+            }
             choseWindowTemp.webContents.send(meetChosesMessageFormMainChannel, message);
+        }
+    } else if ("openVideoBox" == message.cmd) {
+        if (typeof message.uid == "undefined") {
+            return;
+        }
+        // 更新下数据
+        message.cmd = "videoData";
+        let widthTemp = message.width || 320;
+        if (widthTemp) {
+            widthTemp = parseInt(widthTemp);
+        }
+        let heightTemp = message.height || 200;
+        if (heightTemp) {
+            heightTemp = parseInt(heightTemp) + 30;
+        }
+        // 打开选择窗口
+        let openVideoBoxWindowTemp = global.sharedWindow.windowMap.get(openVideoBoxWindowUUID);
+        if (!openVideoBoxWindowTemp) {
+            if (!message.init) {
+                return;
+            }
+            // 创建窗口
+            openVideoBoxWindowTemp = new BrowserWindow({
+                "width": widthTemp,
+                "height": heightTemp,
+                "webPreferences": {
+                    "nodeIntegration": true,
+                    "enableRemoteModule": true
+                },
+                "frame": false,
+                "center": true,
+                "maximizable": true,
+                "minimizable": true,
+                "resizable": true,
+                "transparent": true,
+                "autoHideMenuBar": true,
+            });
+            // 引用本地比较快
+            openVideoBoxWindowTemp.loadFile(path.join(path.resolve(__dirname, ".."), "/view/videoBox.html"));
+
+            if (config.getConfigVal("debug")) {
+                // 打开开发者工具
+                openVideoBoxWindowTemp.webContents.openDevTools();
+            }
+            if (config.getConfigVal("meet_debug")) {
+                // 打开开发者工具
+                openVideoBoxWindowTemp.webContents.openDevTools();
+            }
+            // 当窗口加载完毕后-发送信息
+            openVideoBoxWindowTemp.webContents.on("did-stop-loading", () => {
+                openVideoBoxWindowTemp.webContents.send(meetVideoMessageFormMainChannel, message);
+            });
+            // 当窗口关闭前触发
+            openVideoBoxWindowTemp.on("close", function (e) {
+                e.sender.destroy();
+            });
+            // 当窗口关闭时触发
+            openVideoBoxWindowTemp.on("closed", function () {
+                if (mainWindow != null) {
+                    if (global.sharedWindow.windowMap.size == 2) {
+                        //显示父窗口
+                        mainWindow.show();
+                    }
+                }
+                //将choseScreenWindow置为null
+                global.sharedWindow.windowMap.delete(openVideoBoxWindowUUID);
+            });
+            // 放入窗口集合中
+            global.sharedWindow.windowMap.set(openVideoBoxWindowUUID, openVideoBoxWindowTemp);
+        } else {
+            // 初始化更新窗口大小
+            if (message.init) {
+                openVideoBoxWindowTemp.center();
+                openVideoBoxWindowTemp.setMinimumSize(widthTemp, heightTemp);
+                openVideoBoxWindowTemp.setSize(widthTemp, heightTemp);
+                openVideoBoxWindowTemp.setContentSize(widthTemp, heightTemp);
+                openVideoBoxWindowTemp.show();
+            }
+            openVideoBoxWindowTemp.webContents.send(meetVideoMessageFormMainChannel, message);
         }
     } else {
         // 直接转发到工具栏页面,由页面处理
@@ -1443,6 +1551,33 @@ ipcMain.on("meetChoses", function (sys, message) {
     }
     if (config.getConfigVal("debug")) {
         logger.debug("[MainProcessHelper][_meetChoses_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
+    }
+    message.debug = config.getConfigVal("debug");
+    message.meet_debug = config.getConfigVal("meet_debug");
+    // 直接转发,由页面处理
+    meetWindowTemp.webContents.send(meetToolsFormMainChannel, message);
+});
+
+/**
+ *视屏窗口相关-视屏窗口发送消息到会议
+ */
+//ipcMain收到meetChoses信号
+ipcMain.on("meetVideo", function (sys, message) {
+    if (!message || !message.cmd) {
+        return;
+    }
+    // 获取窗口集合中
+    let meetWindowTemp = global.sharedWindow.windowMap.get(meetWindowUUID);
+    if (!meetWindowTemp) {
+        // 主窗口不存在关闭视屏窗口
+        let openVideoBoxWindowTemp = global.sharedWindow.windowMap.get(openVideoBoxWindowUUID);
+        if (openVideoBoxWindowTemp) {
+            openVideoBoxWindowTemp.close();
+        }
+        return;
+    }
+    if (config.getConfigVal("debug")) {
+        logger.debug("[MainProcessHelper][_meetVideo_]主进程main.js收到投屏指令信号 指令 " + JSON.stringify(message));
     }
     message.debug = config.getConfigVal("debug");
     message.meet_debug = config.getConfigVal("meet_debug");

@@ -2,6 +2,7 @@
 var InjectRtcAudioVideoScreenUtil = {
     debug: false,//是否测试
     meet_debug: false,//是否测试
+    canvasFrame:null,//画布工具
     AudioVideoScreenRTC: null,//rtc实例
     RendererProcessHelper: null,//ipc通信实例
     ipcRendererCallback : null,//ipc回调方法,主线程与本窗口通信
@@ -157,7 +158,10 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
     if (InjectRtcAudioVideoScreenUtil.debug) {
         console.log("[InjectRtcAudioVideoScreenUtil][_meetToolsFormMain_]收到投屏指令信号 指令 " + JSON.stringify(args));
     }
-    if ("startScreenByChose" == args.cmd) {
+    if ("getVideoData" == args.cmd) {
+        // 获取摄像头数据
+        InjectRtcAudioVideoScreenUtil.openVideoBox(args.uid, false);
+    } else if ("startScreenByChose" == args.cmd) {
         // 开始投屏
         let infoTemp = args.info;
         if (infoTemp) {
@@ -268,8 +272,9 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
     
     console.log("sdkLogPath=", InjectRtcAudioVideoScreenUtil.sdkLogPath);
-    // 开始加入频道
+    // 开始实例化
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC = new AgoraRtcEngine();
+    // 开始加入频道
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.initialize(Meeting.rtc_appid);
     console.log("rtc_appid=", Meeting.rtc_appid);
 
@@ -368,7 +373,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
         } else if (state == 1 || state == 2) {
             if (Meeting.isVideoId(uid)) {
                 // 设置视窗内容显示模式
-                InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupViewContentMode(uid, 1);
+                //InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setupViewContentMode(uid, 1);
                 // 订阅该远端用户流
                 if ($("#camera_" + uid).length === 0) {
                     $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
@@ -820,6 +825,45 @@ InjectRtcAudioVideoScreenUtil.updateVideoParams = function (params) {
     InjectRtcAudioVideoScreenUtil.videoConfig = params;
     let videoConfigCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setVideoEncoderConfiguration(InjectRtcAudioVideoScreenUtil.videoConfig);
     console.log("更新视屏参数", videoConfigCode);
+}
+
+// 打开视屏窗口
+InjectRtcAudioVideoScreenUtil.openVideoBox = function (uid,init) {
+    if (typeof uid == "undefined" || typeof init == "undefined") {
+        return;
+    }
+    // 获取画布
+    let canvasTemp = $("#camera_" + uid + " canvas");
+    if (canvasTemp.length == 0) {
+        let messageTemp = {
+            "cmd": "openVideoBox",
+            "uid": uid,
+            "close": true
+        };
+        InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
+        return;
+    }
+    // 宽高
+    let width = $("#camera_" + uid + " canvas").css("width");
+    let height = $("#camera_" + uid + " canvas").css("height");
+    // 是否有反转
+    let hasTransform = false;
+    let transform = $("#camera_" + uid + " canvas").css("transform");
+    if (transform != "none") {
+        hasTransform = true;
+    }
+    let frameTemp = new InjectRtcAudioVideoScreenUtil.canvasFrame(canvasTemp[0], {"quality": 1, "image": {"types":["webp","png"]}});
+    let messageTemp = {
+        "cmd": "openVideoBox",
+        "uid": uid,
+        "width": width,
+        "height": height,
+        "init": init,
+        "transform": hasTransform,
+        "data": frameTemp.toBuffer(),
+        "dataType": frameTemp.getImageType(),
+    };
+    InjectRtcAudioVideoScreenUtil.RendererProcessHelper.sendToMainProcess(InjectRtcAudioVideoScreenUtil.screenToolsChannel, messageTemp);
 }
 
 //更新音视频token

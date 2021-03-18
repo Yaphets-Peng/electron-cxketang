@@ -218,7 +218,7 @@
 </script>
 <!--国际化结束-->
 <script>
-	// 注册数组转图片
+	// 数组转图片
 	function Uint8ArrayToImageFun(uint8Array) {
 		if (!uint8Array) {
 			return "";
@@ -293,7 +293,18 @@
 			    $("#desk").append(template("screenDisplaysData", displaysTemp));
 		    }
 		    let winplaysTemp = args.winplays;
+		    let windowIdsTemp = args.windowIds;
 		    if (winplaysTemp && winplaysTemp.length > 0) {
+		    	// 存在句柄判断
+			    if (windowIdsTemp && windowIdsTemp.length > 0) {
+				    let winplaysTempArray = new Array();
+				    for (let i = 0; i < winplaysTemp.length; i++) {
+					    if (windowIdsTemp.indexOf(winplaysTemp[i].windowId) == -1) {
+						    winplaysTempArray.push(winplaysTemp[i]);
+					    }
+				    }
+				    winplaysTemp = winplaysTempArray;
+			    }
 			    $("#window").append(template("screenWinplaysData", winplaysTemp));
 		    }
 	    } else if ("choseScreenData" == args.cmd) {
@@ -305,7 +316,18 @@
 		    }
 		    $("#window").empty();
 		    let winplaysTemp = args.winplays;
+		    let windowIdsTemp = args.windowIds;
 		    if (winplaysTemp && winplaysTemp.length > 0) {
+		    	// 存在句柄判断
+			    if (windowIdsTemp && windowIdsTemp.length > 0) {
+				    let winplaysTempArray = new Array();
+				    for (let i = 0; i < winplaysTemp.length; i++) {
+					    if (windowIdsTemp.indexOf(winplaysTemp[i].windowId) == -1) {
+						    winplaysTempArray.push(winplaysTemp[i]);
+					    }
+				    }
+				    winplaysTemp = winplaysTempArray;
+			    }
 			    $("#window").append(template("screenWinplaysData", winplaysTemp));
 		    }
 	    }

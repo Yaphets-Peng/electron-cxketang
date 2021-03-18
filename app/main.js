@@ -93,7 +93,7 @@ const handleUrlFromWeb = (urlStr) => {
                 } else if (open_type === "url") {
                     let openurl = getProtocolQueryString(host, "openurl");
                     if (openurl) {
-                        let openUrlScript = "window.open('" + openurl + "')";
+                        let openUrlScript = "window.open('" + decodeURIComponent(openurl) + "')";
                         if (helper.getMainWindow() !== null) {
                             // 判断下是否登录,从webcookie中获取
                             helper.getMainWindow().webContents.session.cookies.get({

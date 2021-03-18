@@ -58,6 +58,8 @@ if (require('electron').remote) {
         console.log(logger.getLogPath());
         window.AgoraRtcEngine = require("agora-electron-sdk").default;
         window.InjectRtcAudioVideoScreenUtil = require('../static/js/agaro/InjectRtcAudioVideoScreenUtil');
+        // 画布工具
+        window.InjectRtcAudioVideoScreenUtil.canvasFrame = require("canvas-to-buffer");
         // 获取日志路径后存放
         window.InjectRtcAudioVideoScreenUtil.sdkLogPath = path.join(path.resolve(logger.getLogPath(), ".."), "./agora/agoraAudioVideoScreenSdk.log");
         // ipc通信

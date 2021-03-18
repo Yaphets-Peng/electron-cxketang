@@ -1149,7 +1149,7 @@ ipcMain.on("screenTools", function (sys, message) {
                 if (screenInfo && screenInfo.displayId) {
                     // 是否是mac
                     if (process.platform === 'darwin') {
-                        let screenInfoTemp = activeWinHelper.getScreenById(screenInfo.displayId);
+                        let screenInfoTemp = activeWinHelper.getScreenByIdSync(screenInfo.displayId.id);
                         if (screenInfoTemp) {
                             screenToolsX = screenInfoTemp.x;
                             screenToolsY = screenInfoTemp.y;
@@ -1381,6 +1381,7 @@ ipcMain.on("screenTools", function (sys, message) {
                 global.sharedWindow.windowMap.forEach(function (value, key) {
                     hwndTemp = value.getNativeWindowHandle();
                     windowIds.push(hwndTemp.readUInt32LE(0));
+                    //TODO mac暂时不能直接取到
                 });
             }
             // 组装发送参数

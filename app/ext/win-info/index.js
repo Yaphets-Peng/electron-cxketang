@@ -42,11 +42,11 @@ function getCmdWithArgs(arg, platform) {
     }
     return { cmd, args };
 }
-function getCmdWithArgsForWin(arg1, arg2) {
-	if(process.platform !="win32"){
-		throw new Error('Windows platforms only');
+function getCmdWithArgsForHid(arg1, arg2) {
+	if(process.platform !="win32" && process.platform !="darwin"){
+		throw new Error('macOS, Windows platforms only');
 	}
-	let cmd = EXEC_MAP["win32"];
+	let cmd = EXEC_MAP[process.platform];
 	cmd = path.resolve(__dirname, 'bin', cmd);
 	let args= [];
 	if (cmd.endsWith('.js')) { // Node script
@@ -86,7 +86,7 @@ function getCmdWithArgsForMac(arg1, arg2) {
 }
 class WinInfo {
     static async getByHid(hid) {
-        const {cmd, args} = getCmdWithArgsForWin('findHandle', hid);
+        const {cmd, args} = getCmdWithArgsForHid('findHandle', hid);
         return parseJSON((await execFile(cmd, args, {encoding: 'utf8'})).stdout);
     }
     static async getByPid(pid, platform) {
@@ -102,7 +102,7 @@ class WinInfo {
         return parseJSON((await execFile(cmd, args, {encoding: 'utf8'})).stdout);
     }
     static getByHidSync(hid) {
-        const {cmd, args} = getCmdWithArgsForWin('findHandle', hid);
+        const {cmd, args} = getCmdWithArgsForHid('findHandle', hid);
         return parseJSON((child_process.execFileSync(cmd, args, {encoding: 'utf8'})));
     }
     static getByPidSync(pid, platform) {

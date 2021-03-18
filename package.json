@@ -35,7 +35,7 @@
   "build": {
     "afterSign": "script/notarize.js",
     "afterAllArtifactBuild": "script/after_build.js",
-    "appId": "com.ssreader.cxketangwindows",
+    "appId": "com.ssreader.cxketang",
     "copyright": "ChaogXing",
     "productName": "超星课堂",
     "artifactName": "ketang_${version}.${ext}",

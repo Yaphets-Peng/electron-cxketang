@@ -1,5 +1,5 @@
 {
-  "uaVersion": "2.0.9",
+  "uaVersion": "3.0.0",
   "productInfos": {
 	"3": {
 	  "schoolName": "超星课堂",
@@ -18,7 +18,7 @@
 	  "schoolName": "国科大在线",
 	  "domain": "http://k.ecourse.ucas.ac.cn",
 	  "name": "gkonline",
-	  "version": "1.0.0",
+	  "version": "2.0.0",
 	  "macAppId": "com.ssreader.gkdonline",
 	  "winAppId": "com.ssreader.gkdonlinewindows",
 	  "description": "gkonline",
@@ -31,7 +31,7 @@
 	  "schoolName": "厦门大学",
 	  "domain": "https://k.chaoxing.com",
 	  "name": "xmuketang",
-	  "version": "1.0.0",
+	  "version": "2.0.0",
 	  "macAppId": "com.ssreader.xmuonline",
 	  "winAppId": "com.ssreader.xmuonlinewindows",
 	  "description": "xmuonline",

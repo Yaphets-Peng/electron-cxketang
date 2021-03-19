@@ -577,7 +577,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
         InjectRtcAudioVideoScreenUtil.RendererProcessHelper.registeCallback(InjectRtcAudioVideoScreenUtil.meetToolsFormMainChannel, InjectRtcAudioVideoScreenUtil.ipcRendererCallback);
     }
     // 测试
-    InjectRtcAudioVideoScreenUtil.testScreenTools();
+    //InjectRtcAudioVideoScreenUtil.testScreenTools();
 }
 
 InjectRtcAudioVideoScreenUtil.startChannel = function () {
@@ -825,6 +825,7 @@ InjectRtcAudioVideoScreenUtil.updateVideoParams = function (params) {
     InjectRtcAudioVideoScreenUtil.videoConfig = params;
     let videoConfigCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setVideoEncoderConfiguration(InjectRtcAudioVideoScreenUtil.videoConfig);
     console.log("更新视屏参数", videoConfigCode);
+    //InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.resizeRender("local");
 }
 
 // 打开视屏窗口

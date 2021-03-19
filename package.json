@@ -36,7 +36,7 @@
   "build": {
     "afterSign": "script/notarize.js",
     "afterAllArtifactBuild": "script/after_build.js",
-    "appId": "com.ssreader.cxketang",
+    "appId": "com.ssreader.cxketangwindows",
     "copyright": "ChaogXing",
     "productName": "超星课堂",
     "artifactName": "ketang_${version}.${ext}",
@@ -67,7 +67,7 @@
         "sha256"
       ],
       "signDlls": true,
-      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
+      "rfc3161TimeStampServer": "http://tsa.starfieldtech.com",
       "certificateFile": "script/selfsigncert.pfx",
       "certificatePassword": "123456"
     },

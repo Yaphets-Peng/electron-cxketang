@@ -224,7 +224,7 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
             return;
         }
         // 更新web端分辨率配置
-        RtcScreenUtil.changeVideoConfig(value);
+        RtcMediaUtil.changeVideoConfig(value);
         if (Meeting.videoConfig) {
             InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
             //更新投屏参数

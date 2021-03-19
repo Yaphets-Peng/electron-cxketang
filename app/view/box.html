@@ -1270,18 +1270,18 @@
                 <li style="display: none;"><span class="setAllowUnmuteSelf">全体静音后，允许自我解除静音</span><input name="setAllowUnmuteSelf" class="mui-switch mui-switch-animbg" type="checkbox" checked="checked" value="1"></li>
                 <li style="display: none;"><span class="setLockMeet">锁定课堂</span><input name="setLockMeet" class="mui-switch mui-switch-animbg" type="checkbox" value="0"></li>
                 <div class="setting_switch_tip" style="display: none;">开启后，所有人不能再加入课堂</div>
-                <li class="screen_setting_con video" data-resolution="p180" style="display: none;">
-                    <span class="screen_setting_name">视频画质</span>
-                    <p>
-                        <span class="screen_setting_option p180 cur"><i></i><span class="txt">标清</span><span class="gray">(180p)</span></span>
-                        <span class="screen_setting_option p720"><i></i><span class="txt">高清</span><span class="gray">(720p)</span></span>
-                    </p>
-                </li>
                 <li class="screen_setting_con screen" data-resolution="p720" style="display: none;">
                     <span class="screen_setting_name">共享屏幕画质</span>
                     <p>
                         <span class="screen_setting_option p720 cur"><i></i><span class="txt">高清</span><span class="gray">(720p)</span></span>
                         <span class="screen_setting_option p1080"><i></i><span class="txt">超高清</span><span class="gray">(1080p)</span></span>
+                    </p>
+                </li>
+                <li class="screen_setting_con video" data-resolution="p180" style="display: none;">
+                    <span class="screen_setting_name">拍摄视频画质</span>
+                    <p>
+                        <span class="screen_setting_option p180 cur"><i></i><span class="txt">标清</span><span class="gray" style="display: none;">(180p)</span></span>
+                        <span class="screen_setting_option p720"><i></i><span class="txt">高清</span><span class="gray" style="display: none;">(720p)</span></span>
                     </p>
                 </li>
             </ul>
@@ -1384,7 +1384,7 @@
         "开启后，所有人不能再加入课堂": "Once turned on, no one can join the class",
         "加入课堂权限": "Permission",
         "管理": "Management",
-        "视频画质": "Video quality",
+        "拍摄视频画质": "Video quality",
         "共享屏幕画质": "Share screen quality",
         "标清": "SD",
         "高清": "HD",
@@ -1778,7 +1778,10 @@
             let qrcodeUrlTemp = args.qrcodeUrl || "";
             let qrcodeTipsTemp = args.qrcodeTips || "";
             if (qrcodeTemp) {
-                $(".topNaver_direction").show();
+                // 创建者和助教显示
+                if (leader == "1" || leader == "2") {
+                    $(".topNaver_direction").show();
+                }
                 $(".topNaver_direction .topNaver_invitCodeBox .invitCode_con").text(qrcodeTemp);
                 $(".show-qr-code .code-title .invite-code .code").text(qrcodeTemp);
                 $(".topNaver_direction .topNaver_invitCodeBox .topNaver_invitCode_copy").attr("data-clipboard-text", qrcodeTemp);
@@ -2103,7 +2106,7 @@
         $('.settingPop .courseSetting .setAllowUnmuteSelf').text(getI18Value("全体静音后，允许自我解除静音"));
         $('.settingPop .courseSetting .setLockMeet').text(getI18Value("锁定课堂"));
         $('.settingPop .courseSetting .setting_switch_tip').text(getI18Value("开启后，所有人不能再加入课堂"));
-        $('.settingPop .courseSetting .screen_setting_con.video .screen_setting_name').text(getI18Value("视频画质"));
+        $('.settingPop .courseSetting .screen_setting_con.video .screen_setting_name').text(getI18Value("拍摄视频画质"));
         $('.settingPop .courseSetting .screen_setting_con.video .screen_setting_option.p180 .txt').text(getI18Value("标清"));
         $('.settingPop .courseSetting .screen_setting_con.video .screen_setting_option.p720 .txt').text(getI18Value("高清"));
         $('.settingPop .courseSetting .screen_setting_con.screen .screen_setting_name').text(getI18Value("共享屏幕画质"));
@@ -2261,7 +2264,7 @@
             // 改变按钮值（暂时未管成功与否）
             changeMeetSetStatus(type,value);
         });
-        //共享屏幕画质
+        //视屏画质
         $(".screen_setting_con.video .screen_setting_option").click(function(e){
             $('.settingPop .courseSetting .screen_setting_con.video .screen_setting_option').removeClass("cur");
             if ($(this).hasClass("p180")) {

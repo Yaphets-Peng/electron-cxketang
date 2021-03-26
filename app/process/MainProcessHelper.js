@@ -129,7 +129,7 @@ function createMainWindow() {
     mainWindow.loadFile(path.join(path.resolve(__dirname, ".."), "/view/loding.html"));
     // 引入主入口界面
     //mainWindow.loadURL(config.getUrlPathConfigVal("main_url"));
-mainWindow.webContents.openDevTools();
+
     if (config.getConfigVal("debug")) {
         // 打开开发者工具
         mainWindow.webContents.openDevTools();

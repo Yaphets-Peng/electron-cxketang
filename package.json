@@ -4,6 +4,7 @@
   "description": "cxketang",
   "main": "app/main.js",
   "scripts": {
+    "install": "node script/init.js",
     "upfig": "node script/before_all.js",
     "start": "CHCP 65001 & electron .",
     "dist": "npm-run-all build:*",
@@ -15,7 +16,7 @@
   "license": "",
   "devDependencies": {
     "dotenv": "^8.2.0",
-    "electron": "^5.0.8",
+    "electron": "5.0.13",
     "electron-builder": "^22.9.1",
     "electron-notarize": "^1.0.0",
     "electron-notifications": "^1.0.0",

@@ -4,6 +4,7 @@ var InjectRtcAudioVideoScreenUtil = {
     meet_debug: false,//是否测试
     canvasFrame:null,//画布工具
     AudioVideoScreenRTC: null,//rtc实例
+    AssistChannelRTC: null,//辅助频道rtc实例
     RendererProcessHelper: null,//ipc通信实例
     ipcRendererCallback : null,//ipc回调方法,主线程与本窗口通信
     sdkLogPath: null,//日志路径
@@ -30,6 +31,16 @@ var InjectRtcAudioVideoScreenUtil = {
     meetToolsFormMainChannel:"meetToolsFormMain",//会议ipc通信频道,接收顶部工具栏开关按钮-主线程通讯自己
     screenType:"",//投屏所选择类型
     screenInfo:"",//投屏所选择窗口
+    userId:"",// 用户id
+    mainAppId:"",// 主
+    mainChannel:"",
+    mainVideoToken:"",
+    mainScreenToken:"",
+    hasMinor:false,// 辅助
+    groupId:"",
+    minorAppId:"",
+    minorChannel:"",
+    minorVideoToken:"",
 }
 
 /*InjectRtcAudioVideoScreenUtil.init = function () {
@@ -261,7 +272,7 @@ InjectRtcAudioVideoScreenUtil.ipcRendererCallback = function (args, sys) {
 }
 
 // 开始加入频道
-InjectRtcAudioVideoScreenUtil.init = function () {
+InjectRtcAudioVideoScreenUtil.init = function (groupId) {
     if (Meeting.videoConfig) {
         InjectRtcAudioVideoScreenUtil.videoConfig = Meeting.videoConfig;
     }
@@ -270,13 +281,49 @@ InjectRtcAudioVideoScreenUtil.init = function () {
         InjectRtcAudioVideoScreenUtil.screenConfig = Meeting.screenConfig;
     }
     console.log("screenConfig=", InjectRtcAudioVideoScreenUtil.screenConfig);
-    
+
     console.log("sdkLogPath=", InjectRtcAudioVideoScreenUtil.sdkLogPath);
+
+    // 共有参数
+    InjectRtcAudioVideoScreenUtil.userId = parseInt(Meeting.login_puid);
+    // 主要参数
+    InjectRtcAudioVideoScreenUtil.mainAppId = Meeting.rtc_appid;
+    InjectRtcAudioVideoScreenUtil.mainChannel = Meeting.meet_qrcode;
+    InjectRtcAudioVideoScreenUtil.mainVideoToken = Meeting.rtc_video_token;
+    InjectRtcAudioVideoScreenUtil.mainScreenToken = Meeting.rtc_screen_token;
+    // 辅助参数
+    InjectRtcAudioVideoScreenUtil.hasMinor = false;
+    InjectRtcAudioVideoScreenUtil.groupId = "";
+    InjectRtcAudioVideoScreenUtil.minorAppId = "";
+    InjectRtcAudioVideoScreenUtil.minorChannel = "";
+    InjectRtcAudioVideoScreenUtil.minorVideoToken = "";
+    // 不为空开启
+    if (typeof groupId != "undefined") {
+        if (MeetGroup.group_token) {
+            let groupTokenElement = MeetGroup.group_token["groupid_" + groupId];
+            if (groupTokenElement) {
+                InjectRtcAudioVideoScreenUtil.groupId = groupId;
+                InjectRtcAudioVideoScreenUtil.hasMinor = true;
+                // 更新主平道数据
+                InjectRtcAudioVideoScreenUtil.mainAppId = groupTokenElement.rtc_appid;
+                InjectRtcAudioVideoScreenUtil.mainChannel = groupTokenElement.channelId;
+                InjectRtcAudioVideoScreenUtil.mainVideoToken = groupTokenElement.rtc_video_token;
+                InjectRtcAudioVideoScreenUtil.mainScreenToken = groupTokenElement.rtc_screen_token;
+            }
+        }
+        if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+            // 辅助参数
+            InjectRtcAudioVideoScreenUtil.minorAppId = Meeting.rtc_appid;
+            InjectRtcAudioVideoScreenUtil.minorChannel = Meeting.meet_qrcode;
+            InjectRtcAudioVideoScreenUtil.minorVideoToken = Meeting.rtc_video_token;
+        }
+    }
+
     // 开始实例化
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC = new AgoraRtcEngine();
     // 开始加入频道
-    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.initialize(Meeting.rtc_appid);
-    console.log("rtc_appid=", Meeting.rtc_appid);
+    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.initialize(InjectRtcAudioVideoScreenUtil.mainAppId);
+    console.log("AudioVideoScreenRTC rtc_appid=", InjectRtcAudioVideoScreenUtil.mainAppId);
 
     // 设置日志文件
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.setLogFile(InjectRtcAudioVideoScreenUtil.sdkLogPath);
@@ -288,7 +335,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
 
     // 加入频道回调
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('joinedChannel', (channel, uid, elapsed) => {
-        console.log(`AudioVideoScreenRTC joined Screen channel ${channel} with uid ${uid}, elapsed ${elapsed}ms`);
+        console.log(`AudioVideoScreenRTC joined Video channel ${channel} with uid ${uid}, elapsed ${elapsed}ms`);
         if ($("#camera_" + uid).length === 0) {
             $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
         }
@@ -298,7 +345,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     });
     // 重新加入频道回调
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('rejoinedChannel', (channel, uid, elapsed) => {
-        console.log(`AudioVideoScreenRTC rejoined Screen channel ${channel} with uid ${uid}, elapsed ${elapsed}ms`);
+        console.log(`AudioVideoScreenRTC rejoined Video channel ${channel} with uid ${uid}, elapsed ${elapsed}ms`);
         if ($("#camera_" + uid).length === 0) {
             $("#video_user_" + uid + " .videoPeople_div").append('<div class="cameraVideo" id="camera_' + uid + '"></div>')
         }
@@ -471,10 +518,7 @@ InjectRtcAudioVideoScreenUtil.init = function () {
             "rxPacketLossRate": stats.rxPacketLossRate
         };
         // 调用js脚本
-        try {
-            RtcScreenUtil.netWorkChange(dataStats);
-        } catch (e) {
-        }
+        RtcScreenUtil.netWorkChange(dataStats);
         // 发送到投屏窗口
         InjectRtcAudioVideoScreenUtil.sendNetWork(dataStats);
     });
@@ -497,12 +541,20 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     // 音视频token过期
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('tokenPrivilegeWillExpire', (token) => {
         console.log(`AudioVideoScreenRTC音视频token过期: ${token}`);
-        RtcMediaUtil.onTokenPrivilegeWillExpire(1);
+        if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+            RtcMediaUtil.onTokenPrivilegeWillExpire(3);
+        } else {
+            RtcMediaUtil.onTokenPrivilegeWillExpire(1);
+        }
     });
     // 投屏token过期
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.on('videoSourceRequestNewToken', (token) => {
         console.log(`AudioVideoScreenRTC投屏token过期: ${token}`);
-        RtcMediaUtil.onTokenPrivilegeWillExpire(2);
+        if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+            RtcMediaUtil.onTokenPrivilegeWillExpire(3);
+        } else {
+            RtcMediaUtil.onTokenPrivilegeWillExpire(2);
+        }
     });
 
     // 设置频道场景, 0: 通信, 1: 直播
@@ -556,12 +608,11 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     console.log("AudioVideoScreenRTC打开与WebSDK的互通", enableWebCode);
 
     // 加入频道
-    let userIdTemp = parseInt(Meeting.login_puid);
-    let joinChannelCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.joinChannel(Meeting.rtc_video_token, Meeting.meet_qrcode, null, userIdTemp);
+    let joinChannelCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.joinChannel(InjectRtcAudioVideoScreenUtil.mainVideoToken, InjectRtcAudioVideoScreenUtil.mainChannel, null, InjectRtcAudioVideoScreenUtil.userId);
     console.log("AudioVideoScreenRTC joinChannel", joinChannelCode);
-    console.log("rtc_video_token=", Meeting.rtc_video_token);
-    console.log("meet_qrcode=", Meeting.meet_qrcode);
-    console.log("userIdTemp=", userIdTemp);
+    console.log("AudioVideoScreenRTC rtc_video_token=", InjectRtcAudioVideoScreenUtil.mainVideoToken);
+    console.log("AudioVideoScreenRTC meet_qrcode=", InjectRtcAudioVideoScreenUtil.mainChannel);
+    console.log("AudioVideoScreenRTC userIdTemp=", InjectRtcAudioVideoScreenUtil.userId);
 
     // 麦克风和摄像头默认开关
     let audioSet = Meeting.audioSetStatus;
@@ -576,12 +627,90 @@ InjectRtcAudioVideoScreenUtil.init = function () {
     if (InjectRtcAudioVideoScreenUtil.RendererProcessHelper) {
         InjectRtcAudioVideoScreenUtil.RendererProcessHelper.registeCallback(InjectRtcAudioVideoScreenUtil.meetToolsFormMainChannel, InjectRtcAudioVideoScreenUtil.ipcRendererCallback);
     }
+    // 初始化课堂分组
+    InjectRtcAudioVideoScreenUtil.initClassin(InjectRtcAudioVideoScreenUtil.hasMinor);
     // 测试
     //InjectRtcAudioVideoScreenUtil.testScreenTools();
 }
 
-InjectRtcAudioVideoScreenUtil.startChannel = function () {
-    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.createChannel();
+// 初始化课堂分组
+InjectRtcAudioVideoScreenUtil.initClassin = function (hasMinor) {
+    // 多频道
+    if (hasMinor) {
+        // 创建多频道,学生大课堂为辅助,小课堂为主。老师大课堂为主
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.createChannel(InjectRtcAudioVideoScreenUtil.minorChannel);
+        // 加入频道
+        let joinAssistChannelCode = InjectRtcAudioVideoScreenUtil.AssistChannelRTC.joinChannel(InjectRtcAudioVideoScreenUtil.minorVideoToken, "", InjectRtcAudioVideoScreenUtil.userId);
+        console.log("AssistChannelRTC joinChannel", joinAssistChannelCode);
+        console.log("AssistChannelRTC rtc_video_token=", InjectRtcAudioVideoScreenUtil.minorVideoToken);
+        console.log("AssistChannelRTC meet_qrcode=", InjectRtcAudioVideoScreenUtil.minorChannel);
+        console.log("AssistChannelRTC userIdTemp=", InjectRtcAudioVideoScreenUtil.userId);
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.on('joinedChannel', (uid, elapsed) => {
+            console.log(`AssistChannelRTC joined Assist uid ${uid}, elapsed ${elapsed}ms`);
+        });
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.on('rejoinChannelSuccess', (uid, elapsed) => {
+            console.log(`AssistChannelRTC rejoined Assist uid ${uid}, elapsed ${elapsed}ms`);
+        });
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.on('userJoined', (uid, elapsed) => {
+            console.log(`AssistChannelRTC userJoined Assist uid ${uid}, elapsed ${elapsed}ms`);
+        });
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.on('userOffline', (uid, elapsed) => {
+            console.log(`AssistChannelRTC userOffline Assist uid ${uid}, elapsed ${elapsed}ms`);
+        });
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.on('channelError', (err, msg) => {
+            console.log(`AssistChannelRTC error: code ${err} - ${msg}`)
+        });
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.on('tokenPrivilegeWillExpire', (token) => {
+            console.log(`AssistChannelRTC音视频token过期: ${token}`);
+            if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+                // 学生
+                RtcMediaUtil.onTokenPrivilegeWillExpire(1);
+            } else {
+                // 老师
+                RtcMediaUtil.onTokenPrivilegeWillExpire(3);
+            }
+        });
+    }
+}
+
+
+// 学生打开课堂分组
+InjectRtcAudioVideoScreenUtil.startClassin = function (groupId) {
+    // 关闭销毁
+    InjectRtcAudioVideoScreenUtil.closeAll();
+    // 再次初始化
+    InjectRtcAudioVideoScreenUtil.init(groupId);
+}
+
+// 老师打开课堂分组
+InjectRtcAudioVideoScreenUtil.openClassin = function (groupId) {
+    // 销毁辅助频道
+    if (InjectRtcAudioVideoScreenUtil.AssistChannelRTC != null) {
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.leaveChannel();
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.release();
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC = null;
+    }
+    // 辅助参数
+    InjectRtcAudioVideoScreenUtil.hasMinor = false;
+    InjectRtcAudioVideoScreenUtil.groupId = "";
+    InjectRtcAudioVideoScreenUtil.minorAppId = "";
+    InjectRtcAudioVideoScreenUtil.minorChannel = "";
+    InjectRtcAudioVideoScreenUtil.minorVideoToken = "";
+    // 不为空开启
+    if (typeof groupId != "undefined") {
+        if (MeetGroup.group_token) {
+            let groupTokenElement = MeetGroup.group_token["groupid_" + groupId];
+            if (groupTokenElement) {
+                InjectRtcAudioVideoScreenUtil.groupId = groupId;
+                // 更新主平道数据
+                InjectRtcAudioVideoScreenUtil.minorAppId = groupTokenElement.rtc_appid;
+                InjectRtcAudioVideoScreenUtil.minorChannel = groupTokenElement.channelId;
+                InjectRtcAudioVideoScreenUtil.minorVideoToken = groupTokenElement.rtc_video_token;
+                // 再次初始化
+                InjectRtcAudioVideoScreenUtil.initClassin(true);
+            }
+        }
+    }
 }
 
 // 开麦克风
@@ -868,8 +997,16 @@ InjectRtcAudioVideoScreenUtil.openVideoBox = function (uid,init) {
 }
 
 //更新音视频token
-InjectRtcAudioVideoScreenUtil.renewAudioVideoToken = function (token) {
-    let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.renewToken(token)
+InjectRtcAudioVideoScreenUtil.renewAudioVideoToken = function () {
+    // 默认
+    InjectRtcAudioVideoScreenUtil.mainVideoToken = Meeting.rtc_video_token;
+    if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+        // 存在辅助则改变
+        let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AssistChannelRTC.renewToken(InjectRtcAudioVideoScreenUtil.mainVideoToken)
+        console.log("AssistChannelRTC更新音视频token", renewAudioVideoTokenCode);
+        return;
+    }
+    let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.renewToken(InjectRtcAudioVideoScreenUtil.mainVideoToken)
     console.log("AudioVideoScreenRTC更新音视频token", renewAudioVideoTokenCode);
 }
 
@@ -983,10 +1120,7 @@ InjectRtcAudioVideoScreenUtil.startScreenByChose = function (type, info) {
             return;
         }
     }
-    try {
-        RtcScreenUtil.startShareScreenForChoseByElectron();
-    } catch (e) {
-    }
+    RtcScreenUtil.startShareScreenForChoseByElectron();
     // 重新赋值
     InjectRtcAudioVideoScreenUtil.screenType = type;
     InjectRtcAudioVideoScreenUtil.screenInfo = info;
@@ -1006,14 +1140,14 @@ InjectRtcAudioVideoScreenUtil.startScreenByChose = function (type, info) {
     InjectRtcAudioVideoScreenUtil.startAudio();
     // 开始屏幕共享
     //开启第二个实例作为屏幕共享
-    let initScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceInitialize(Meeting.rtc_appid)
+    let initScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceInitialize(InjectRtcAudioVideoScreenUtil.mainAppId)
     console.log("初始化共享屏幕频道", initScreenCode);
 
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceSetChannelProfile(1);
     InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceEnableWebSdkInteroperability(true);
     // 加入videoSource频道
     let userIdTemp = parseInt(Meeting.getScreenPuid(Meeting.login_puid));
-    let joinScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceJoin(Meeting.rtc_screen_token, Meeting.meet_qrcode, null, userIdTemp)
+    let joinScreenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceJoin(InjectRtcAudioVideoScreenUtil.mainScreenToken, InjectRtcAudioVideoScreenUtil.mainChannel, null, userIdTemp)
     console.log("加入共享屏幕频道", joinScreenCode);
 
     // 初始化成功开启
@@ -1150,20 +1284,63 @@ InjectRtcAudioVideoScreenUtil.updateScreenParams = function (params) {
 }
 
 //更新投屏token
-InjectRtcAudioVideoScreenUtil.renewScreenToken = function (token) {
-    let renewScreenTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRenewToken(token)
+InjectRtcAudioVideoScreenUtil.renewScreenToken = function () {
+    if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+        return;
+    }
+    InjectRtcAudioVideoScreenUtil.mainScreenToken = Meeting.rtc_screen_token;
+    let renewScreenTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRenewToken(InjectRtcAudioVideoScreenUtil.mainScreenToken)
     console.log("AudioVideoScreenRTC更新投屏token", renewScreenTokenCode);
+}
+
+//更新辅助token,实际上是学生主课堂
+InjectRtcAudioVideoScreenUtil.renewAssistToken = function () {
+    if (InjectRtcAudioVideoScreenUtil.hasMinor) {
+        // 学生端
+        if (MeetGroup.group_token) {
+            let groupTokenElement = MeetGroup.group_token["groupid_" + InjectRtcAudioVideoScreenUtil.groupId];
+            if (groupTokenElement) {
+                // 更新主平道数据
+                InjectRtcAudioVideoScreenUtil.mainVideoToken = groupTokenElement.rtc_video_token;
+                InjectRtcAudioVideoScreenUtil.mainScreenToken = groupTokenElement.rtc_screen_token;
+                let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.renewToken(InjectRtcAudioVideoScreenUtil.mainVideoToken)
+                console.log("AudioVideoScreenRTC更新音视频token", renewAudioVideoTokenCode);
+                let renewScreenTokenCode = InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.videoSourceRenewToken(InjectRtcAudioVideoScreenUtil.mainScreenToken)
+                console.log("AudioVideoScreenRTC更新投屏token", renewScreenTokenCode);
+            }
+        }
+    } else {
+        // 教师端
+        if (MeetGroup.group_token) {
+            let groupTokenElement = MeetGroup.group_token["groupid_" + InjectRtcAudioVideoScreenUtil.groupId];
+            if (groupTokenElement) {
+                // 更新辅助平道数据
+                InjectRtcAudioVideoScreenUtil.minorVideoToken = groupTokenElement.rtc_video_token;
+                let renewAudioVideoTokenCode = InjectRtcAudioVideoScreenUtil.AssistChannelRTC.renewToken(InjectRtcAudioVideoScreenUtil.minorVideoToken)
+                console.log("AssistChannelRTC更新音视频token", renewAudioVideoTokenCode);
+            }
+        }
+    }
 }
 
 // 关闭销毁
 InjectRtcAudioVideoScreenUtil.closeAll = function () {
-    // 关闭所有
-    InjectRtcAudioVideoScreenUtil.stopAudio();
-    InjectRtcAudioVideoScreenUtil.stopVideo();
-    InjectRtcAudioVideoScreenUtil.stopScreen();
-    // 离开销毁
-    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.leaveChannel();
-    InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.release();
+    if (InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC != null) {
+        // 关闭所有
+        InjectRtcAudioVideoScreenUtil.stopAudio();
+        InjectRtcAudioVideoScreenUtil.stopVideo();
+        InjectRtcAudioVideoScreenUtil.stopScreen();
+        // 离开销毁
+        InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.leaveChannel();
+        InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.release();
+        InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC = null;
+    }
+    // 销毁辅助频道
+    if (InjectRtcAudioVideoScreenUtil.AssistChannelRTC != null) {
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.leaveChannel();
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.release();
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC = null;
+    }
 }
 
 // 测试方法

@@ -9,7 +9,7 @@ window.closeBtnForWindowFunction = null;
 if (require('electron').remote) {
     const configFile = require("../common/Config");
     const meet_url_temp = configFile.getUrlPathConfigVal("open_meet_url");
-    if (!window.location.href.startsWith(meet_url_temp) && !window.location.href.startsWith("file://")) {
+    if (!window.location.href.startsWith(meet_url_temp) && !window.location.href.startsWith("file:")) {
         window.nodeRequire = require;
         delete window.require;
         delete window.exports;

@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const decompress = require('decompress');
 
 function main() {
 	let oldJsPath = path.join(path.resolve(__dirname, ".."), "node_modules", "agora-electron-sdk", "js");
@@ -10,15 +11,31 @@ function main() {
 	DeleteDirectory(oldBuildPath);
 	console.log("删除本地node_modules中build文件");
 
-	let newPath = path.join(path.resolve(__dirname, ".."), "agaro", process.platform);
+	// 压缩包位置
+	let platform = process.platform;
+	let newPath = path.join(path.resolve(__dirname, ".."), "agaro", platform);
 	let dirs = fs.readdirSync(newPath);
-	if (dirs.length == 0) {
-		throw new Error("请检查agaro(" + process.platform + ")本地文件是否为空", newPath);
+	if (dirs.length == 0 || dirs.length > 1) {
+		throw new Error(`请检查agaro(${platform})本地文件是否为空或多个文件:${newPath}`);
 		return;
 	}
+	// 取第一个文件
+	let item = dirs[0];
+	let item_path = path.join(newPath, item);
+	let temp = fs.statSync(item_path);
+	if (!temp.isFile()) {
+		throw new Error(`请检查agaro(${platform})本地文件是否正确:${item_path}`);
+		return;
+	}
+	// 解压目录
 	let oldPath = path.join(path.resolve(__dirname, ".."), "node_modules", "agora-electron-sdk");
-	CopyDirectory(newPath, oldPath);
-	console.log("拷贝agaro(" + process.platform + ")本地文件 copy ", newPath, " to ", oldPath);
+	// 解压
+	decompress(item_path, oldPath).then(files => {
+		console.log("替换agaro(" + process.platform + ")本地文件 replace ", newPath, " to ", oldPath);
+	}).catch(err => {
+		throw new Error(`请检查agaro(${process.platform})本地文件是否正确:${item_path}, error:${err}`);
+		return;
+	});
 }
 
 //拷贝文件夹
@@ -52,13 +69,13 @@ function DeleteDirectory(dir) {
 		files.forEach(function (item) {
 			let item_path = path.join(dir, item);
 			// console.log("del "+item_path);
-			if (fs.statSync(item_path).isDirectory()) {
+			if (fs.lstatSync(item_path).isDirectory()) {
 				DeleteDirectory(item_path);
 			} else {
 				fs.unlinkSync(item_path);
 			}
 		});
-		fs.rmdirSync(dir);
+		fs.rmdirSync(dir, {recursive: true});
 	}
 }
 

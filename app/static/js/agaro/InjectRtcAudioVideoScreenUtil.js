@@ -685,11 +685,7 @@ InjectRtcAudioVideoScreenUtil.startClassin = function (groupId) {
 // 老师打开课堂分组
 InjectRtcAudioVideoScreenUtil.openClassin = function (groupId) {
     // 销毁辅助频道
-    if (InjectRtcAudioVideoScreenUtil.AssistChannelRTC != null) {
-        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.leaveChannel();
-        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.release();
-        InjectRtcAudioVideoScreenUtil.AssistChannelRTC = null;
-    }
+    InjectRtcAudioVideoScreenUtil.closeAssist();
     // 辅助参数
     InjectRtcAudioVideoScreenUtil.hasMinor = false;
     InjectRtcAudioVideoScreenUtil.groupId = "";
@@ -1335,6 +1331,16 @@ InjectRtcAudioVideoScreenUtil.closeAll = function () {
         InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC.release();
         InjectRtcAudioVideoScreenUtil.AudioVideoScreenRTC = null;
     }
+    // 销毁辅助频道
+    if (InjectRtcAudioVideoScreenUtil.AssistChannelRTC != null) {
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.leaveChannel();
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC.release();
+        InjectRtcAudioVideoScreenUtil.AssistChannelRTC = null;
+    }
+}
+
+// 关闭辅助频道
+InjectRtcAudioVideoScreenUtil.closeAssist = function () {
     // 销毁辅助频道
     if (InjectRtcAudioVideoScreenUtil.AssistChannelRTC != null) {
         InjectRtcAudioVideoScreenUtil.AssistChannelRTC.leaveChannel();
